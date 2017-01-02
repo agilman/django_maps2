@@ -1,0 +1,31 @@
+{
+  "name": "django_maps2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "profile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agilman/django_maps2.git"
+  },
+  "keywords": [
+    "Django",
+    "leaflet",
+    "angular",
+    "nomad"
+  ],
+  "author": "Alexander Gilman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/agilman/django_maps2/issues"
+  },
+  "homepage": "https://github.com/agilman/django_maps2#readme",
+  "dependencies": {
+    "angular": "^1.6.1",
+    "angular-ui-bootstrap": "^2.4.0",
+    "bootstrap": "^3.3.7",
+    "font-awesome": "^4.7.0"
+  }
+}

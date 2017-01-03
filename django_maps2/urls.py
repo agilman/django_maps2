@@ -23,5 +23,13 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^auth/', include('registration.backends.simple.urls')),
+
+    #landing page
     url(r'^$', views.landing),
+
+    #Profile SPA entry
+    url(r'^users/(?P<userName>[\w\-]+)/$',views.profileViewer),
+
+    #Editor SPA entry
+    url(r'editor/$',views.editorViewer)
 ]

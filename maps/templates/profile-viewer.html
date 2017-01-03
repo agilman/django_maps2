@@ -1,0 +1,39 @@
+{% extends "profile-base.html" %}
+
+{% block headerBar %}
+<ul class="nav navbar-nav">
+  <li ng-class="isAdvPageActive()"><a ng-href="#/" ng-click="currentPage='advs'">Adventures</a></li>
+  <li ng-cloak><p class="navbar-text">{% verbatim %}{{ currentAdvName }}{% endverbatim %}</p></li>
+</ul>
+{% block loginNav %}
+<ul class="nav navbar-nav navbar-right">
+  <li>
+    <a href="/auth/login">Login</a>
+  </li>
+  <li>
+    <a href="/auth/register">Register</a>
+  </li>
+</ul>
+{% endblock %}
+{% endblock %}
+
+{% block secondBar %}
+<div class="navbar navbar-default navbar-fixed-top second-navbar" ng-show="adventures.length>0">
+  <div class="container">
+    <div class="collapse navbar-collapse main-nav">
+      <ul class="nav navbar-nav">
+	
+	<li ng-class="isMapPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/maps">Maps</a></li>
+	<li ng-class="isBlogPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
+	<li ng-class="isGearPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
+	
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block additionalJS %}
+<script src="/www/js/profile.js"></script>
+{% endblock %}

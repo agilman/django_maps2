@@ -1,4 +1,13 @@
-{% extends "profile-base.html" %}
+{% extends "profile-viewer.html" %}
+
+{% block loginNav %}
+<ul class="nav navbar-nav navbar-right">
+
+  <li>
+    <a href="/auth/logout">Logout</a>
+  </li>
+</ul>
+{% endblock %}
 
 {% block additionalJS %}
 <script src="/www/js/profile.js"></script>

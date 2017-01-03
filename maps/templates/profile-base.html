@@ -20,7 +20,6 @@
   <link href="/www/css/profile-base.css" rel="stylesheet">
 
   {% block additionalCSS %}
-
   {% endblock %} 
   
 </head>
@@ -42,40 +41,17 @@
 	</div>
 	<!-- Collect the nav links, forms, and other content for toggling -->
 	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-	  <ul class="nav navbar-nav">
-	    <li ng-class="isAdvPageActive()"><a ng-href="#/" ng-click="currentPage='advs'">Adventures</a></li>
-	    <li ng-cloak><p class="navbar-text">{% verbatim %}{{ currentAdvName }}{% endverbatim %}</p></li>
-	  </ul>
-	  {% block loginNav %}
-	  <ul class="nav navbar-nav navbar-right">
-	    <li>
-	      <a href="/auth/login">Login</a>
-	    </li>
-	    <li>
-	      <a href="/auth/register">Register</a>
-	    </li>
-	  </ul>
-	  {% endblock %}
-          
+	  {% block headerBar %}
+	  {% endblock %}          
 	</div>
 	<!-- /.navbar-collapse -->
       </div>
     <!-- /.container -->
     </nav>
-  
-    <div class="navbar navbar-default navbar-fixed-top second-navbar" ng-show="adventures.length>0">
-      <div class="container">
-	<div class="collapse navbar-collapse main-nav">
-	  <ul class="nav navbar-nav">
-	    
-	    <li ng-class="isMapPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/maps">Maps</a></li>
-	    <li ng-class="isBlogPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
-	    <li ng-class="isGearPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
-	    
-	  </ul>
-	</div>
-      </div>
-    </div>    
+
+    {% block secondBar %}
+    {% endblock %}
+    
   </div>
   
   <div style="clear:both"></div>	
@@ -101,7 +77,6 @@
   <input type="hidden" id='userName' value={{ userName }} />
   <input type="hidden" id='mapboxToken' value="{{ mapboxToken }}" />
   <input type="hidden" id='mapboxMap' value="{{ mapboxMap }}" /-->
-
   {% endblock %}
   
 </body>

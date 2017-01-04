@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -24,7 +24,7 @@
   
 </head>
 
-<body ng-controller="mainController">
+<body ng-app="myApp" ng-controller="mainController">
   <!-- Navigation -->
   <div id="wrap">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -60,12 +60,11 @@
   </div>
 
   <script src="/www/node_modules/angular/angular.min.js"></script>
+  <script src="/www/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
   <script src="/www/node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
 
-  {% block additionalJS %}  
-  <!--script src="https://code.angularjs.org/1.5.8/angular-route.min.js"></script>
-  
-  <script src="https://unpkg.com/leaflet@1.0.0/dist/leaflet.js"></script>
+  {% block additionalJS %}
+  <!--script src="https://unpkg.com/leaflet@1.0.0/dist/leaflet.js"></script>
   <script src="/static/lib/angular-leaflet/angular-leaflet-directive.min.js"></script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>

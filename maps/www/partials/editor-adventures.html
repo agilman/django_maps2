@@ -1,1 +1,71 @@
-HELLO
+<div class="row">
+  <div class="col-lg-4">
+    <div ng-show="adventures.length>0">
+      <h3>Adventures:</h3>
+      <ul class="list-group">
+	<li class="list-group-item clearfix adventure" ng-repeat="adventure in adventures" ng-class="isAdvSelected($index)" ng-click="advClick($index)">
+	  {{ adventure.name }}
+	  <span class="pull-right">	
+	    <button class="btn" ng-click="deleteAdv($index); $event.stopPropagation()"><span class="glyphicon glyphicon-remove"></span></button>
+	  </span>
+	</li>
+      </ul>
+    </div>
+    <div ng-hide="showEditor">
+      <br>
+      <h4>New Adventure: </h4>
+      <input class="form-control" ng-model="newAdvName" placeholder="New adventure name" id="newAdvName" type="text">
+      <br>
+      <select class="form-control" id="advType" ng-init="selectedAdvType = advTypeOptions[0]"
+                                                ng-model="selectedAdvType"
+                                                ng-options="o.name for o in advTypeOptions"></select>
+      
+      <br>
+      <select class="form-control" id="advStatus" ng-init="selectedAdvStatus= advStatusOptions[0]"
+	                                          ng-model="selectedAdvStatus"
+	                                          ng-options="s.name for s in advStatusOptions"></select>
+      <br>
+      <button class="btn btn-primary" id="addAdventureButton" ng-click="createAdv()">Create Adventure</button>
+    </div>
+
+    <div ng-show="showEditor" class="ng-hide">
+      <br>
+      <h4>Edit Adventure: </h4>
+      <input class="form-control" ng-model="editAdvName" id="editAdvName" ng-keyup="advEdited=true;" type="text">
+      <br>
+            
+      <select class="form-control" id="editAdvType" ng-model="currentAdvType" ng-change="advEdited=true;" ng-options="t.name for t in advTypeOptions"></select>
+      <br>
+      <select class="form-control" id="editAdvStatus" ng-model="currentAdvStatus" ng-change="advEdited=true;" ng-options="s.name for s in advStatusOptions"></select>
+      <br>
+      <button class="btn btn-primary" id="addAdventureButton" ng-disabled="!advEdited" ng-click="updateAdv()">Save Changes</button>
+    </div>
+
+    
+  </div>
+  
+  <div class="col-lg-1">
+    
+  </div>
+  
+  <div class="col-lg-4">
+    <h3>User Info:</h3>
+    <div id="profilePictureDiv">
+      <img id="profileImg" ng-src="{{ profilePic }}" style="width:360px"/>
+    </div>
+    
+    <input type="file" id="file" name="file" style="display:none" onchange="angular.element(this).scope().fileSelectChange(this.files)"/>
+    <button id="profilePictureButton" type="button" class="btn btn-primary" ng-click="uploadPictureClick()">Upload Profile Picture</button>
+    <div id="progress"></div>
+    <br>
+    
+    <label for="biographyField">Biography:</label>
+    <br>
+    <textarea ng-disabled="bioDisabled();" ng-model="bio.bio" class="field" id="bioField" rows="6" style="min-width:100%" ng-keyup="editTextKeyUp()"></textarea>
+    <button class="btn btn-primary" ng-hide="bioEditEnabled" id="editBioButton" ng-click="editBioClick()">Edit biography</button>
+    <button class="btn btn-primary" ng-show="bioSaveEnabled" ng-click="saveBioClick()">Save!</button>
+    <br>
+</div>
+  
+</div>
+       

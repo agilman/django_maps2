@@ -18,6 +18,7 @@ from django.contrib import admin
 
 
 from maps import views
+from maps import api
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -31,5 +32,11 @@ urlpatterns = [
     url(r'^users/(?P<userName>[\w\-]+)/$',views.profileViewer),
 
     #Editor SPA entry
-    url(r'editor/$',views.editorViewer)
+    url(r'editor/$',views.editorViewer),
+
+    #API
+    url(r'^api/rest/userInfo/(?P<userId>\d+)/$',api.userInfo),
+    url(r'^api/rest/adventures/$',api.adventures),
+    url(r'^api/rest/adventures/(?P<advId>\d+)$', api.adventures),
+    url(r'^api/rest/profilePhoto/$',api.profilePhoto),
 ]

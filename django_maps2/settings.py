@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'maps',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'maps','www')]
 STATIC_URL = '/www/'
+
+LOGIN_REDIRECT_URL  = '/'
+
+USER_MEDIA_ROOT = os.path.join(BASE_DIR,'maps/www/user_media')

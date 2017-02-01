@@ -1,4 +1,12 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
+
+from django.http import HttpResponse
+
+def getUserIdFromUserName(userName):
+    user = User.objects.get(username=userName)
+    #TODO error handling...
+    return user.pk
 
 # Create your views here.
 

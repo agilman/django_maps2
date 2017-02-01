@@ -19,6 +19,30 @@
 {% endblock %}
 
 
+{% block secondBar %}
+<div class="navbar navbar-default navbar-fixed-top second-navbar" ng-show="adventures.length>0">
+  <div class="container">
+    <div class="collapse navbar-collapse main-nav">
+      
+      <ul class="nav navbar-nav">
+	
+	<li ng-class="isMapEditorActive()">
+	  <a ui-sref="mapsEditor({currentAdvId:currentAdvId})">Maps Editor</a>
+	</li>
+	<li ng-class="isBlogEditorActive()">
+	  <a ui-sref="blogsEditor({currentAdvId:currentAdvId})">Blog Editor</a>
+	</li>
+	<li ng-class="isGearEditorActive()">
+	  <a ui-sref="gearEditor({currentAdvId:currentAdvId})">Gear Editor</a>
+	</li>
+	
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
 
 {% block additionalJS %}
 <script src="/www/js/editor.js"></script>

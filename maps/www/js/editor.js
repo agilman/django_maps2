@@ -6,6 +6,21 @@ myApp.config(function($stateProvider){
 	    url:'',
 	    templateUrl:'/www/partials/editor-adventures.html',
 	    controller:'advEditorController',
+	})
+	.state('mapsEditor',{
+	    url:'/:currentAdvId/maps/',
+	    templateUrl:'/www/partials/editor-maps.html',
+	    controller:'mapEditorController',
+	})
+	.state('blogsEditor',{
+	    url:'/:currentAdvId/blogs/',
+	    templateUrl:'/www/partials/editor-blogs.html',
+	    controller:'blogEditorController',
+	})
+    	.state('gearEditor',{
+	    url:'/:currentAdvId/gear/',
+	    templateUrl:'/www/partials/editor-gear.html',
+	    controller:'gearEditorController',
 	});
 });
 
@@ -26,8 +41,37 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	}
     }
 
+    $scope.isMapEditorActive = function(){
+	if ($scope.currentEditorPage=="maps"){
+	    return "active";
+	}
+    }
+
+    $scope.isBlogEditorActive = function(){
+	if ($scope.currentEditorPage=="blogs"){
+	    return "active";
+	}
+    }
+
+    $scope.isGearEditorActive = function(){
+	if ($scope.currentEditorPage=="gear"){
+	    return "active";
+	}
+    }
+
     $scope.$on('setAdvEditorActive',function(event){
 	$scope.currentEditorPage='advs';
+    });
+
+    $scope.$on('setBlogEditorActive',function(event){
+	$scope.currentEditorPage='blogs';
+    });
+
+    $scope.$on('setMapEditorActive',function(event){
+	$scope.currentEditorPage='maps';
+    });
+    $scope.$on('setGearEditorActive',function(event){
+	$scope.currentEditorPage='gear';
     });
 
     $scope.$on('advChangeEvent',function(event,indx){
@@ -210,10 +254,30 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 	}).then(function(data){
 	    $scope.profilePic = "/www/user_media/"+$scope.userId+"/profile_pictures/"+data.data.picId+".png";
 	});
-
-
     };
     
     $log.log("Hello from adv editor controller");
     
+}]);
+
+
+myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.$emit("setMapEditorActive");
+
+    $log.log("Hello from map editor controller");
+}]);
+
+
+
+myApp.controller("blogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.$emit("setBlogEditorActive");
+
+    $log.log("Hello from Blog editor controller");
+}]);
+
+
+myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.$emit("setGearEditorActive");
+
+    $log.log("Hello from Gear editor controller");
 }]);

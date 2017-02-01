@@ -2,7 +2,7 @@
 
 {% block headerBar %}
 <ul class="nav navbar-nav">
-  <li ng-class="isAdvPageActive()"><a ng-href="#/" ng-click="currentPage='advs'">Adventures</a></li>
+  <li ng-class="isAdvPageActive()"><a ui-sref="advSelect">Adventures</a></li>
   <li ng-cloak><p class="navbar-text">{% verbatim %}{{ currentAdvName }}{% endverbatim %}</p></li>
 </ul>
 {% block loginNav %}

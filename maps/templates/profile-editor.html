@@ -3,13 +3,13 @@
 {% block headerBar %}
 
 <ul class="nav navbar-nav">
-  <li ng-class="isAdvEditorActive()"><a ng-href="#/" ng-click="currentEditorPage='advs'">Adventure Editor</a></li>
+  <li ng-class="isAdvEditorActive()"><a ui-sref="advEditor">Adventure Editor</a></li>
   <li ng-cloak><p class="navbar-text">{% verbatim %}{{ currentAdvName }}{% endverbatim %}</p></li>
 </ul>
 
 <ul class="nav navbar-nav navbar-right">
   <li>
-    <a href="/users/{{ user }}/adventures">View Profile</a>
+    <a href="/users/{{ user }}/">View Profile</a>
   </li>
   <li>
     <a href="/auth/logout">Logout</a>

@@ -266,7 +266,7 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 }]);
 
 
-myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams','$state',function($scope,$log,$http, $stateParams,$state){
+myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams','$state','leafletData',function($scope,$log,$http, $stateParams,$state,leafletData){
     $scope.$emit("setMapEditorActive");
 
     $scope.currentAdvId = $stateParams.currentAdvId;
@@ -275,6 +275,11 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.currentMapId= null;
     $scope.currentMapName=null;
     $scope.startSet = false;
+    $scope.navActive=3;
+    
+    $scope.delayOptions = [{ label: "No delay", value: 0 }, { label: "5 Days", value: 5 },{ label: "15 Days", value: 15 },{ label: "30 Days", value: 30 }];
+    $scope.selectedDelayOption = $scope.delayOptions[0];
+    $scope.selectedDelayValue = $scope.delayOptions[0].value;
     //startLat = null;
     //startLng = null;
 
@@ -300,7 +305,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 
     //after leaflet loads, create layers
-    /*
+
     leafletData.getMap().then(function(map){
 	startLayer = new L.LayerGroup();
 	startLayer.addTo(map);
@@ -320,7 +325,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	selectedSegmentLayer = new L.LayerGroup();
 	selectedSegmentLayer.addTo(map);
     });
-    */
+
 
     $scope.createMap = function(){
 	var mapName = $scope.newMapName;
@@ -408,6 +413,51 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$log.log($scope.maps);
 	$scope.currentMapId = mapId;
 
+    });
+
+    function drawStartCircle(lat,lng){
+	startLayer.clearLayers();
+
+	//draw circle
+	var circleOptions = {'color':'#551A8B'}
+	var newLatLng = new L.latLng(lat,lng);
+	var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(3);
+
+	marker.addTo(startLayer);
+    };
+    
+    function setStartPoint(lat,lng){
+	$scope.startLat = lat;
+	$scope.startLng = lng;
+	drawStartCircle(lat,lng);
+    };
+    
+    $scope.$on("leafletDirectiveMap.click",function(e,wrap){
+	//unset segment selection view
+	$scope.showSegment = false;
+
+	var lat = wrap.leafletEvent.latlng.lat;
+	var lng = wrap.leafletEvent.latlng.lng;
+
+	$log.log(lat,lng);
+	//set start point.
+	if (!$scope.startSet){
+	    setStartPoint(lat,lng);
+	    $scope.startSet = true;
+	    $scope.dateRangeStart = moment({hour:6});
+
+	}else{
+	    var navData = setEndPoint(lat,lng);
+	    newSegmentPath = navData.navLine;
+	    $scope.segmentDistance = navData.distance;
+
+	    $scope.endSet = true;
+	    setEndTime();
+
+	    //clear highlight layer
+	    //possibly need more map cleaning and adjusting zoom.
+	    selectedSegmentLayer.clearLayers();
+	}
     });
 
     $log.log("Hello from map editor controller");

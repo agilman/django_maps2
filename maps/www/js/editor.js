@@ -10,7 +10,18 @@ myApp.config(function($stateProvider){
 	.state('mapsEditor',{
 	    url:'/:currentAdvId/maps/',
 	    templateUrl:'/www/partials/editor-maps.html',
-	    controller:'mapEditorController',
+	    controller:'mapsEditorController',
+	})
+    	.state('mapsEditor.map',{
+	    url:':mapId/',
+	    views:{
+		'segments':{	    
+		    templateUrl:'/www/partials/editor-maps.map.html',
+		    controller:'mapEditorController'},
+		'leaflet':{
+		    templateUrl:'/www/partials/editor-maps.leaflet.html',
+		    controller:'leafletController'}
+	    }
 	})
 	.state('blogsEditor',{
 	    url:'/:currentAdvId/blogs/',
@@ -261,13 +272,101 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 }]);
 
 
-myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams','$state',function($scope,$log,$http, $stateParams,$state){
     $scope.$emit("setMapEditorActive");
 
+    $scope.currentAdvId = $stateParams.currentAdvId;
+    $scope.maps = [];
+    $scope.currentMapIndx = null;
+    $scope.currentMapId= null;
+    $scope.currentMapName=null;
+    $scope.startSet = false;
+    //startLat = null;
+    //startLng = null;
+
+    //Load maps, and latest segments
+    $http.get('/api/rest/advMaps/' + $scope.currentAdvId+"/").then(function(data){
+	$scope.maps = data.data;
+	
+	if($scope.maps.length>0){
+	    $scope.currentMapId  =  $scope.maps[$scope.maps.length-1].id;
+	    $scope.currentMapName= $scope.maps[$scope.maps.length-1].name;
+	    $scope.currentMapIndx= $scope.maps.length-1;
+
+	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    // TODO  change state here...
+	    //setupMapFromDOM($scope.maps.length-1);
+	}
+	//$scope.pleasesWait = false;
+    });
+
+
+    //after leaflet loads, create layers
+    /*
+    leafletData.getMap().then(function(map){
+	startLayer = new L.LayerGroup();
+	startLayer.addTo(map);
+
+	endLayer = new L.LayerGroup();
+	endLayer.addTo(map);
+
+	latestPathLayer = new L.LayerGroup();
+	latestPathLayer.addTo(map);
+
+	//This is used to draw current established map
+	geoJsonLayer = new L.geoJson();
+	geoJsonLayer.addTo(map);
+	segmentMarkersLayer = new L.LayerGroup();
+	segmentMarkersLayer.addTo(map);
+
+	selectedSegmentLayer = new L.LayerGroup();
+	selectedSegmentLayer.addTo(map);
+    });
+    */
+
+    $scope.createMap = function(){
+	var mapName = $scope.newMapName;
+	//prepare json to pass
+	var newMap = {'advId':$scope.currentAdvId,'name':mapName};
+	$http.post('/api/rest/advMaps/'+$scope.currentAdvId+"/",JSON.stringify(newMap)).then(function(data){
+	    var latestMap = data.data;
+	    $scope.maps.push(latestMap);
+
+	    $scope.currentMapId= latestMap.id;
+	    $scope.currentMapName = latestMap.name;
+	    $scope.currentMapIndx = $scope.maps.length-1;
+
+	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    
+	    //if(startLat & startLng){
+	    //setStartPoint(startLat,startLng);
+	    //}
+	    //clear things
+	    /*
+	    endLayer.clearLayers();
+	    latestPathLayer.clearLayers();
+	    geoJsonLayer.clearLayers();
+	    segmentMarkersLayer.clearLayers();
+	    selectedSegmentLayer.clearLayers();
+	    $scope.segmentsData = data.data;
+	    $scope.newMapName = null;
+	    $scope.segmentDistance = null;
+	    $scope.showSegment = false;
+	    */
+	})
+    };
+	    
     $log.log("Hello from map editor controller");
 }]);
 
 
+myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $log.log("Hello from Maps.map editor controller");
+}]);
+
+myApp.controller("leafletController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $log.log("Hello from Maps.leaflet controller");
+}]);
 
 myApp.controller("blogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
     $scope.$emit("setBlogEditorActive");

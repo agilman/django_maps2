@@ -144,3 +144,27 @@ def profilePhoto(request):
             
             return JsonResponse({"picId":userPic.id},safe=False)
         
+
+@csrf_exempt
+def advMaps(request,advId=None):
+    if request.method == 'GET':
+        queryset = Map.objects.filter(adv=advId)
+        results = []
+        # TODO Write a serializer...
+        for i in queryset.all():
+            myMap = {"id":i.id,"name":i.name,"distance":i.total_distance()}
+            results.append(myMap)
+            
+        return JsonResponse(results,safe=False)
+
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        adv = Adventure.objects.get(id=int(data["advId"]))
+        map = Map(name=data["name"],adv=adv)
+        
+        map.save()
+        
+        #Hmm, maybe I should just get a serializer...
+        result = {"id":map.id,"name":map.name,"features":[],"distance":0 }
+        return JsonResponse(result,safe=False)
+    

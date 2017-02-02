@@ -37,6 +37,7 @@ urlpatterns = [
     #API
     url(r'^api/rest/userInfo/(?P<userId>\d+)/$',api.userInfo),
     url(r'^api/rest/adventures/$',api.adventures),
-    url(r'^api/rest/adventures/(?P<advId>\d+)$', api.adventures),
+    url(r'^api/rest/adventures/(?P<advId>\d+)/$', api.adventures),
+    url(r'^api/rest/advMaps/(?P<advId>\d+)/$',api.advMaps),
     url(r'^api/rest/profilePhoto/$',api.profilePhoto),
 ]

@@ -16,3 +16,9 @@ class AdventureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Adventure
         fields= ['id','name','advType','advStatus']
+
+class MapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Map
+        fields= ['id','name']
+        

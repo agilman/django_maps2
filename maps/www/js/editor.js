@@ -1,4 +1,4 @@
-var myApp = angular.module("myApp",['ui.router','ui.bootstrap']);
+var myApp = angular.module("myApp",['ui.router','ui.bootstrap','leaflet-directive']);
 
 myApp.config(function($stateProvider){
     $stateProvider
@@ -14,14 +14,8 @@ myApp.config(function($stateProvider){
 	})
     	.state('mapsEditor.map',{
 	    url:':mapId/',
-	    views:{
-		'segments':{	    
-		    templateUrl:'/www/partials/editor-maps.map.html',
-		    controller:'mapEditorController'},
-		'leaflet':{
-		    templateUrl:'/www/partials/editor-maps.leaflet.html',
-		    controller:'leafletController'}
-	    }
+	    templateUrl:'/www/partials/editor-maps.map.html',
+	    controller:'mapEditorController',
 	})
 	.state('blogsEditor',{
 	    url:'/:currentAdvId/blogs/',
@@ -277,7 +271,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
     $scope.currentAdvId = $stateParams.currentAdvId;
     $scope.maps = [];
-    $scope.currentMapIndx = null;
+    $scope.currentMapIndex = null;
     $scope.currentMapId= null;
     $scope.currentMapName=null;
     $scope.startSet = false;
@@ -289,15 +283,19 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.maps = data.data;
 	
 	if($scope.maps.length>0){
-	    $scope.currentMapId  =  $scope.maps[$scope.maps.length-1].id;
-	    $scope.currentMapName= $scope.maps[$scope.maps.length-1].name;
-	    $scope.currentMapIndx= $scope.maps.length-1;
-
-	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    if (!$scope.currentMapId){
+		$log.log("Setting to last...");
+		$scope.currentMapId  =  $scope.maps[$scope.maps.length-1].id;
+		$scope.currentMapName= $scope.maps[$scope.maps.length-1].name;
+		$scope.currentMapIndex= $scope.maps.length-1;
+		
+		$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    }
 	    // TODO  change state here...
 	    //setupMapFromDOM($scope.maps.length-1);
 	}
 	//$scope.pleasesWait = false;
+	
     });
 
 
@@ -334,7 +332,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	    $scope.currentMapId= latestMap.id;
 	    $scope.currentMapName = latestMap.name;
-	    $scope.currentMapIndx = $scope.maps.length-1;
+	    $scope.currentMapIndex = $scope.maps.length-1;
 
 	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
 	    
@@ -355,18 +353,76 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    */
 	})
     };
-	    
+
+    $scope.deleteMap = function(index){
+	var mapId = $scope.maps[index].id;
+	$http.delete('/api/rest/maps/'+mapId).then(function(resp){
+	    //clear entry from list
+	    $scope.maps.splice(index,1);
+
+	    if (mapId == $scope.currentMapId){
+		//clearLayers();
+		//endLat = null;
+		//endLng = null;
+		//startLng = null;
+		//startLat = null
+		//$scope.startSet = null;
+		//$scope.endSet = null;
+	    }
+	    //$scope.showSegment=false;
+	});
+    };
+
+		
+    $scope.isMapActive = function(index){
+	if($scope.maps[index].id == $scope.currentMapId){
+	    return true;
+	}else{
+	    return false;
+	}
+    };
+
+    $scope.selectMapClick = function(index){
+	//if change is needed...
+	$scope.currentMapId = $scope.maps[index].id;
+	$scope.currentMapName = $scope.maps[index].name;
+	
+	if ($scope.currentMapIndex == index){
+	    //fitMap(geoJsonLayer.getBounds());
+	}else{
+	    $scope.currentMapIndex = index;
+	    //endLat = null;
+	    //endLng = null;
+	    //$scope.endSet = false;
+	    //setupMapFromDOM(index);//load right map...
+
+	    //clearLayers();
+	}
+
+	$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+    };
+
+    $scope.$on('setActiveMap',function(event,mapId){
+	$log.log("activating map...");
+	$log.log(mapId);
+	$log.log($scope.maps);
+	$scope.currentMapId = mapId;
+
+    });
+
     $log.log("Hello from map editor controller");
 }]);
 
 
 myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.currentMapId=$stateParams.mapId;
+    $scope.$emit("setActiveMap",$scope.currentMapId);
+    
+    
     $log.log("Hello from Maps.map editor controller");
 }]);
 
-myApp.controller("leafletController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
-    $log.log("Hello from Maps.leaflet controller");
-}]);
+
 
 myApp.controller("blogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
     $scope.$emit("setBlogEditorActive");

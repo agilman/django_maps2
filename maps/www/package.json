@@ -24,6 +24,7 @@
   "homepage": "https://github.com/agilman/django_maps2#readme",
   "dependencies": {
     "angular": "^1.6.1",
+    "angular-leaflet-directive": "^0.10.0",
     "angular-ui-bootstrap": "^2.4.0",
     "angular-ui-router": "^0.3.2",
     "bootstrap": "^3.3.7",

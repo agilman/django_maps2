@@ -168,3 +168,21 @@ def advMaps(request,advId=None):
         result = {"id":map.id,"name":map.name,"features":[],"distance":0 }
         return JsonResponse(result,safe=False)
     
+@csrf_exempt
+def maps(request,mapId=None):
+    if request.method == 'GET':
+        
+        map = Map.objects.filter(id=mapId).first()
+        
+        results = []
+        if map!=None:
+            results = makeGeoJsonFromMap(map)
+            return JsonResponse(results,safe=False)
+
+    elif request.method == 'DELETE':
+        mapToDel = Map.objects.get(id=mapId)
+        mapToDel.delete()
+        
+        serialized = MapSerializer(mapToDel)
+        
+        return JsonResponse(serialized.data,safe=False)

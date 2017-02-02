@@ -40,4 +40,5 @@ urlpatterns = [
     url(r'^api/rest/adventures/(?P<advId>\d+)/$', api.adventures),
     url(r'^api/rest/advMaps/(?P<advId>\d+)/$',api.advMaps),
     url(r'^api/rest/profilePhoto/$',api.profilePhoto),
+    url(r'^api/rest/maps/(?P<mapId>\d+)/$',api.maps),
 ]

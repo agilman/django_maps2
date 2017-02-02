@@ -1,5 +1,11 @@
 {% extends "profile-base.html" %}
 
+{% block additionalCSS %}
+<!-- leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" />
+
+{% endblock %}
+
 {% block headerBar %}
 
 <ul class="nav navbar-nav">
@@ -45,5 +51,11 @@
 
 
 {% block additionalJS %}
+<!-- leaflet -->
+<script src="https://unpkg.com/leaflet@1.0.0/dist/leaflet.js"></script>
+<script src="/www/node_modules/angular-leaflet-directive/dist/angular-leaflet-directive.min.js"></script>
+
+
 <script src="/www/js/editor.js"></script>
+
 {% endblock %}

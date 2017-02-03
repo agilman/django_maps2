@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 
 from django.http import HttpResponse
+from django.conf import settings  
 
 def getUserIdFromUserName(userName):
     user = User.objects.get(username=userName)
@@ -18,14 +19,16 @@ def landing(request):
 
 def profileViewer(request,userName):
     if request.user.is_authenticated():
-        print("profile-viewer-session")
+
         return render(request,"profile-viewer-session.html")
-    print("profile-viewer")
+
     return render(request,"profile-viewer.html")
 
 def editorViewer(request):
+    context = {'mapboxToken': settings.MAPBOX_TOKEN}
+    
     if request.user.is_authenticated():
-        print("profile-editor-session")
-        return render(request,"profile-editor-session.html")
-    print("profile-editor")
+
+        return render(request,"profile-editor-session.html", context=context)
+
     return render(request,"profile-editor.html")

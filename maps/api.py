@@ -186,3 +186,110 @@ def maps(request,mapId=None):
         serialized = MapSerializer(mapToDel)
         
         return JsonResponse(serialized.data,safe=False)
+
+
+def makeGeoJsonFromMap(map):
+    features = []
+
+    for segment in map.segments.all():
+
+        coordinates = []
+        for coord in segment.coordinates.all():
+            coordinates.append([float(coord.lat),float(coord.lng)])
+                
+        geometry = {"type":"LineString","coordinates":coordinates}
+
+        notesResults = segment.dayNotes.first()
+        notes = []
+        if type(notesResults)!=type(None):
+            note = notesResults.note
+            notes.append(note)
+
+        segmentDict = {"type":"Feature",
+                       "properties": {"segmentId":segment.id,
+                                      'distance':segment.distance,
+                                      'startTime':segment.startTime,
+                                      'endTime':segment.endTime,
+                                      'delay': segment.delay,
+                                      'notes':notes},
+                       "geometry":geometry}
+        features.append(segmentDict)
+
+    mapDict = {"type":"FeatureCollection","properties":{"mapId": map.id,"mapName":map.name},"features":features}
+        
+    return mapDict
+
+#TODO : Use  makeGeoJsonFromSegment inside makeGeoJsonFromMap...
+def makeGeoJsonFromSegment(segment):
+    coordinates = []
+    for coord in segment.coordinates.all():
+        coordinates.append([float(coord.lat),float(coord.lng)])
+    
+    geometry = {"type":"LineString","coordinates":coordinates}
+    notes = []
+    for notesObj in segment.dayNotes.all():
+        notes.append(notesObj.note)
+        
+    feature = {"type":"Feature",
+               "properties":{"segmentId": segment.id,
+                             "distance": segment.distance,
+                             "delay": segment.delay,
+                             "notes": notes,
+                             'startTime':segment.startTime,
+                             'endTime':segment.endTime},
+               "geometry":geometry}
+    
+    return feature
+
+
+@csrf_exempt
+def mapSegment(request,segmentId=None):
+    if request.method=='POST':
+        data = JSONParser().parse(request)
+        #Try validation with serializers...
+
+        if "mapId" in data.keys() and data["mapId"] is not None:
+            map = Map.objects.get(id=int(data["mapId"]))
+            
+            startTime  = None
+            endTime = None
+            dayNotes = None
+            if "startTime" in data.keys():
+                startTime = data["startTime"]
+            if "endTime" in data.keys():
+                endTime = data["endTime"]
+                
+            distance = data["distance"]
+            waypoints = data["waypoints"]
+
+            if 'dayNotes' in data.keys():
+                dayNotes = data['dayNotes']
+                
+            delay = data['delay']
+                
+            #create segment
+            mapSegment = MapSegment(map=map,
+                                        startTime=startTime,
+                                        endTime=endTime,
+                                        distance = distance,
+                                        delay=delay)
+                
+            mapSegment.save()
+            if dayNotes:
+                dayNoteObj = DayNote(segment = mapSegment,note = dayNotes)
+                dayNoteObj.save()
+                    
+            #create waypoints
+            for point in waypoints:
+                waypointObj = WayPoint(segment = mapSegment, lat = point[1], lng = point[0])
+                waypointObj.save()
+
+            #return custom geoJson
+            result = makeGeoJsonFromSegment(mapSegment)
+
+            return JsonResponse(result,safe=False)
+        else:
+            return JsonResponse({"error":"Bad input"})
+                            
+
+                    

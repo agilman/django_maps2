@@ -126,3 +126,5 @@ STATIC_URL = '/www/'
 LOGIN_REDIRECT_URL  = '/'
 
 USER_MEDIA_ROOT = os.path.join(BASE_DIR,'maps/www/user_media')
+
+MAPBOX_TOKEN = "pk.eyJ1IjoiYWdpbG1hbiIsImEiOiI3a05GVF9vIn0.c5pOjAXGeRPbv35PRmK90A"

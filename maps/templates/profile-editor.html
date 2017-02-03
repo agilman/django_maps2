@@ -4,6 +4,8 @@
 <!-- leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" />
 
+<link href="/www/node_modules/angular-bootstrap-datetimepicker/src/css/datetimepicker.css" rel="stylesheet">
+
 {% endblock %}
 
 {% block headerBar %}
@@ -54,9 +56,16 @@
 <!-- leaflet -->
 <script src="https://unpkg.com/leaflet@1.0.0/dist/leaflet.js"></script>
 <script src="/www/node_modules/angular-leaflet-directive/dist/angular-leaflet-directive.min.js"></script>
+<script src="/www/node_modules/polylineEncoder/Polyline.encoded.js"></script>
 
 <script src="/www/node_modules/moment/min/moment.min.js"></script>
+<script src="/www/node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.js"></script>
+<script src="/www/node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates.js"></script>
+
 
 <script src="/www/js/editor.js"></script>
+
+{% block jsVars %}
+{% endblock %}
 
 {% endblock %}

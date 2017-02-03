@@ -1,4 +1,4 @@
-var myApp = angular.module("myApp",['ui.router','ui.bootstrap','leaflet-directive']);
+var myApp = angular.module("myApp",['ui.router','ui.bootstrap','ui.bootstrap.datetimepicker','leaflet-directive']);
 
 myApp.config(function($stateProvider){
     $stateProvider
@@ -274,14 +274,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.currentMapIndex = null;
     $scope.currentMapId= null;
     $scope.currentMapName=null;
-    $scope.startSet = false;
-    $scope.navActive=3;
-    
-    $scope.delayOptions = [{ label: "No delay", value: 0 }, { label: "5 Days", value: 5 },{ label: "15 Days", value: 15 },{ label: "30 Days", value: 30 }];
-    $scope.selectedDelayOption = $scope.delayOptions[0];
-    $scope.selectedDelayValue = $scope.delayOptions[0].value;
-    //startLat = null;
-    //startLng = null;
 
     //Load maps, and latest segments
     $http.get('/api/rest/advMaps/' + $scope.currentAdvId+"/").then(function(data){
@@ -430,7 +422,99 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.startLat = lat;
 	$scope.startLng = lng;
 	drawStartCircle(lat,lng);
+	
+	$scope.$broadcast("startSet");
+	$scope.startSet=true;
     };
+
+    function drawFinishCircle(lat,lng){
+	endLayer.clearLayers();
+
+	//draw circle
+	var circleOptions = {'color':'#FB0C00'}
+	var newLatLng = new L.latLng(lat,lng);
+	var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(3);
+
+	marker.addTo(endLayer);
+    }
+
+    function getNavLine(startLat,startLng,endLat,endLng,navType){
+	var newCoordinates = [];
+	var distance = 0;
+	if ($scope.navActive==1){ //If navtype is line
+	    newCoordinates.push([parseFloat(startLat),parseFloat(startLng)]);
+	    newCoordinates.push([parseFloat(endLat),parseFloat(endLng)]);
+
+	    var startLatLng =  new L.latLng(parseFloat(startLat),parseFloat(startLng));
+	    var endLatLng = new L.latLng(parseFloat(endLat),parseFloat(endLng));
+	    distance = Math.floor(startLatLng.distanceTo(endLatLng));
+
+	}else{ //If navtype requires getting directions from mapbox api
+	    var navTypeStr = "cycling";
+	    if ($scope.navActive == 3){ navTypeStr = "driving";};
+
+	    var accessToken = document.getElementById("mapboxToken").value;
+	    var myURL ="https://api.mapbox.com/directions/v5/mapbox/"+navTypeStr+"/"+ startLng+","+startLat+";"+endLng+","+endLat+"?access_token="+accessToken      ;
+	    $log.log(startLng,startLat,endLng,endLat);
+	    var xmlhttp = new XMLHttpRequest();
+	    xmlhttp.open("GET",myURL,false);
+	    xmlhttp.send();
+
+	    var json_back = JSON.parse(xmlhttp.response);
+
+	    var navOption = json_back.routes[0];
+	    var navPolyline = navOption.geometry;
+
+	    //use polylineDecoder lib...
+	    var decodedLine = L.Polyline.fromEncoded(navPolyline);
+
+	    for (var i = 0;i < decodedLine._latlngs.length; i++){
+		newCoordinates.push([decodedLine._latlngs[i].lat ,decodedLine._latlngs[i].lng]);
+
+	    }
+
+	    distance = json_back.routes[0].distance;
+
+	}
+
+	return {'navLine':newCoordinates,'distance':distance};
+    };
+
+    function setEndPoint(lat,lng){
+	$scope.endLat = lat;
+	$scope.endLng = lng;
+
+	drawFinishCircle(lat,lng);
+
+	navInfo = getNavLine($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
+
+	var navLine = navInfo.navLine;
+
+
+	var polyline_options = {
+	    color: '#00264d'
+	};
+
+	latestPathLayer.clearLayers();
+	var polyline = L.polyline(navLine, polyline_options).addTo(latestPathLayer);
+
+	return navInfo;
+    }
+
+    function setEndTime(){
+	//if dateRangeStart is today:
+	//   set dateRangeEnd as now
+	//if dateRangeStart is in the future:
+	// set dateRangeEnd as 6pm of same day as future dateRangeStart
+
+	var startTs = $scope.dateRangeStart;
+
+	if(moment(startTs).startOf('day').isSame(moment().startOf('day'))){
+	    $scope.dateRangeEnd = moment();
+	}else{
+	    $scope.dateRangeEnd = moment(startTs).startOf('day').add(18,'hours');
+	}
+    }
     
     $scope.$on("leafletDirectiveMap.click",function(e,wrap){
 	//unset segment selection view
@@ -441,9 +525,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	$log.log(lat,lng);
 	//set start point.
+	$log.log($scope.startSet);
 	if (!$scope.startSet){
 	    setStartPoint(lat,lng);
-	    $scope.startSet = true;
 	    $scope.dateRangeStart = moment({hour:6});
 
 	}else{
@@ -451,7 +535,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    newSegmentPath = navData.navLine;
 	    $scope.segmentDistance = navData.distance;
 
-	    $scope.endSet = true;
+	    $scope.$broadcast("endSet");
 	    setEndTime();
 
 	    //clear highlight layer
@@ -460,6 +544,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	}
     });
 
+               
     $log.log("Hello from map editor controller");
 }]);
 
@@ -467,7 +552,89 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
     $scope.currentMapId=$stateParams.mapId;
     $scope.$emit("setActiveMap",$scope.currentMapId);
+
+    $scope.startLng=null;
+    $scope.startLat=null;
+    $scope.isStartOpen = false;
     
+    $scope.endLng=null;
+    $scope.endLat=null;
+    $scope.delayOptions = [{ label: "No delay", value: 0 }, { label: "5 Days", value: 5 },{ label: "15 Days", value: 15 },{ label: "30 Days", value: 30 }];
+    $scope.selectedDelayOption = $scope.delayOptions[0];
+    $scope.selectedDelayValue = $scope.delayOptions[0].value;
+    //startLat = null;
+    //startLng = null;
+    $scope.isStartOpen = false;
+    
+    $scope.startSet = false;
+
+    $scope.isEndOpen = false;
+    $scope.endSet = false;
+    
+    $scope.navActive=3;    
+
+    $scope.startDateOnSetTime = function() {
+	$scope.isStartOpen = false;
+	$log.log($scope.isStartOpen);
+	$log.log("SHOULD BE FALSE");
+    };
+
+    $scope.endDateOnSetTime = function() {
+	$scope.isEndOpen = false;
+	$log.log($scope.isEndOpen);
+	$log.log("SHOULD BE FALSE");
+    };
+
+    $scope.$on("startSet",function(e,wrap){
+	$scope.startSet = true;
+    });
+
+    $scope.$on("endSet",function(e,wrap){
+	$scope.endSet = true;
+    });
+
+    $scope.createSegment = function(){
+	var newSegment = {'mapId':$scope.currentMapId,
+			  'startTime':$scope.dateRangeStart,
+			  'endTime': $scope.dateRangeEnd,
+			  'distance': $scope.segmentDistance,
+			  'waypoints':newSegmentPath,
+			  'dayNotes':$scope.dayNotes,
+			  'delay':$scope.selectedDelayValue,
+			 };
+	$log.log(newSegment);
+	$http.post('/api/rest/mapSegment',JSON.stringify(newSegment)).then(function(data){
+	    //return needs to be geojson
+	    var jsonData = data.data
+	    //add to geojson...
+	    geoJsonLayer.addData(jsonData);
+	    $scope.maps[$scope.currentMapIndx].distance += $scope.segmentDistance;
+	    setStartPoint(endLat,endLng);
+
+	    //TODO: investigate why start and end date aren't showing up on segment click.
+	    $scope.segmentsData.features.push(jsonData);
+
+	    //Add marker to map.
+	    addSegmentMarker(jsonData);
+
+	    //unset things
+	    endLat = null;
+	    endLng = null;
+	    newSegmentPath = [];
+	    endLayer.clearLayers();
+	    latestPathLayer.clearLayers();
+	    selectedSegmentLayer.clearLayers();
+
+	    $scope.segmentDistance = null;
+	    $scope.endSet = false;
+	    $scope.dayNotes = null;
+
+	    //set dateRangeStart to 6am next day from dateRangeEnd.
+	    $scope.dateRangeStart = moment($scope.dateRangeEnd._d).startOf('day').add(1,'days').add(6,'hours')
+	    $scope.dateRangeEnd = null;
+	});
+    };
+
     
     $log.log("Hello from Maps.map editor controller");
 }]);

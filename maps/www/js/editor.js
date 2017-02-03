@@ -437,14 +437,15 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    segmentMarkersLayer.clearLayers();
 	    selectedSegmentLayer.clearLayers();
 
-	    /*
+	 
 	    $scope.segmentsData = data.data;
 	    $scope.newMapName = null;
 	    $scope.segmentDistance = null;
-	    */
+	 
 	})
     };
 
+    
     $scope.deleteMap = function(index){
 	var mapId = $scope.maps[index].id;
 	$http.delete('/api/rest/maps/'+mapId).then(function(resp){
@@ -452,13 +453,16 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.maps.splice(index,1);
 
 	    if (mapId == $scope.currentMapId){
-		//clearLayers();
-		//endLat = null;
-		//endLng = null;
-		//startLng = null;
-		//startLat = null
-		//$scope.startSet = null;
-		//$scope.endSet = null;
+		clearAllLayers();
+		$scope.endLat = null;
+		$scope.endLng = null;
+		$scope.startLng = null;
+		$scope.startLat = null
+		$scope.startSet = null;
+		$scope.endSet = null;
+
+		//Need to broadcast and clean up in child scope.... or use $parent.var in childs scope..
+
 	    }
 	    //$scope.showSegment=false;
 	});
@@ -473,6 +477,26 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	}
     };
 
+
+    $scope.getMapDistance = function(index){
+	if($scope.maps[index].distance){
+	    return Number($scope.maps[index].distance/1000).toFixed(1);
+	}
+	else{
+	    return 0;
+	}
+    }
+
+    function clearAllLayers(){
+	startLayer.clearLayers();
+	endLayer.clearLayers();
+	latestPathLayer.clearLayers();
+	geoJsonLayer.clearLayers();
+
+	segmentMarkersLayer.clearLayers();
+	selectedSegmentLayer.clearLayers();
+    };
+    
     $scope.selectMapClick = function(index){
 	//if change is needed...
 	$scope.currentMapId = $scope.maps[index].id;
@@ -485,10 +509,12 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.endLat = null;
 	    $scope.endLng = null;
 	    $scope.endSet = false;
-	    $scope.$broadcast("mapIndexChange",$scope.currentMapIndex);
-	    //setupMapFromDOM(index);//load right map...
+	    
+	    setupMapFromDOM(index);//load right map...
 
-	    clearLayers();
+	    clearAllLayers();
+
+	    $scope.$broadcast("mapIndexChange",$scope.currentMapIndex);
 	}
 
 	$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
@@ -603,6 +629,8 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	}else{
 	    $scope.dateRangeEnd = moment(startTs).startOf('day').add(18,'hours');
 	}
+
+	$scope.$broadcast("changeEndTime",$scope.dateRangeEnd);
     }
     
     $scope.$on("leafletDirectiveMap.click",function(e,wrap){
@@ -658,14 +686,15 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     $scope.delayOptions = [{ label: "No delay", value: 0 }, { label: "5 Days", value: 5 },{ label: "15 Days", value: 15 },{ label: "30 Days", value: 30 }];
     $scope.selectedDelayOption = $scope.delayOptions[0];
     $scope.selectedDelayValue = $scope.delayOptions[0].value;
-    //startLat = null;
-    //startLng = null;
-    $scope.isStartOpen = false;
-    
+   
+    $scope.isStartOpen = false; 
     $scope.startSet = false;
+    $scope.dateRangeStart = null;
+    
 
     $scope.isEndOpen = false;
     $scope.endSet = false;
+    $scope.dateRangeEnd = null;
     
     $scope.navActive=3;
 
@@ -695,6 +724,10 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 	$scope.startSet = true;
     });
 
+    $scope.$on("startSet",function(e,wrap){
+	$scope.startSet = true;
+    });
+
     $scope.$on("endSet",function(e,wrap){
 	$scope.endSet = true;
     });
@@ -702,14 +735,20 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 	$scope.segmentDistance = dist;
     });
 
-
     
     $scope.$on("mapIndexChange",function(e,data){
 	$scope.currentMapIndex = data;
 	
+	$scope.endLat = null;
+	$scope.endLng = null;
+	$scope.endSet = false;
+	
     });
 
-	
+    $scope.$on("changeEndTime",function(e,data){
+	$scope.dateRangeEnd = data;
+    });
+    
 
     function addSegmentMarker(segment){
 	//this is invoked on 'save segment' button. It marks the segment center marker.
@@ -730,8 +769,8 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     
     $scope.createSegment = function(){
 	var newSegment = {'mapId':$scope.currentMapId,
-			  'startTime':$scope.dateRangeStart,
-			  'endTime': $scope.dateRangeEnd,
+			  'startTime':$scope.$parent.dateRangeStart,
+			  'endTime': $scope.$parent.dateRangeEnd,
 			  'distance': $scope.$parent.segmentDistance,
 			  'waypoints':newSegmentPath,
 			  'dayNotes':$scope.dayNotes,
@@ -771,8 +810,8 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 	    $scope.dayNotes = null;
 
 	    //set dateRangeStart to 6am next day from dateRangeEnd.
-	    $scope.dateRangeStart = moment($scope.dateRangeEnd._d).startOf('day').add(1,'days').add(6,'hours')
-	    $scope.dateRangeEnd = null;
+	    $scope.$parent.dateRangeStart = moment($scope.$parent.dateRangeEnd._d).startOf('day').add(1,'days').add(6,'hours')
+	    $scope.$parent.dateRangeEnd = null;
 	});
     };
 

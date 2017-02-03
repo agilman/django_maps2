@@ -14,7 +14,7 @@ myApp.config(function($stateProvider){
 	})
     	.state('mapsEditor.map',{
 	    url:':mapId/',
-	    templateUrl:'/www/partials/editor-maps.map.html',
+	    templateUrl:'/www/partials/editor-maps.segments.html',
 	    controller:'mapEditorController',
 	})
 	.state('blogsEditor',{
@@ -145,7 +145,6 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 	var advType = $scope.selectedAdvType.id;
 	var advStatus = $scope.selectedAdvStatus.id;
 	//prepare json to pass
-	$log.log($scope.userId);
 	var newAdv = {'owner':$scope.userId,'name':advName,'advType':advType,'advStatus':advStatus};
 
 	$http.post('/api/rest/adventures/',JSON.stringify(newAdv)).then(function(data){
@@ -275,24 +274,118 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.currentMapId= null;
     $scope.currentMapName=null;
 
+
+    $scope.segmentsData =[];
+
+    function drawSegmentCenters(segments){
+	//clear previous
+	segmentMarkersLayer.clearLayers();
+
+	for(var i = 0;i<segments.features.length;i++){
+	    var coordinates = segments.features[i].geometry.coordinates;
+	    var point = [ ];
+	    var segmentId =  segments.features[i].properties.segmentId;
+	    if (coordinates.length==2){
+		// TODO:this is a line... need to find it's geometric center
+		point = coordinates[0];
+
+	    }else{
+		// this is a navline... just take a middle point
+
+		point = coordinates[Math.floor(coordinates.length/2)];
+	    }
+
+	    var markerPoint = [point[1],point[0]];
+	    var newMarker = new L.Marker(markerPoint).on('click',$scope.segmentMarkerClick);
+	    newMarker.segmentId = segmentId;
+	    newMarker.addTo(segmentMarkersLayer);
+	}
+    };
+    
+    function centerOnStart(lat,lng){
+	leafletData.getMap().then(function(map){
+	    map.setView([lat,lng],9);
+	});
+    }
+
+    function setStartTimeFromLast(segment){
+	var last = $scope.segmentsData.features[$scope.segmentsData.features.length-1];
+	var endTime = last.properties.endTime;
+	if (endTime){//if last segment has endTime set... set this as start time.
+	    var ts = moment(last.properties.endTime).startOf("day").add(6,'hours').add(1,'days');
+	    $scope.dateRangeStart = ts;
+
+	}else{
+	    $scope.dateRangeStart = moment({hour:6});
+	}
+    };
+    
+    
+    function setupMapFromDOM(index){
+	//get Map
+	$http.get('/api/rest/maps/' + $scope.currentMapId).then(function(data){
+	    //should this be attached to $scope?
+	    $scope.segmentsData = data.data;
+	    geoJsonLayer.addData($scope.segmentsData);
+	    
+	    //draw circles (currently markers) on segment centers, for segment selection.
+	    drawSegmentCenters($scope.segmentsData);
+	    
+	    //set startPoint to last point from established line...
+	    if ($scope.segmentsData.features.length>0){
+	    	var lastSegment = $scope.segmentsData.features[$scope.segmentsData.features.length-1].geometry.coordinates;	
+	    	
+	    	if (lastSegment.length>0){
+	    	    startLat = lastSegment[lastSegment.length-1][1];
+	    	    startLng = lastSegment[lastSegment.length-1][0];
+		    
+		    //center map on last point
+		    centerOnStart(startLat,startLng);
+	    	    //fitMap(geoJsonLayer.getBounds());
+		    
+	    	    setStartPoint(startLat,startLng);
+	    	    $scope.startSet = true;
+		    
+		    //set start time as 6am the next day from last point.
+		    setStartTimeFromLast();
+	    	}
+		
+		
+	    }else{ //if the selected map doesn't have any points
+	    	$scope.startLat = null;
+	    	$scope.startLng = null;
+	    	$scope.startSet = false;    		
+	    }
+	});
+    };
+    
     //Load maps, and latest segments
     $http.get('/api/rest/advMaps/' + $scope.currentAdvId+"/").then(function(data){
 	$scope.maps = data.data;
 	
 	if($scope.maps.length>0){
 	    if (!$scope.currentMapId){
-		$log.log("Setting to last...");
+		
 		$scope.currentMapId  =  $scope.maps[$scope.maps.length-1].id;
 		$scope.currentMapName= $scope.maps[$scope.maps.length-1].name;
 		$scope.currentMapIndex= $scope.maps.length-1;
 		
 		$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    }else{//Already got currentMapId from URL... need to get currentMapName, CurrentMapIndex
+		for(var i=0; i<$scope.maps.length; i++){
+		    if ($scope.maps[i].id==$scope.currentMapId){
+			$scope.currentMapIndex = i;
+			$scope.currentMapName = $scope.maps[i].name;
+		    }
+		}
+		
+		
 	    }
-	    // TODO  change state here...
-	    //setupMapFromDOM($scope.maps.length-1);
-	}
+	    
+	    setupMapFromDOM($scope.currentMapIndex);
 	//$scope.pleasesWait = false;
-	
+
+	}
     });
 
 
@@ -333,20 +426,21 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
 	    
-	    //if(startLat & startLng){
-	    //setStartPoint(startLat,startLng);
-	    //}
+	    if($scope.startLat & $scope.startLng){
+		setStartPoint($scope.startLat,$scope.startLng);
+	    }
 	    //clear things
-	    /*
+	    
 	    endLayer.clearLayers();
 	    latestPathLayer.clearLayers();
 	    geoJsonLayer.clearLayers();
 	    segmentMarkersLayer.clearLayers();
 	    selectedSegmentLayer.clearLayers();
+
+	    /*
 	    $scope.segmentsData = data.data;
 	    $scope.newMapName = null;
 	    $scope.segmentDistance = null;
-	    $scope.showSegment = false;
 	    */
 	})
     };
@@ -388,23 +482,20 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    //fitMap(geoJsonLayer.getBounds());
 	}else{
 	    $scope.currentMapIndex = index;
-	    //endLat = null;
-	    //endLng = null;
-	    //$scope.endSet = false;
+	    $scope.endLat = null;
+	    $scope.endLng = null;
+	    $scope.endSet = false;
+	    $scope.$broadcast("mapIndexChange",$scope.currentMapIndex);
 	    //setupMapFromDOM(index);//load right map...
 
-	    //clearLayers();
+	    clearLayers();
 	}
 
 	$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
     };
 
     $scope.$on('setActiveMap',function(event,mapId){
-	$log.log("activating map...");
-	$log.log(mapId);
-	$log.log($scope.maps);
 	$scope.currentMapId = mapId;
-
     });
 
     function drawStartCircle(lat,lng){
@@ -438,9 +529,10 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	marker.addTo(endLayer);
     }
 
-    function getNavLine(startLat,startLng,endLat,endLng,navType){
+    function getNavLine(startLat,startLng,endLat,endLng){
 	var newCoordinates = [];
 	var distance = 0;
+
 	if ($scope.navActive==1){ //If navtype is line
 	    newCoordinates.push([parseFloat(startLat),parseFloat(startLng)]);
 	    newCoordinates.push([parseFloat(endLat),parseFloat(endLng)]);
@@ -454,8 +546,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    if ($scope.navActive == 3){ navTypeStr = "driving";};
 
 	    var accessToken = document.getElementById("mapboxToken").value;
-	    var myURL ="https://api.mapbox.com/directions/v5/mapbox/"+navTypeStr+"/"+ startLng+","+startLat+";"+endLng+","+endLat+"?access_token="+accessToken      ;
-	    $log.log(startLng,startLat,endLng,endLat);
+	    var myURL ="https://api.mapbox.com/directions/v5/mapbox/"+navTypeStr+"/"+ startLng+","+startLat+";"+endLng+","+endLat+"?access_token="+accessToken ;
 	    var xmlhttp = new XMLHttpRequest();
 	    xmlhttp.open("GET",myURL,false);
 	    xmlhttp.send();
@@ -474,7 +565,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    }
 
 	    distance = json_back.routes[0].distance;
-
 	}
 
 	return {'navLine':newCoordinates,'distance':distance};
@@ -485,11 +575,10 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.endLng = lng;
 
 	drawFinishCircle(lat,lng);
-
+	
 	navInfo = getNavLine($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
 
 	var navLine = navInfo.navLine;
-
 
 	var polyline_options = {
 	    color: '#00264d'
@@ -523,9 +612,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	var lat = wrap.leafletEvent.latlng.lat;
 	var lng = wrap.leafletEvent.latlng.lng;
 
-	$log.log(lat,lng);
-	//set start point.
-	$log.log($scope.startSet);
+
 	if (!$scope.startSet){
 	    setStartPoint(lat,lng);
 	    $scope.dateRangeStart = moment({hour:6});
@@ -534,9 +621,10 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    var navData = setEndPoint(lat,lng);
 	    newSegmentPath = navData.navLine;
 	    $scope.segmentDistance = navData.distance;
-
-	    $scope.$broadcast("endSet");
+	    $scope.$broadcast("newSegmentDistance",$scope.segmentDistance);
+	    
 	    setEndTime();
+	    $scope.$broadcast("endSet");
 
 	    //clear highlight layer
 	    //possibly need more map cleaning and adjusting zoom.
@@ -544,7 +632,15 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	}
     });
 
-               
+    $scope.$on("setStartTo",function(e,data){
+	var lat = data.lat;
+	var lng = data.lng;
+	setStartPoint(lat,lng);	
+    });
+
+    $scope.$on("changeNavType",function(e,typeId){
+	$scope.navActive = typeId;
+    });
     $log.log("Hello from map editor controller");
 }]);
 
@@ -571,19 +667,29 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     $scope.isEndOpen = false;
     $scope.endSet = false;
     
-    $scope.navActive=3;    
+    $scope.navActive=3;
 
+
+    $scope.changeNav = function(typeId){
+	$scope.navActive=typeId;
+	$scope.$emit("changeNavType",typeId);
+    };
+    
+    $scope.changeNav($scope.navActive);
+    
     $scope.startDateOnSetTime = function() {
-	$scope.isStartOpen = false;
-	$log.log($scope.isStartOpen);
-	$log.log("SHOULD BE FALSE");
+	$scope.isStartOpen = false;	
     };
 
     $scope.endDateOnSetTime = function() {
-	$scope.isEndOpen = false;
-	$log.log($scope.isEndOpen);
-	$log.log("SHOULD BE FALSE");
+	$scope.isEndOpen = false;	
     };
+
+    $scope.getSegmentDistance = function(){
+	return Number($scope.$parent.segmentDistance/1000).toFixed(1);
+    }
+
+    
 
     $scope.$on("startSet",function(e,wrap){
 	$scope.startSet = true;
@@ -592,35 +698,70 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     $scope.$on("endSet",function(e,wrap){
 	$scope.endSet = true;
     });
+    $scope.$on("newSegmentDistance",function(e,dist){
+	$scope.segmentDistance = dist;
+    });
 
+
+    
+    $scope.$on("mapIndexChange",function(e,data){
+	$scope.currentMapIndex = data;
+	
+    });
+
+	
+
+    function addSegmentMarker(segment){
+	//this is invoked on 'save segment' button. It marks the segment center marker.
+	var coordinates = segment.geometry.coordinates;
+	point =[];
+	if (coordinates.length==2){
+	    point = coordinates[0];
+	}else{
+	    point = coordinates[Math.floor(coordinates.length/2)];
+	}
+
+	var markerPoint = [point[1],point[0]];
+	var newMarker = new L.Marker(markerPoint).on('click',$scope.segmentMarkerClick);
+	newMarker.segmentId = segment.properties.segmentId;
+	newMarker.addTo(segmentMarkersLayer);
+    };
+    
+    
     $scope.createSegment = function(){
 	var newSegment = {'mapId':$scope.currentMapId,
 			  'startTime':$scope.dateRangeStart,
 			  'endTime': $scope.dateRangeEnd,
-			  'distance': $scope.segmentDistance,
+			  'distance': $scope.$parent.segmentDistance,
 			  'waypoints':newSegmentPath,
 			  'dayNotes':$scope.dayNotes,
 			  'delay':$scope.selectedDelayValue,
 			 };
 	$log.log(newSegment);
+	
 	$http.post('/api/rest/mapSegment',JSON.stringify(newSegment)).then(function(data){
 	    //return needs to be geojson
 	    var jsonData = data.data
 	    //add to geojson...
 	    geoJsonLayer.addData(jsonData);
-	    $scope.maps[$scope.currentMapIndx].distance += $scope.segmentDistance;
-	    setStartPoint(endLat,endLng);
 
-	    //TODO: investigate why start and end date aren't showing up on segment click.
+	    $scope.$parent.maps[$scope.$parent.currentMapIndex].distance += $scope.segmentDistance;
+
+	    $log.log($scope.$parent.maps);
+	    $log.log("SEGMENT DISTANCE:");
+	    $log.log($scope.segmentDistance);
+	    $scope.$emit("setStartTo",{'lat':$scope.$parent.endLat,'lng':$scope.$parent.endLng});
+	    //setStartPoint($scope.endLat,$scope.endLng);
+
 	    $scope.segmentsData.features.push(jsonData);
 
 	    //Add marker to map.
 	    addSegmentMarker(jsonData);
 
 	    //unset things
-	    endLat = null;
-	    endLng = null;
-	    newSegmentPath = [];
+	    $scope.endLat = null;
+	    $scope.endLng = null;
+	    newSegmentPath = []; 
 	    endLayer.clearLayers();
 	    latestPathLayer.clearLayers();
 	    selectedSegmentLayer.clearLayers();
@@ -635,6 +776,16 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 	});
     };
 
+    $scope.deselectEndSet = function(){
+	$endLat = null;
+	$endLng = null;
+	newSegmentPath = [];
+	endLayer.clearLayers();
+	latestPathLayer.clearLayers();
+	$scope.endSet = null;
+	$scope.segmentDistance=null;
+    };
+    
     
     $log.log("Hello from Maps.map editor controller");
 }]);

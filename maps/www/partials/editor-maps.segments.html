@@ -31,7 +31,7 @@
     <button type="button" ng-class="navActive==2 ? 'btn btn-primary' : 'btn btn-default'" ng-click="changeNav(2)"><i class="fa fa-bicycle" style="font-size:32px"></i></button>
     <button type="button" ng-class="navActive==3 ? 'btn btn-primary' : 'btn btn-default'" ng-click="changeNav(3)"><i class="fa fa-car" style="font-size:32px"></i></button>
   </div>
-  <div ng-show="segmentDistance">
+  <div ng-show="$parent.segmentDistance">
     Segment Distance : {{ getSegmentDistance() }}km
   </div>
 
@@ -43,7 +43,7 @@
       <div uib-dropdown class="row" is-open="isEndOpen" style="padding: 15px;">
 	<a href>
 	  <div class="input-group">
-	    <span class="input-group-addon" ng-click="deselectEndSet()"><i class="glyphicon glyphicon-map-marker" ng-class="{red:endSet}"></i></span>
+	    <span class="input-group-addon" ng-click="$parent.deselectEndSet()"><i class="glyphicon glyphicon-map-marker" ng-class="{red:$parent.endSet}"></i></span>
 	    <input type="text" class="form-control" data-ng-model="$parent.dateRangeEnd" uib-dropdown-toggle>
 	    <span class="input-group-addon" uib-dropdown-toggle><i class="glyphicon glyphicon-calendar"></i></span>
 	  </div>
@@ -65,6 +65,6 @@
 
   <h5>Day Notes:</h5>
   <textarea class="field" id="dayNotes" rows="4" style="min-width:100%" ng-model="dayNotes"></textarea>
-  <button class="btn btn-primary" id="addSegmentButton" ng-click="createSegment()" ng-show="endSet">Save Segment</button>
+  <button class="btn btn-primary" id="addSegmentButton" ng-click="createSegment()" ng-show="$parent.endSet">Save Segment</button>
   <!-- end datetime pickers -->
 </div>

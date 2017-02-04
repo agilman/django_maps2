@@ -1,0 +1,28 @@
+<div ng-cloak>
+    <hr>
+    <h4>Segment Details:</h4>
+    <div class="btn-group" role="group">
+    <button type="button" class="btn btn-default" ng-show="$parent.currentSegmentIndex>0" ng-click="loadPreviousSegment();">
+      <span ><i class="glyphicon glyphicon-chevron-left"></i>Previous</span>
+    </button>
+
+    <button type="button" class="btn btn-default" ng-click="deselectSegment()">
+      <span style="color:#ff751a"><i></i>current</span>
+    </button>
+
+    <button type="button" class="btn btn-default" ng-show="showNextSegmentButton()" ng-click="loadNextSegment();">
+      <span>Next<i class="glyphicon glyphicon-chevron-right"></i></span>
+    </button>
+    </div>
+    <br>
+    <label>Start datetime:</label> {{ $parent.currentSegment.startTime }}
+    <br>
+    <label>End datetime: </label> {{ $parent.currentSegment.endTime }}
+    <br>
+    <label>Distance:</label>  {{ getSelectedSegmentDistance() }} Km
+    <br>
+    <label>Delay:</label> {{ $parent.currentSegment.delay }}
+    <br>
+    <label>Notes</label> {{ $parent.currentSegment.segmentNotes }}    
+
+</div>

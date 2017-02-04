@@ -12,10 +12,15 @@ myApp.config(function($stateProvider){
 	    templateUrl:'/www/partials/editor-maps.html',
 	    controller:'mapsEditorController',
 	})
-    	.state('mapsEditor.map',{
+    	.state('mapsEditor.segments',{
 	    url:':mapId/',
 	    templateUrl:'/www/partials/editor-maps.segments.html',
 	    controller:'mapEditorController',
+	})
+    	.state('mapsEditor.segmentDetails',{
+	    url:':mapId/:segmentId/',
+	    templateUrl:'/www/partials/editor-maps.segmentDetails.html',
+	    controller:'segmentDetailsController',
 	})
 	.state('blogsEditor',{
 	    url:'/:currentAdvId/blogs/',
@@ -318,13 +323,11 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	}else{
 	    $scope.dateRangeStart = moment({hour:6});
 	}
-    };
-    
+    };    
     
     function setupMapFromDOM(index){
 	//get Map
 	$http.get('/api/rest/maps/' + $scope.currentMapId).then(function(data){
-	    //should this be attached to $scope?
 	    $scope.segmentsData = data.data;
 	    geoJsonLayer.addData($scope.segmentsData);
 	    
@@ -358,6 +361,73 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    }
 	});
     };
+
+    function getSegmentIndexById(id){
+	for (var i =0;i< $scope.segmentsData.features.length;i++){
+	    if ($scope.segmentsData.features[i].properties.segmentId == id){
+		return i;
+	    }
+	}
+    }
+
+    function drawSegmentHighlight(segment){
+	//given a segment, this function adds it to selectedSegmentLayer (used to show specific day when selected)
+	selectedSegmentLayer.clearLayers();
+
+
+	var newSegment = [];
+	for (var i = 0; i < segment.length;i++){
+	    newSegment.push([segment[i][1],segment[i][0]]);
+	}
+
+	var polyline_options = {
+	    color: '#ff751a',
+	    weight: '6'
+	};
+
+	var polyline = new L.polyline(newSegment, polyline_options).addTo(selectedSegmentLayer);
+	return polyline;
+    };
+
+    function centerMap(center){
+	leafletData.getMap().then(function(map){
+	    map.panTo(center);
+
+	    if (map.getZoom()<7){
+		map.setView(center,9);
+	    }else if (map.getZoom()>11){
+		map.setView(center,9);
+	    }
+	});
+    };
+    
+    $scope.segmentMarkerClick= function(e){
+	//$scope.showSegment=true;
+	//$log.log($scope.segmentsData);
+	$scope.currentSegmentId = e.target.segmentId;
+	$scope.currentSegmentIndex = getSegmentIndexById($scope.currentSegmentId);
+	
+	var segment =$scope.segmentsData.features[$scope.currentSegmentIndex];
+	var properties = segment.properties;
+	var myPolyline = drawSegmentHighlight(segment.geometry.coordinates);
+	
+	//TODO: instead of fitMap, flyTo center on line, at reasonable zoom.
+	centerMap(myPolyline.getBounds().getCenter());
+
+	$scope.currentSegment = properties;
+	//$scope.selectedSegmentDistance = properties.distance;
+	//$scope.selectedSegmentStartTime = properties.startTime;
+	//$scope.selectedSegmentEndTime = properties.endTime;
+	//$scope.selectedDelayValue = properties.delay;
+	//$scope.selectedSegmentNotes = properties.notes[0];
+
+	$log.log("GOING TO STATE ");
+	$log.log($scope.currentMapId);
+	$log.log($scope.currentSegmentId);
+	
+	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
+    };
+
     
     //Load maps, and latest segments
     $http.get('/api/rest/advMaps/' + $scope.currentAdvId+"/").then(function(data){
@@ -370,7 +440,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 		$scope.currentMapName= $scope.maps[$scope.maps.length-1].name;
 		$scope.currentMapIndex= $scope.maps.length-1;
 		
-		$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+		$state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
 	    }else{//Already got currentMapId from URL... need to get currentMapName, CurrentMapIndex
 		for(var i=0; i<$scope.maps.length; i++){
 		    if ($scope.maps[i].id==$scope.currentMapId){
@@ -380,11 +450,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 		}
 		
 		
-	    }
-	    
+	    }	    
 	    setupMapFromDOM($scope.currentMapIndex);
-	//$scope.pleasesWait = false;
-
+	    //$scope.pleasesWait = false;
 	}
     });
 
@@ -424,7 +492,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.currentMapName = latestMap.name;
 	    $scope.currentMapIndex = $scope.maps.length-1;
 
-	    $state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	    $state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
 	    
 	    if($scope.startLat & $scope.startLng){
 		setStartPoint($scope.startLat,$scope.startLng);
@@ -497,13 +565,19 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	selectedSegmentLayer.clearLayers();
     };
     
+    function fitMap(bounds){
+	leafletData.getMap().then(function(map) {
+	    map.fitBounds(bounds);
+	});
+    };
+    
     $scope.selectMapClick = function(index){
 	//if change is needed...
 	$scope.currentMapId = $scope.maps[index].id;
 	$scope.currentMapName = $scope.maps[index].name;
 	
 	if ($scope.currentMapIndex == index){
-	    //fitMap(geoJsonLayer.getBounds());
+	    fitMap(geoJsonLayer.getBounds());
 	}else{
 	    $scope.currentMapIndex = index;
 	    $scope.endLat = null;
@@ -517,7 +591,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.$broadcast("mapIndexChange",$scope.currentMapIndex);
 	}
 
-	$state.go('mapsEditor.map',{mapId:$scope.currentMapId});
+	$state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
     };
 
     $scope.$on('setActiveMap',function(event,mapId){
@@ -669,6 +743,12 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.$on("changeNavType",function(e,typeId){
 	$scope.navActive = typeId;
     });
+
+    $scope.$on("showSegmentDetails", function(e,data){
+	$scope.currentMapId = data.mapId;
+	$scope.currentSegmentId = data.segmentId;
+    });
+    
     $log.log("Hello from map editor controller");
 }]);
 
@@ -826,10 +906,20 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     };
     
     
-    $log.log("Hello from Maps.map editor controller");
+    $log.log("Hello from Maps.segments editor controller");
 }]);
 
 
+myApp.controller("segmentDetailsController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.currentSegmentId = $stateParams.segmentId;
+
+    $scope.$emit("showSegmentDetails",{mapId:$stateParams.mapId,segmentId:$stateParams.segmentId});
+
+    //$log.log($scope.$parent.currentSegment);
+    
+    
+    $log.log("Hello from Blog editor controller");
+}]);
 
 myApp.controller("blogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
     $scope.$emit("setBlogEditorActive");

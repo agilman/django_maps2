@@ -330,9 +330,15 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$http.get('/api/rest/maps/' + $scope.currentMapId).then(function(data){
 	    $scope.segmentsData = data.data;
 	    geoJsonLayer.addData($scope.segmentsData);
-	    
+
+
 	    //draw circles (currently markers) on segment centers, for segment selection.
 	    drawSegmentCenters($scope.segmentsData);
+	    
+	    //check if need to show segment.
+	    if ($scope.currentSegmentId){
+		setSegmentViewer($scope.currentSegmentId);
+	    }
 	    
 	    //set startPoint to last point from established line...
 	    if ($scope.segmentsData.features.length>0){
@@ -341,16 +347,17 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    	if (lastSegment.length>0){
 	    	    startLat = lastSegment[lastSegment.length-1][1];
 	    	    startLng = lastSegment[lastSegment.length-1][0];
-		    
-		    //center map on last point
-		    centerOnStart(startLat,startLng);
-	    	    //fitMap(geoJsonLayer.getBounds());
-		    
-	    	    setStartPoint(startLat,startLng);
+
+		    setStartPoint(startLat,startLng);
 	    	    $scope.startSet = true;
 		    
 		    //set start time as 6am the next day from last point.
 		    setStartTimeFromLast();
+		    
+		    //center map on last point
+		    if(!$scope.currentSegmentId){
+			centerOnStart(startLat,startLng);
+	    	    }
 	    	}
 		
 		
@@ -358,7 +365,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    	$scope.startLat = null;
 	    	$scope.startLng = null;
 	    	$scope.startSet = false;    		
-	    }
+	    }	    
 	});
     };
 
@@ -400,13 +407,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    }
 	});
     };
-    
-    $scope.segmentMarkerClick= function(e){
-	//$scope.showSegment=true;
-	//$log.log($scope.segmentsData);
-	$scope.currentSegmentId = e.target.segmentId;
-	$scope.currentSegmentIndex = getSegmentIndexById($scope.currentSegmentId);
-	
+
+    function setSegmentViewer(segmentId){
+	$scope.currentSegmentIndex = getSegmentIndexById(segmentId);	
 	var segment =$scope.segmentsData.features[$scope.currentSegmentIndex];
 	var properties = segment.properties;
 	var myPolyline = drawSegmentHighlight(segment.geometry.coordinates);
@@ -415,15 +418,11 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	centerMap(myPolyline.getBounds().getCenter());
 
 	$scope.currentSegment = properties;
-	//$scope.selectedSegmentDistance = properties.distance;
-	//$scope.selectedSegmentStartTime = properties.startTime;
-	//$scope.selectedSegmentEndTime = properties.endTime;
-	//$scope.selectedDelayValue = properties.delay;
-	//$scope.selectedSegmentNotes = properties.notes[0];
-
-	$log.log("GOING TO STATE ");
-	$log.log($scope.currentMapId);
-	$log.log($scope.currentSegmentId);
+    };
+    
+    $scope.segmentMarkerClick= function(e){
+	$scope.currentSegmentId = e.target.segmentId;
+	setSegmentViewer($scope.currentSegmentId);
 	
 	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
     };
@@ -447,18 +446,14 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 			$scope.currentMapIndex = i;
 			$scope.currentMapName = $scope.maps[i].name;
 		    }
-		}
-		
-		
-	    }	    
+		}		
+	    }
+	    
 	    setupMapFromDOM($scope.currentMapIndex);
-	    //$scope.pleasesWait = false;
 	}
     });
 
-
     //after leaflet loads, create layers
-
     leafletData.getMap().then(function(map){
 	startLayer = new L.LayerGroup();
 	startLayer.addTo(map);
@@ -478,7 +473,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	selectedSegmentLayer = new L.LayerGroup();
 	selectedSegmentLayer.addTo(map);
     });
-
 
     $scope.createMap = function(){
 	var mapName = $scope.newMapName;
@@ -576,6 +570,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.currentMapId = $scope.maps[index].id;
 	$scope.currentMapName = $scope.maps[index].name;
 	
+	
 	if ($scope.currentMapIndex == index){
 	    fitMap(geoJsonLayer.getBounds());
 	}else{
@@ -583,6 +578,8 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.endLat = null;
 	    $scope.endLng = null;
 	    $scope.endSet = false;
+	
+	    
 	    
 	    setupMapFromDOM(index);//load right map...
 
@@ -708,12 +705,17 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     }
     
     $scope.$on("leafletDirectiveMap.click",function(e,wrap){
-	//unset segment selection view
-	$scope.showSegment = false;
+	//if in segmentDetails view, need to return to segment creation view...
+	if ($scope.currentSegmentId){
+	    $scope.currentSegmentId = null;
+	    $state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
+	}
 
+	
 	var lat = wrap.leafletEvent.latlng.lat;
 	var lng = wrap.leafletEvent.latlng.lng;
 
+	
 
 	if (!$scope.startSet){
 	    setStartPoint(lat,lng);
@@ -732,6 +734,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    //possibly need more map cleaning and adjusting zoom.
 	    selectedSegmentLayer.clearLayers();
 	}
+
+
+	
     });
 
     $scope.$on("setStartTo",function(e,data){
@@ -748,6 +753,51 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.currentMapId = data.mapId;
 	$scope.currentSegmentId = data.segmentId;
     });
+
+    $scope.loadPreviousSegment = function(e){
+	$scope.currentSegmentId = $scope.segmentsData.features[$scope.currentSegmentIndex-1].properties.segmentId;
+	setSegmentViewer($scope.currentSegmentId);
+	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
+    };
+
+    $scope.loadNextSegment = function(){
+	$scope.currentSegmentId = $scope.segmentsData.features[$scope.currentSegmentIndex+1].properties.segmentId;
+	setSegmentViewer($scope.currentSegmentId);
+	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
+    };
+
+    function flyTo(center){
+	leafletData.getMap().then(function(map){
+	    var zoom = map.getZoom();
+	    if (zoom>11){
+		map.flyTo(center,10);
+	    }else if(zoom<6){
+		map.flyTo(center,10);
+	    }else{
+		map.flyTo(center);
+	    }
+	});
+    };
+    
+    $scope.deselectSegment = function(){
+	$scope.currentSegmentId = null;
+	selectedSegmentLayer.clearLayers();
+
+	var center = new L.LatLng($scope.startLat,$scope.startLng);
+	flyTo(center);
+
+	$state.go("mapsEditor.segments",{mapId:$scope.currentMapId});
+    };
+    
+    $scope.showNextSegmentButton = function(){
+	if ($scope.segmentsData){
+	    if($scope.currentSegmentIndex < $scope.segmentsData.features.length-1){
+		return true;
+	    }
+	}
+
+	return false;
+    }
     
     $log.log("Hello from map editor controller");
 }]);
@@ -770,13 +820,12 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     $scope.isStartOpen = false; 
     $scope.startSet = false;
     $scope.dateRangeStart = null;
-    
+
+    $scope.navActive=3;
 
     $scope.isEndOpen = false;
     $scope.endSet = false;
     $scope.dateRangeEnd = null;
-    
-    $scope.navActive=3;
 
 
     $scope.changeNav = function(typeId){
@@ -797,8 +846,6 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
     $scope.getSegmentDistance = function(){
 	return Number($scope.$parent.segmentDistance/1000).toFixed(1);
     }
-
-    
 
     $scope.$on("startSet",function(e,wrap){
 	$scope.startSet = true;
@@ -856,7 +903,6 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 			  'dayNotes':$scope.dayNotes,
 			  'delay':$scope.selectedDelayValue,
 			 };
-	$log.log(newSegment);
 	
 	$http.post('/api/rest/mapSegment',JSON.stringify(newSegment)).then(function(data){
 	    //return needs to be geojson
@@ -866,9 +912,6 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 
 	    $scope.$parent.maps[$scope.$parent.currentMapIndex].distance += $scope.segmentDistance;
 
-	    $log.log($scope.$parent.maps);
-	    $log.log("SEGMENT DISTANCE:");
-	    $log.log($scope.segmentDistance);
 	    $scope.$emit("setStartTo",{'lat':$scope.$parent.endLat,'lng':$scope.$parent.endLng});
 	    //setStartPoint($scope.endLat,$scope.endLng);
 
@@ -903,8 +946,7 @@ myApp.controller("mapEditorController",['$scope','$log','$http','$stateParams',f
 	latestPathLayer.clearLayers();
 	$scope.endSet = null;
 	$scope.segmentDistance=null;
-    };
-    
+    };    
     
     $log.log("Hello from Maps.segments editor controller");
 }]);
@@ -914,9 +956,10 @@ myApp.controller("segmentDetailsController",['$scope','$log','$http','$statePara
     $scope.currentSegmentId = $stateParams.segmentId;
 
     $scope.$emit("showSegmentDetails",{mapId:$stateParams.mapId,segmentId:$stateParams.segmentId});
-
-    //$log.log($scope.$parent.currentSegment);
     
+    $scope.getSelectedSegmentDistance = function(){
+	return Number($scope.$parent.currentSegment.distance/1000).toFixed(1);
+    }
     
     $log.log("Hello from Blog editor controller");
 }]);

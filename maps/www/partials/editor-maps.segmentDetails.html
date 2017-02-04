@@ -2,7 +2,7 @@
     <hr>
     <h4>Segment Details:</h4>
     <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default" ng-show="$parent.currentSegmentIndex>0" ng-click="loadPreviousSegment();">
+    <button type="button" class="btn btn-default" ng-show="$parent.currentSegmentIndex>0" ng-click="$parent.loadPreviousSegment();">
       <span ><i class="glyphicon glyphicon-chevron-left"></i>Previous</span>
     </button>
 
@@ -10,7 +10,7 @@
       <span style="color:#ff751a"><i></i>current</span>
     </button>
 
-    <button type="button" class="btn btn-default" ng-show="showNextSegmentButton()" ng-click="loadNextSegment();">
+    <button type="button" class="btn btn-default" ng-show="$parent.showNextSegmentButton()" ng-click="$parent.loadNextSegment();">
       <span>Next<i class="glyphicon glyphicon-chevron-right"></i></span>
     </button>
     </div>

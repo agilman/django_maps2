@@ -1,5 +1,10 @@
 {% extends "profile-base.html" %}
 
+{% block additionalCSS %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" />
+{% endblock %}
+
+
 {% block headerBar %}
 <ul class="nav navbar-nav">
   <li ng-class="isAdvPageActive()"><a ui-sref="advSelect">Adventures</a></li>
@@ -23,9 +28,9 @@
     <div class="collapse navbar-collapse main-nav">
       <ul class="nav navbar-nav">
 	
-	<li ng-class="isMapPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/maps">Maps</a></li>
-	<li ng-class="isBlogPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
-	<li ng-class="isGearPageActive()"><a ng-href="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
+	<li ng-class="isMapPageActive()"><a ui-sref="advSelect.selected({advId: currentAdvId})">Maps</a></li>
+	<li ng-class="isBlogPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
+	<li ng-class="isGearPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
 	
       </ul>
     </div>

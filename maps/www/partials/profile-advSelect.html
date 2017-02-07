@@ -1,1 +1,37 @@
-Hello!!
+
+<div class="row">
+  <div class="col-lg-3">
+    
+    <div id="noAdvs" ng-show="adventures.length==0" ng-cloak>
+      <center>
+	<h4>User hasn't created any adventures yet.</h4>
+      </center>
+    </div>
+    
+    <h4>Advnetures:</h4>
+    <ul class="list-group">
+      <li class="list-group-item adventure clearfix" ng-repeat="adventure in adventures" ng-mouseover="mouseOnAdv($index)" ng-mouseleave="mouseleaveAdv()" ng-class="isAdvSelected($index)" ng-click="advSelectClick($index)">
+	<span class="pull-left">
+	  <div class="thumbnail">
+	    <!--img src="/static/img/bicycle.png" width="100px" height="100px"-->
+	  </div>
+	  
+	</span>
+	<span class="text-right advInfo" ng-cloak>
+	  <h4>{{ adventure.name| limitTo:24}}{{adventure.name.length > 24 ? '...' : ''}}</h4>
+	  <p> {{ getAdvDistance($index) }} Km</p>
+	  <p> {{ getAdvDuration($index) }}</p>
+	</span>
+      </li>
+    </ul>
+    
+  </div>
+  
+  
+  <div class="col-lg-9">
+    <!-- leaflet style="width:100%;height:800px;">
+    </leaflet -->
+  </div>
+
+</div>
+

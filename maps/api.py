@@ -106,6 +106,76 @@ def adventures(request,advId=None):
         serialized = AdventureSerializer(adv)
     return JsonResponse(serialized.data,safe=False)
 
+
+@csrf_exempt
+def advsOverview(request,userId):
+    """This returns all start and end points from all the segments in all the maps, for all adventures.
+    The goal is to visualize roughly all the travelling the user has done."""
+    
+    if request.method=="GET":
+        allAdvs = []
+        #this is awful
+        advs = Adventure.objects.filter(owner_id=userId).all()
+        for adv in advs:
+            advCoordinates = []
+            distance = 0
+            startTime = None
+            endTime = None
+
+            #get startTime
+            advMaps = adv.maps.all()
+            if advMaps.count()>0:
+                startSegments = advMaps[0].segments.all()
+                if startSegments.count()>0:
+                    startTime = startSegments[0].startTime
+
+                    endSegments = advMaps[advMaps.count()-1].segments.all()
+                if endSegments.count()>0:
+                    endTime = endSegments[endSegments.count()-1].endTime
+
+                    
+            for advMap in advMaps:
+                segments = advMap.segments.all()
+                for segment in segments:
+                    start = segment.coordinates.first()
+                    startPoint = [float(start.lat),float(start.lng)]
+                    
+                    end = segment.coordinates.last()
+                    endPoint = [float(end.lat),float(end.lng)]
+
+                    ###TODO: allow for non-continuous lines?
+                    #Add first segment
+                    if len(advCoordinates) == 0:
+                        advCoordinates.append(startPoint)
+                        advCoordinates.append(endPoint)
+
+                        #If this is not the first segment, check if startPoint is same as last endPoint
+                    else:
+                        if advCoordinates[len(advCoordinates)-1]==startPoint:
+                            advCoordinates.append(endPoint)
+                        else:
+                            advCoordinates.append(startPoint)
+                            advCoordinates.append(endPoint)
+                            
+                    distance += segment.distance
+                            
+            advGeoJson = {'type':'Feature',
+                          'properties':{'advId':adv.id,
+                                        'distance': distance,
+                                        'startTime': startTime,
+                                        'endTime': endTime},
+                          'geometry':{'type':'LineString',
+                                      'coordinates': advCoordinates}}
+            
+            allAdvs.append(advGeoJson)
+                            
+            
+        adventuresGeoJson = {'type':'FeatureCollection','properties':{'userId':userId},'features': allAdvs}
+            
+        return JsonResponse(adventuresGeoJson, safe=False)
+
+
+                        
 def handle_uploaded_file(userId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
     

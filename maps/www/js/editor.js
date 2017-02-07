@@ -100,7 +100,6 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentAdvIndex=null;
     });
 
-
     $http.get('/api/rest/userInfo/' + userId).then(function(data){
 	$scope.adventures = data.data.adventures;
 	$scope.bio = data.data.bio;

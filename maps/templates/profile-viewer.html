@@ -28,7 +28,7 @@
     <div class="collapse navbar-collapse main-nav">
       <ul class="nav navbar-nav">
 	
-	<li ng-class="isMapPageActive()"><a ui-sref="advSelect.selected({advId: currentAdvId})">Maps</a></li>
+	<li ng-class="isMapPageActive()"><a ui-sref="maps({advId: currentAdvId})">Maps</a></li>
 	<li ng-class="isBlogPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
 	<li ng-class="isGearPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
 	
@@ -40,8 +40,9 @@
 {% endblock %}
 
 {% block additionalJS %}
-<script src="/www/app/app.js"></script>
-<script src="/www/app/routes.js"></script>
-<script src="/www/app/shared/profileController.js"></script>
-<script src="/www/app/components/advSelect/advController.js"></script>
+<script src="/www/app/viewer/app.js"></script>
+<script src="/www/app/viewer/routes.js"></script>
+<script src="/www/app/viewer/shared/profileController.js"></script>
+<script src="/www/app/viewer/components/advSelect/advController.js"></script>
+<script src="/www/app/viewer/components/maps/mapsController.js"></script>
 {% endblock %}

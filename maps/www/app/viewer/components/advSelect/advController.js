@@ -1,20 +1,5 @@
 myApp.controller("advController",['$scope','$log','$http','$state','leafletData',function($scope,$log,$http,$state,leafletData){
-
     $scope.selectClickCount = 0 ;
-    
-    //get user adventures
-    $http.get('/api/rest/userInfo/' + $scope.userId+'/').then(function(data){
-	$scope.$parent.adventures = data.data.adventures;
-
-	if(!$scope.$parent.currentAdvId){
-	    $scope.$parent.currentAdvId = $scope.$parent.adventures[$scope.adventures.length-1].id;
-	    $scope.$parent.currentAdvName = $scope.$parent.adventures[$scope.adventures.length-1].name;
-	    $scope.$parent.currentAdvIndex = $scope.$parent.adventures.length-1;
-	    $state.go('advSelect.selected',{advId:$scope.$parent.currentAdvId});
-	}else{
-	}
-    });
-    
 
     leafletData.getMap().then(function(map){
 	advsOverviewLayer = new L.geoJson();
@@ -27,6 +12,14 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	segmentHighlightLayer.addTo(map);
     });
 
+        //get geojson
+    $http.get('/api/rest/advsOverview/' + $scope.userId+'/').then(function(data){
+	$scope.advsOverviewData = data.data;
+	
+	advsOverviewLayer.addData($scope.advsOverviewData);	
+    });
+
+    
 
     $scope.getAdvDistance = function(index){
 	if ($scope.advsOverviewData != null){
@@ -76,7 +69,6 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	drawSegmentHighlight(coordinates);
     };
 
-
     $scope.mouseleaveAdv = function(index){
 	segmentHighlightLayer.clearLayers();
     };
@@ -101,11 +93,10 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	    if($scope.selectClickCount=0){
 		$scope.selectClickCount+=1;
 	    }else{
-		$log.log("Go To Map state...");
+		$state.go("maps",{advId:$scope.currentAdvId});
 	    }
 	}else{
 	    if ($scope.selectClickCount==0){
-	    
 		var a = $scope.advsOverviewData.features[index].geometry.coordinates;
 		var line = markCurrentPath(a);
 		
@@ -118,13 +109,8 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 		$scope.$parent.currentAdvIndex=index;
 		$scope.$parent.currentAdvId=$scope.$parent.adventures[index].id;
 		$scope.$parent.currentAdvName=$scope.$parent.adventures[index].name;
-		$log.log($scope.$parent.adventures[index]);
-		$log.log("NEED TO CHANGE THIS NIGGER");
-		$state.go('advSelect.selected',{advId:$scope.$parent.currentAdvId})
 	    }
-	}
-
-	
+	}	
     };
 
     $scope.isAdvSelected = function(index){
@@ -133,20 +119,8 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	}
     };
     
-    //get geojson
-    $http.get('/api/rest/advsOverview/' + $scope.userId+'/').then(function(data){
-	$scope.advsOverviewData = data.data;
 
-
-	advsOverviewLayer.addData($scope.advsOverviewData);
-	
-    });
-
-    
     $log.log("Hello from adv controller");
 }]);
 
 
-myApp.controller("advSelectedController",['$scope','$log','$http','$state','leafletData',function($scope,$log,$http,$state,leafletData){
-    $log.log("hello from advSelectedController");
-}]);

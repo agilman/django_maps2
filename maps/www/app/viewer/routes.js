@@ -5,8 +5,10 @@ myApp.config(function($stateProvider){
 	    templateUrl:'/www/partials/profile-advSelect.html',
 	    controller:'advController',
 	})
-        .state('advSelect.selected',{
-	    url:':advId/',
-	    controller:'advSelectedController',
-	});
+        .state('maps',{
+	    url:':advId/maps/',
+	    templateUrl:'/www/partials/profile-maps.html',
+	    controller:'mapsController',
+	})
+    ;
 });

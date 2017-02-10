@@ -9,7 +9,7 @@
     
     
     <h4>Advnetures:</h4>
-    <ul class="list-group">
+    <ul class="list-group" ng-cloak>
       <li class="list-group-item adventure clearfix" ng-repeat="adventure in adventures" ng-mouseover="mouseOnAdv($index)" ng-mouseleave="mouseleaveAdv()" ng-class="isAdvSelected($index)" ng-click="advSelectClick($index)">
 	<span class="pull-left">
 	  <div class="thumbnail">
@@ -29,7 +29,7 @@
   
   
   <div class="col-lg-9">
-    <leaflet style="width:100%;height:800px;"></leaflet>
+    <leaflet style="width:100%;height:800px;" ng-show='$parent.adventures.length >1' ng-cloak></leaflet>
   </div>
 
 </div>

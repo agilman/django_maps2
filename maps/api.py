@@ -128,7 +128,6 @@ def advsOverview(request,userId):
                 startSegments = advMaps[0].segments.all()
                 if startSegments.count()>0:
                     startTime = startSegments[0].startTime
-
                     endSegments = advMaps[advMaps.count()-1].segments.all()
                 if endSegments.count()>0:
                     endTime = endSegments[endSegments.count()-1].endTime
@@ -167,14 +166,77 @@ def advsOverview(request,userId):
                           'geometry':{'type':'LineString',
                                       'coordinates': advCoordinates}}
             
-            allAdvs.append(advGeoJson)
-                            
+            allAdvs.append(advGeoJson)          
             
         adventuresGeoJson = {'type':'FeatureCollection','properties':{'userId':userId},'features': allAdvs}
             
         return JsonResponse(adventuresGeoJson, safe=False)
 
 
+
+@csrf_exempt
+def mapsOverview(request,advId):
+    if request.method=="GET":
+        adv = Adventure.objects.get(id=advId)
+        
+        advCoordinates = []
+        distance = 0
+        startTime = None
+        endTime = None
+
+        #get startTime
+        advMaps = adv.maps.all()
+        if advMaps.count()>0:
+            startSegments = advMaps[0].segments.all()
+            if startSegments.count()>0:
+                startTime = startSegments[0].startTime
+                endSegments = advMaps[advMaps.count()-1].segments.all()
+            if endSegments.count()>0:
+                endTime = endSegments[endSegments.count()-1].endTime
+
+        results =[] 
+                    
+        for advMap in advMaps:
+            segments = advMap.segments.all()
+            for segment in segments:
+                start = segment.coordinates.first()
+                startPoint = [float(start.lat),float(start.lng)]
+                    
+                end = segment.coordinates.last()
+                endPoint = [float(end.lat),float(end.lng)]
+
+                ###TODO: allow for non-continuous lines?
+                #Add first segment
+                if len(advCoordinates) == 0:
+                    advCoordinates.append(startPoint)
+                    advCoordinates.append(endPoint)
+
+                #If this is not the first segment, check if startPoint is same as last endPoint
+                else:
+                    if advCoordinates[len(advCoordinates)-1]==startPoint:
+                        advCoordinates.append(endPoint)
+                    else:
+                        advCoordinates.append(startPoint)
+                        advCoordinates.append(endPoint)
+                            
+                distance += segment.distance
+
+            mapGeoJson = {'type':'Feature',
+                      'properties':{'mapId':advMap.id,
+                                    'mapName': advMap.name,
+                                    'distance': distance,
+                                    'startTime': startTime,
+                                    'endTime': endTime},
+                      'geometry':{'type':'LineString',
+                                      'coordinates': advCoordinates}}
+            
+            results.append(mapGeoJson)          
+            
+        adventuresGeoJson = {'type':'FeatureCollection','properties':{'advId':advId},'features': results}
+            
+        return JsonResponse(adventuresGeoJson, safe=False)
+
+    
                         
 def handle_uploaded_file(userId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
@@ -217,6 +279,7 @@ def profilePhoto(request):
 
 @csrf_exempt
 def advMaps(request,advId=None):
+    """Used to get list of maps, no coordinates"""
     if request.method == 'GET':
         queryset = Map.objects.filter(adv=advId)
         results = []
@@ -239,9 +302,9 @@ def advMaps(request,advId=None):
         return JsonResponse(result,safe=False)
     
 @csrf_exempt
-def maps(request,mapId=None):
-    if request.method == 'GET':
-        
+def map(request,mapId=None):
+    """Used to get map segments """
+    if request.method == 'GET':        
         map = Map.objects.filter(id=mapId).first()
         
         results = []
@@ -310,7 +373,6 @@ def makeGeoJsonFromSegment(segment):
                "geometry":geometry}
     
     return feature
-
 
 @csrf_exempt
 def mapSegment(request,segmentId=None):

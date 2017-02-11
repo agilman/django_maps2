@@ -6,7 +6,7 @@ myApp.config(function($stateProvider){
 	    controller:'advController',
 	})
         .state('maps',{
-	    url:':advId/maps/',
+	    url:'/:advId/maps/',
 	    templateUrl:'/www/partials/profile-maps.html',
 	    controller:'mapsController',
 	})

@@ -326,7 +326,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     
     function setupMapFromDOM(index){
 	//get Map
-	$http.get('/api/rest/maps/' + $scope.currentMapId).then(function(data){
+	$http.get('/api/rest/map/' + $scope.currentMapId).then(function(data){
 	    $scope.segmentsData = data.data;
 	    geoJsonLayer.addData($scope.segmentsData);
 
@@ -509,7 +509,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     
     $scope.deleteMap = function(index){
 	var mapId = $scope.maps[index].id;
-	$http.delete('/api/rest/maps/'+mapId).then(function(resp){
+	$http.delete('/api/rest/map/'+mapId).then(function(resp){
 	    //clear entry from list
 	    $scope.maps.splice(index,1);
 

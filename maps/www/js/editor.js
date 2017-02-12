@@ -77,9 +77,11 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentEditorPage='blogs';
     });
 
-    $scope.$on('setMapEditorActive',function(event){
+    $scope.$on('setMapEditorActive',function(event,advId){
 	$scope.currentEditorPage='maps';
+	$scope.currentAdvId = advId;
     });
+
     $scope.$on('setGearEditorActive',function(event){
 	$scope.currentEditorPage='gear';
     });
@@ -88,10 +90,6 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentAdvId   =  $scope.adventures[indx].id;
 	$scope.currentAdvName = $scope.adventures[indx].name;
 	$scope.currentAdvIndex= indx;
-    });
-    
-    $scope.$on('advNameChangeEvent',function(event,newName){
-	$scope.currentAdvName=newName;
     });
 
     $scope.$on('deselectAdv',function(event){
@@ -113,9 +111,18 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	
 	//Get latest adv if adventureId not provided...
 	if ($scope.adventures.length > 0){
-	    $scope.currentAdvId  = $scope.adventures[$scope.adventures.length-1].id;
-	    $scope.currentAdvName= $scope.adventures[$scope.adventures.length-1].name;
-	    $scope.currentAdvIndex=$scope.adventures.length-1;
+	    if(!$scope.currentAdvId){
+		$scope.currentAdvId  = $scope.adventures[$scope.adventures.length-1].id;
+		$scope.currentAdvName= $scope.adventures[$scope.adventures.length-1].name;
+		$scope.currentAdvIndex=$scope.adventures.length-1;
+	    }else{ //if adventureId has been set, set the name and index.
+		for(var i=0; i<$scope.adventures.length; i++){
+		    if($scope.adventures[i].id == $scope.currentAdvId){
+			$scope.currentAdvName =$scope.adventures[i].name;
+			$scope.currentAdvIndex = i;
+		    }
+		}
+	    }
 	}
     });
 }]);
@@ -270,14 +277,12 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 
 
 myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams','$state','leafletData',function($scope,$log,$http, $stateParams,$state,leafletData){
-    $scope.$emit("setMapEditorActive");
-
-    $scope.currentAdvId = $stateParams.currentAdvId;
+    $scope.$emit("setMapEditorActive",$stateParams.currentAdvId);
+        
     $scope.maps = [];
     $scope.currentMapIndex = null;
     $scope.currentMapId= null;
     $scope.currentMapName=null;
-
 
     $scope.segmentsData =[];
 

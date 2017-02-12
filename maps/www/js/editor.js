@@ -3,7 +3,7 @@ var myApp = angular.module("myApp",['ui.router','ui.bootstrap','ui.bootstrap.dat
 myApp.config(function($stateProvider){
     $stateProvider
 	.state('advEditor',{
-	    url:'',
+	    url:'/',
 	    templateUrl:'/www/partials/editor-adventures.html',
 	    controller:'advEditorController',
 	})

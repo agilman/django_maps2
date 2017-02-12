@@ -12,3 +12,7 @@ body {
 .purple{
     color:purple;
 }
+
+.navbar-brand{
+    padding-top:0;
+}

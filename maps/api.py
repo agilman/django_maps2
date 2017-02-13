@@ -162,7 +162,8 @@ def advsOverview(request,userId):
                           'properties':{'advId':adv.id,
                                         'distance': distance,
                                         'startTime': startTime,
-                                        'endTime': endTime},
+                                        'endTime': endTime,
+                                        'status': adv.advStatus},
                           'geometry':{'type':'LineString',
                                       'coordinates': advCoordinates}}
             

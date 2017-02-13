@@ -1,6 +1,7 @@
 myApp.controller("advController",['$scope','$log','$http','$state','leafletData',function($scope,$log,$http,$state,leafletData){
     $scope.selectClickCount = 0 ;
 
+    $scope.advsOverviewData=null;
     leafletData.getMap().then(function(map){
 	advsOverviewLayer = new L.geoJson();
 	advsOverviewLayer.addTo(map);
@@ -16,10 +17,9 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
     $http.get('/api/rest/advsOverview/' + $scope.userId+'/').then(function(data){
 	$scope.advsOverviewData = data.data;
 	
-	advsOverviewLayer.addData($scope.advsOverviewData);	
-    });
-
-    
+	advsOverviewLayer.addData($scope.advsOverviewData);
+	fitMap(advsOverviewLayer.getBounds());	
+    });    
 
     $scope.getAdvDistance = function(index){
 	if ($scope.advsOverviewData != null){
@@ -28,6 +28,40 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	}
     };
 
+    $scope.getAdvStatus = function(index){
+	if($scope.advsOverviewData!=null){
+	    var properties = $scope.advsOverviewData.features[index].properties;
+
+	    if (properties.status==1){
+		return "In Progress";
+	    };
+	}
+    };
+    
+    $scope.getAdvDuration = function(index){
+	if($scope.advsOverviewData!=null){
+	    var properties = $scope.advsOverviewData.features[index].properties;
+
+	    if (properties.startTime!= null && properties.endTime!= null){
+		var start = moment(properties.startTime);
+		var end = moment(properties.endTime);
+
+		var returnStr = start.format('MMM DD,  YYYY') + ' - ' + end.format('MMM DD,YYYY');
+
+		var duration = moment.duration(end.diff(start));
+		if (duration.asDays()>0 && duration.asDays()<2){
+		    returnStr=returnStr + ", "+ "1 Day";
+		}else if (duration.asDays()>2){
+		    returnStr=returnStr + ", "+ parseInt(duration.asDays())+" Days";
+		}
+		
+		return returnStr;
+	    }    
+	}
+
+	return "";
+    };
+    
     function drawSegmentHighlight(segment){
 	//given a segment, this function adds it to selectedSegmentLayer (used to show specific day when selected)
 
@@ -81,8 +115,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
     
     function centerMap(center){
 	leafletData.getMap().then(function(map){
-	    map.flyTo(center);
-	    
+	    map.flyTo(center);	    
 	});
     };
 	
@@ -117,8 +150,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	if ($scope.currentAdvIndex == index){
 	    return "active";
 	}
-    };
-    
+    };    
 
     $log.log("Hello from adv controller");
 }]);

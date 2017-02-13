@@ -1,4 +1,5 @@
 myApp.controller("advController",['$scope','$log','$http','$state','leafletData',function($scope,$log,$http,$state,leafletData){
+    $scope.$emit("advsSelected");
     $scope.selectClickCount = 0 ;
 
     $scope.advsOverviewData=null;

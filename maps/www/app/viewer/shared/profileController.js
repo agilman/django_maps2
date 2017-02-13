@@ -4,7 +4,9 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
     $scope.adventures = [];
     $scope.currentAdvId = null;
     $scope.currentAdvName = null ;
-    $scope.currentAdvIndex = null
+    $scope.currentAdvIndex = null;
+
+    $scope.currentPage = null;
 
     //get user adventures
     $http.get('/api/rest/userInfo/' + $scope.userId+'/').then(function(data){
@@ -27,6 +29,8 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
     });
 
     $scope.$on('mapViewer',function(event,advId){
+	$scope.currentPage = 'maps';
+
 	$scope.currentAdvId = advId;
 	for (var i =0;i<$scope.adventures.length;i++){
 	    if ($scope.adventures[i].id == advId){
@@ -35,6 +39,35 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	    }
 	}
     });
+
+    $scope.isAdvsPageActive = function(){
+	if($scope.currentPage =='advs'){
+	    return "active";
+	}
+    };
+
+    $scope.isMapsPageActive = function(){
+	if($scope.currentPage =='maps'){
+	    return "active";
+	}
+    };
+
+    $scope.isBlogsPageActive = function(){
+	if($scope.currentPage =='blogs'){
+	    return "active";
+	}
+    };
+
+    $scope.isGearPageActive = function(){
+	if($scope.currentPage =='gear'){
+	    return "active";
+	}
+    };
+
+
+    $scope.$on('advsSelected',function(event){
+	$scope.currentPage = 'advs';
+    })
     
     $log.log("Hello from main controller");
 }]);

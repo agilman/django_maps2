@@ -7,7 +7,7 @@
 
 {% block headerBar %}
 <ul class="nav navbar-nav">
-  <li ng-class="isAdvPageActive()"><a ui-sref="advSelect">Adventures</a></li>
+  <li ng-class="isAdvsPageActive()"><a ui-sref="advSelect">Adventures</a></li>
   <li ng-cloak><p class="navbar-text">{% verbatim %}{{ currentAdvName }}{% endverbatim %}</p></li>
 </ul>
 {% block loginNav %}
@@ -28,8 +28,8 @@
     <div class="collapse navbar-collapse main-nav">
       <ul class="nav navbar-nav">
 	
-	<li ng-class="isMapPageActive()"><a ui-sref="maps({advId: currentAdvId})">Maps</a></li>
-	<li ng-class="isBlogPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
+	<li ng-class="isMapsPageActive()"><a ui-sref="maps({advId: currentAdvId})">Maps</a></li>
+	<li ng-class="isBlogsPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
 	<li ng-class="isGearPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
 	
       </ul>

@@ -1,0 +1,33 @@
+myApp.config(function($stateProvider){
+    $stateProvider
+        .state('advEditor',{
+	    url:'/',
+	    templateUrl:'/www/partials/editor-adventures.html',
+	    controller:'advEditorController',
+	})
+        .state('mapsEditor',{
+	    url:'/:currentAdvId/maps/',
+	    templateUrl:'/www/partials/editor-maps.html',
+	    controller:'mapsEditorController',
+	})
+        .state('mapsEditor.segments',{
+	    url:':mapId/',
+	    templateUrl:'/www/partials/editor-maps.segments.html',
+	    controller:'mapSegmentsEditorController',
+	})
+        .state('mapsEditor.segmentDetails',{
+	    url:':mapId/:segmentId/',
+	    templateUrl:'/www/partials/editor-maps.segmentDetails.html',
+	    controller:'segmentDetailsController',
+	})
+        .state('blogsEditor',{
+	    url:'/:currentAdvId/blogs/',
+	    templateUrl:'/www/partials/editor-blogs.html',
+	    controller:'blogEditorController',
+	})
+        .state('gearEditor',{
+	    url:'/:currentAdvId/gear/',
+	    templateUrl:'/www/partials/editor-gear.html',
+	    controller:'gearEditorController',
+	});
+});

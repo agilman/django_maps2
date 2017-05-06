@@ -1,4 +1,4 @@
-myApp.controller("photoEditorController",['$scope','$log','$http',function($scope,$log,$http){
-    $log.log("Hello from photoEditorController");
-    
+myApp.controller("photoEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http,$stateParams){
+    $scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
+    $log.log("Hello from photoEditorController");    
 }]);

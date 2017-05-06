@@ -21,6 +21,12 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	}
     }
 
+    $scope.isPhotoEditorActive = function(){
+	if ($scope.currentEditorPage=="photos"){
+	    return "active";
+	}
+    }
+
     $scope.isBlogEditorActive = function(){
 	if ($scope.currentEditorPage=="blogs"){
 	    return "active";
@@ -43,6 +49,11 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 
     $scope.$on('setMapEditorActive',function(event,advId){
 	$scope.currentEditorPage='maps';
+	$scope.currentAdvId = advId;
+    });
+
+    $scope.$on('setPhotoEditorActive',function(event){
+	$scope.currentEditorPage='photos';
 	$scope.currentAdvId = advId;
     });
 

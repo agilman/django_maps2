@@ -1,6 +1,6 @@
 from maps.models import *
 from maps.serializers import *
-from maps.forms import ProfilePhotoUploadForm
+from maps.forms import ProfilePhotoUploadForm, AlbumPhotoUploadForm
 
 from django.http import JsonResponse
 from collections import OrderedDict
@@ -239,7 +239,7 @@ def mapsOverview(request,advId):
 
     
                         
-def handle_uploaded_file(userId,f):
+def handle_uploaded_profilePhoto(userId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
     
     #save file as is
@@ -266,6 +266,25 @@ def handle_uploaded_file(userId,f):
     return profilePicture
 
 @csrf_exempt
+def albumPhoto(request):
+    if request.method == 'POST':
+        
+        form = AlbumPhotoUploadForm(request.POST,request.FILES)
+        if form.is_valid():
+            albumId= form.data['albumId']
+            f = request.FILES['file']
+
+            userId= request.user.id
+            
+            albumPic = handle_uploaded_albumPhoto(userId,albumId,f)
+            
+            #return JsonResponse({"picId":userPic.id},safe=False)
+            return JsonResponse([],safe=False)
+        else:
+            print("invalid form")
+            return JsonResponse({"msg":"FAIL"},safe=False)
+
+@csrf_exempt
 def profilePhoto(request):
     if request.method == 'POST':
         
@@ -273,10 +292,11 @@ def profilePhoto(request):
         if form.is_valid():
             userId = form.data['userId']
             f = request.FILES['file']
-            userPic = handle_uploaded_file(userId,f)
+            userPic = handle_uploaded_profilePhoto(userId,f)
             
             return JsonResponse({"picId":userPic.id},safe=False)
-        
+        else:
+            print("invalid form")
 
 @csrf_exempt
 def advMaps(request,advId=None):
@@ -462,3 +482,34 @@ def advAlbums(request,advId=None):
         albums = Album.objects.filter(adv=adv)
         albumSerializer = AlbumSerializer(albums, many=True)
         return JsonResponse(albumSerializer.data, safe=False)
+
+
+def handle_uploaded_albumPhoto(userId,albumId,f):
+    #write file as is, convert to decided format, add to db,  delete old ?
+    
+    #save file as is
+    #TODO: generate new name
+    newName = f.name 
+    target = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+albumId+'/'+ newName
+    
+    with open(target, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+            
+    #convert,resize,thumbs
+
+    #TODO add to db
+    #user = User.objects.get(pk=int(userId))
+    #my_date = datetime.now(pytz.timezone('US/Pacific'))
+    #profilePicture = UserProfilePicture(user=user,uploadTime=my_date,active=True)
+    #profilePicture.save()
+    
+    #temp solution... need to convert to target file with right extension, and then delete the old file.
+    #rename
+    #newName = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/profile_pictures/'+str(profilePicture.id)+".png"
+    #os.rename(target,newName)
+
+    
+    return 1
+
+            

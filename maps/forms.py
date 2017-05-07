@@ -9,6 +9,13 @@ class ProfilePhotoUploadForm(forms.Form):
     userId = forms.IntegerField()
     file = forms.FileField()
 
+
+class AlbumPhotoUploadForm(forms.Form):
+    albumId = forms.IntegerField()
+    file = forms.FileField()
+
+
+    
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     

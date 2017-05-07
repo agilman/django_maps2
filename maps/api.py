@@ -426,3 +426,11 @@ def mapSegment(request,segmentId=None):
                             
 
                     
+@csrf_exempt
+def advAlbums(request,advId=None):
+    """Used to get list of maps, no coordinates"""
+    if request.method == 'GET':
+        adv = Adventure.objects.get(id=advId)
+        albums = Album.objects.filter(adv=adv)
+        albumSerializer = AlbumSerializer(albums, many=True)
+        return JsonResponse(albumSerializer.data, safe=False)

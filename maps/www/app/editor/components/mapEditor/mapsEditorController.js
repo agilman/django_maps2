@@ -85,8 +85,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 			centerOnStart(startLat,startLng);
 		    }
 		}
-
-
 	    }else{ //if the selected map doesn't have any points
 		$scope.startLat = null;
 		$scope.startLng = null;
@@ -266,7 +264,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 		    $state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
 		}
 	    }
-
 	});
     };
 

@@ -25,6 +25,11 @@ myApp.config(function($stateProvider){
 	    templateUrl:'/www/partials/editor-photos.html',
 	    controller:'photoEditorController',
 	})
+        .state('photosEditor.album',{
+	    url:'/:currentAdvId/photos/:albumId/',
+	    templateUrl:'/www/partials/editor-photos.album.html',
+	    controller:'photoEditorAlbumController',
+	})
         .state('blogsEditor',{
 	    url:'/:currentAdvId/blogs/',
 	    templateUrl:'/www/partials/editor-blogs.html',

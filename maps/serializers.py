@@ -22,3 +22,8 @@ class MapSerializer(serializers.ModelSerializer):
         model = Map
         fields= ['id','name']
         
+
+class AlbumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = ['id','adv','advMap','title']

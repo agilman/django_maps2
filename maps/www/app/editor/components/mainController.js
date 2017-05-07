@@ -52,7 +52,7 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentAdvId = advId;
     });
 
-    $scope.$on('setPhotoEditorActive',function(event){
+    $scope.$on('setPhotoEditorActive',function(event,advId){
 	$scope.currentEditorPage='photos';
 	$scope.currentAdvId = advId;
     });

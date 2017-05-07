@@ -50,3 +50,14 @@ class WayPoint(models.Model):
 class DayNote(models.Model):
     segment = models.ForeignKey(MapSegment,on_delete=models.CASCADE, related_name="dayNotes")
     note = models.CharField(max_length=512)
+
+class Album(models.Model):
+    adv = models.ForeignKey(Adventure, on_delete=models.CASCADE, related_name="albums")
+    advMap = models.ForeignKey(Map, null=True)
+    title = models.CharField(max_length=32)
+                            
+class Picture(models.Model):
+    album = models.ForeignKey(Album)
+    caption = models.CharField(max_length=512)
+    filename= models.CharField(max_length=12)
+    

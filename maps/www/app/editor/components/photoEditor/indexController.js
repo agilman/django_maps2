@@ -27,7 +27,22 @@ myApp.controller("photoEditorController",['$scope','$log','$http','$stateParams'
 	
 	$log.log(data.data);
     });
-    
+
+    $scope.getAlbumClass = function(index){
+	if($scope.currentAlbumIndex==index){
+	    return "btn-primary";
+
+	}else{
+	    return "btn-default";
+	}
+
+    };
+
+    $scope.changeAlbum = function(index){
+	$scope.currentAlbumIndex=index;
+	$scope.currentAlbumId=$scope.albums[index].id;
+	$state.go('photosEditor.album',{albumId:$scope.currentAlbumId});
+    };
     
     $log.log("Hello from photoEditorController");    
 }]);

@@ -2,5 +2,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
 
 
+    $scope.uploadClick = function(){
+	var domElement = document.getElementById("file");
+	domElement.click();
+    };
+    
     $log.log("Hello from photoEditorController");    
 }]);

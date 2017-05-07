@@ -297,11 +297,37 @@ def advMaps(request,advId=None):
         map = Map(name=data["name"],adv=adv)
         
         map.save()
+
+        #Side effect of creating a map: album created with same name, folder created with albumId.
+        album = Album(adv = adv, advMap=map, title=data["name"])
+        album.save()
+
+        #create dir..
+        createAlbumDirs(request.user.id,album.id)
+
         
         #Hmm, maybe I should just get a serializer...
         result = {"id":map.id,"name":map.name,"features":[],"distance":0 }
         return JsonResponse(result,safe=False)
+
     
+
+def createAlbumDirs(userId,newAlbumId):
+    #create album directory
+    galleryPath = os.path.dirname(settings.USER_MEDIA_ROOT)
+        
+    #create path for all the albums for given user... this should probably be done when user account is created?
+    #THIS SHOULD NOT BE DONE HERE.
+    if not os.path.exists(galleryPath +"/"+ str(userId)):
+        os.mkdir(galleryPath + "/" + str(userId))
+        
+    albumPath = galleryPath + "/" + str(userId) + "/" + str(newAlbumId)
+    
+    if not os.path.exists(albumPath):
+        os.mkdir(albumPath)
+        os.mkdir(albumPath+"/.th") #make dir for thumbs
+        os.mkdir(albumPath+"/.mi") #make dir for midsize image  
+            
 @csrf_exempt
 def map(request,mapId=None):
     """Used to get map segments """
@@ -320,6 +346,8 @@ def map(request,mapId=None):
         serialized = MapSerializer(mapToDel)
         
         return JsonResponse(serialized.data,safe=False)
+
+    
 
 
 def makeGeoJsonFromMap(map):

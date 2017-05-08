@@ -1,6 +1,11 @@
 myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams',function($scope,$log,$http,$stateParams){
     //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
 
+    $scope.slickLoaded=false;
+    $scope.pictures = $scope.$parent.albums[$scope.$parent.currentAlbumIndex].pictures;
+    $log.log($scope.pictures);
+    $scope.slickLoaded=true;
+    
     $scope.uploadClick = function(){
 	var domElement = document.getElementById("file");
 	domElement.click();
@@ -28,8 +33,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		$log.log(data.data);
 	    });
 	}
-	};
+    };
+
+
     
     
-    $log.log("Hello from photoEditorController");    
+    $log.log("Hello from photoAlbumController");    
 }]);

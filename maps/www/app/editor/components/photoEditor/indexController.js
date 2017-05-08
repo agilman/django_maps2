@@ -6,7 +6,7 @@ myApp.controller("photoEditorController",['$scope','$log','$http','$stateParams'
     $scope.currentAlbumIndex=null;
     
     $http.get('/api/rest/advAlbums/' + $scope.currentAdvId+"/").then(function(data){
-	$scope.albums= data.data;
+	$scope.albums = data.data;
 
 	if($scope.albums.length){
 	    if(!$scope.currentAlbumId){ //if there is no albumId, use last
@@ -24,8 +24,6 @@ myApp.controller("photoEditorController",['$scope','$log','$http','$stateParams'
 		}
 	    }
 	}
-	
-	$log.log(data.data);
     });
 
     $scope.getAlbumClass = function(index){

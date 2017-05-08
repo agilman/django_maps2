@@ -12,8 +12,13 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-2">
-    <slick class="slider">
+  <div class="col-lg-8">
+    <slick class="slider" ng-if="slickLoaded" dots="true" slidesToShow="5" infinite="true">
+      <div ng-repeat="picture in pictures">
+	<span>
+	  <img style="min-width:100%" ng-src="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" />
+	</span>
+      </div>
     </slick>
     <!--slick dots=true infinite=false speed=300 slides-to-show=5 touch-move=false slides-to-scroll=1>
 	</slick-->

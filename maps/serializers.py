@@ -22,13 +22,16 @@ class MapSerializer(serializers.ModelSerializer):
         model = Map
         fields= ['id','name']
         
-
-class AlbumSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Album
-        fields = ['id','adv','advMap','title']
-
 class PictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Picture
         fields = ['id','album','caption','filename','uploadTime']
+        
+class AlbumSerializer(serializers.ModelSerializer):
+    pictures = PictureSerializer(source="picture_set",many=True)
+
+    class Meta:
+        model = Album
+        fields = ['id','adv','advMap','title','pictures']
+
+

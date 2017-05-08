@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-lg-2">
+  <div class="col-lg-12">
     <br>
     <input type="file" id="file" name="file" style="display:none" onchange="angular.element(this).scope().fileSelectChange(this.files)"/>
     <button class="btn" type="button" ng-click="uploadClick()">
@@ -8,20 +8,20 @@
 	<b>UPLOAD</b>
       </span>
     </button>
+    <span>    <---Click here to Upload Pictures!
+    </span>
   </div>
 </div>
-
+<hr>
 <div class="row">
   <div class="col-lg-8">
-    <slick class="slider" ng-if="slickLoaded" dots="true" slidesToShow="5" infinite="true">
+    <slick class="slider" ng-if="slickLoaded" settings="slickConfig">
       <div ng-repeat="picture in pictures">
-	<span>
-	  <img style="min-width:100%" ng-src="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" />
-	</span>
+	<div class="">
+	  <img ng-src="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" />
+	</div>
       </div>
     </slick>
-    <!--slick dots=true infinite=false speed=300 slides-to-show=5 touch-move=false slides-to-scroll=1>
-	</slick-->
-    TEST
+
   </div>
 </div>

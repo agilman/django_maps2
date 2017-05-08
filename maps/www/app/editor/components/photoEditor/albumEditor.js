@@ -35,8 +35,18 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	}
     };
 
-
+    $scope.slickConfig = {
+	autoplay: false,
+	infinite: true,
+	slidesToShow: 5,
+	slidesToScroll: 1,
+	method: {}
+    };
     
     
     $log.log("Hello from photoAlbumController");    
 }]);
+
+
+
+

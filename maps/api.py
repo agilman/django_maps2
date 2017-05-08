@@ -17,6 +17,10 @@ from datetime import datetime
 import pytz
 import os
 
+import PIL
+from PIL import Image
+from PIL.ExifTags import TAGS
+
 @csrf_exempt
 def userInfo(request,userId=None):
     if request.method == 'GET':
@@ -483,13 +487,89 @@ def advAlbums(request,advId=None):
         albumSerializer = AlbumSerializer(albums, many=True)
         return JsonResponse(albumSerializer.data, safe=False)
 
+def rotateImage(imgPath):
+    im = Image.open(imgPath)
+    
+    srev = imgPath[::-1]
+    ext = imgPath[len(srev)-srev.index("."):]
+    
+    if ext=="jpg" or ext=="jpeg":
+        toRotate = True
+        exifdict = im._getexif()
+        if exifdict:
+            for k in exifdict.keys():
+                if k in TAGS.keys():
+                    if TAGS[k]=="Orientation":
+                        orientation = exifdict[k]
+                        if orientation == 3:
+                            im = im.rotate(180, expand=True)
+                        elif orientation == 6:
+                            im = im.rotate(270, expand=True)
+                        elif orientation == 8:
+                            im = im.rotate(90, expand=True)
+                        else:
+                            toRotate = False
+                            
+        if toRotate:
+            im.save(imgPath)
+
+def resizeImage(path,fileName,targetPath,targetName,targetWidth,targetHeight):
+    """ Strategy:
+    -if picture is horizontal: resize to desired height, crop the center -- removing pixels from left and right.
+    -if picture is vertical: resize to desired width, crop the center --removing pixels from top and bottom."""
+    
+    inFile = path+fileName
+    
+    outFile = targetPath+targetName
+        
+    img = Image.open(inFile)
+    imgWidth = img.size[0]
+    imgHeight = img.size[1]
+
+    if (imgHeight>imgWidth):
+        wprecent = (float(targetWidth)/imgWidth)
+        hsize = int(float(imgHeight)*wprecent)
+
+        img = img.resize((targetWidth,hsize),PIL.Image.ANTIALIAS)
+        voffset = ( hsize - targetHeight)/2
+        box = (0,voffset,targetWidth,voffset+targetHeight)
+            
+        img = img.crop(box)
+        img.save(outFile)
+
+    else:
+        #check ratios
+        if (float(targetWidth)/float(targetHeight)>float(imgWidth)/float(imgHeight)):
+            wprecent = (float(targetWidth)/imgWidth)
+            hsize = int(float(imgHeight)*wprecent)
+
+            img = img.resize((targetWidth,hsize),PIL.Image.ANTIALIAS)
+            voffset = ( hsize - targetHeight)/2
+            box = (0,voffset,targetWidth,voffset+targetHeight)
+            
+            img = img.crop(box)
+            img.save(outFile)
+
+        else:
+            hprecent = (float(targetHeight)/imgHeight)
+            wsize = int(float(imgWidth)*hprecent)
+
+            img = img.resize((wsize,targetHeight),PIL.Image.ANTIALIAS)
+            hoffset = ( wsize - targetWidth)/2
+            box = (hoffset,0,hoffset+targetWidth,targetHeight)
+
+            img = img.crop(box)
+            img.save(outFile)
+
+    return 1
 
 def handle_uploaded_albumPhoto(userId,albumId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
     
     #save file as is
     newName = f.name 
-    target = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+albumId+'/'+ newName
+    filePath = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+albumId+'/'
+    target = filePath +  newName
 
     with open(target, 'wb+') as destination:
         for chunk in f.chunks():
@@ -498,6 +578,18 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
     #TODO: generate new name, convert to compressed format..            
     #convert,resize,thumbs
 
+    #rotate image if needed.
+    rotateImage(target)
+
+    #resizeImage(target)
+
+    resizeImage(filePath,newName,filePath+".th/",newName,150, 100)
+
+    ##make midzie picture
+    resizeImage(filePath,newName,filePath+".mi/",newName,670,450)
+                                        
+
+    
     #Add to db
     album = Album.objects.get(id=int(albumId))
     now = datetime.now(pytz.timezone('US/Pacific'))

@@ -58,6 +58,10 @@ class Album(models.Model):
                             
 class Picture(models.Model):
     album = models.ForeignKey(Album)
-    caption = models.CharField(max_length=512)
+    caption = models.CharField(max_length=512,null=True)
     filename= models.CharField(max_length=12)
+    
+    uploadTime = models.DateTimeField()
+
+
     

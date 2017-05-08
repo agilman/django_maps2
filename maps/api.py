@@ -67,7 +67,7 @@ def userInfo(request,userId=None):
 def adventures(request,advId=None):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        print(data)
+        
         user = User.objects.get(pk=int(data["owner"]))
         
         advName = data["name"]
@@ -276,12 +276,11 @@ def albumPhoto(request):
 
             userId= request.user.id
             
-            albumPic = handle_uploaded_albumPhoto(userId,albumId,f)
+            pic = handle_uploaded_albumPhoto(userId,albumId,f)
+            serialized = PictureSerializer(pic)
             
-            #return JsonResponse({"picId":userPic.id},safe=False)
-            return JsonResponse([],safe=False)
+            return JsonResponse(serialized.data,safe=False)
         else:
-            print("invalid form")
             return JsonResponse({"msg":"FAIL"},safe=False)
 
 @csrf_exempt
@@ -296,7 +295,7 @@ def profilePhoto(request):
             
             return JsonResponse({"picId":userPic.id},safe=False)
         else:
-            print("invalid form")
+            return JsonResponse({"msg":"FAIL"},safe=False)
 
 @csrf_exempt
 def advMaps(request,advId=None):
@@ -334,14 +333,15 @@ def advMaps(request,advId=None):
 
 def createAlbumDirs(userId,newAlbumId):
     #create album directory
-    galleryPath = os.path.dirname(settings.USER_MEDIA_ROOT)
-        
+    media_root = settings.USER_MEDIA_ROOT
+    
     #create path for all the albums for given user... this should probably be done when user account is created?
     #THIS SHOULD NOT BE DONE HERE.
-    if not os.path.exists(galleryPath +"/"+ str(userId)):
-        os.mkdir(galleryPath + "/" + str(userId))
+    if not os.path.exists(media_root +"/"+ str(userId)): 
+        print("creating user media dir") #This happens at user registeration...
+        os.mkdir(media_root + "/" + str(userId))
         
-    albumPath = galleryPath + "/" + str(userId) + "/" + str(newAlbumId)
+    albumPath = media_root + "/" + str(userId) + "/" + str(newAlbumId)
     
     if not os.path.exists(albumPath):
         os.mkdir(albumPath)
@@ -488,28 +488,22 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
     
     #save file as is
-    #TODO: generate new name
     newName = f.name 
     target = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+albumId+'/'+ newName
-    
+
     with open(target, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
             
+    #TODO: generate new name, convert to compressed format..            
     #convert,resize,thumbs
 
-    #TODO add to db
-    #user = User.objects.get(pk=int(userId))
-    #my_date = datetime.now(pytz.timezone('US/Pacific'))
-    #profilePicture = UserProfilePicture(user=user,uploadTime=my_date,active=True)
-    #profilePicture.save()
-    
-    #temp solution... need to convert to target file with right extension, and then delete the old file.
-    #rename
-    #newName = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/profile_pictures/'+str(profilePicture.id)+".png"
-    #os.rename(target,newName)
+    #Add to db
+    album = Album.objects.get(id=int(albumId))
+    now = datetime.now(pytz.timezone('US/Pacific'))
+    picture = Picture(album=album,caption=None, filename=newName,uploadTime=now)
+    picture.save()
 
-    
-    return 1
+    return picture
 
             

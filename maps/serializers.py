@@ -27,3 +27,8 @@ class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = ['id','adv','advMap','title']
+
+class PictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Picture
+        fields = ['id','album','caption','filename','uploadTime']

@@ -1,4 +1,4 @@
-myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams',function($scope,$log,$http,$stateParams){
+myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams','$timeout',function($scope,$log,$http,$stateParams,$timeout){
     //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
     $scope.albumId = $stateParams.albumId;
     $scope.slickLoaded = false;
@@ -29,18 +29,35 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    }).then(function(data){
 		$scope.slickLoaded = false;
 		$scope.pictures.push(data.data);
-		$scope.slickLoaded = true;
+
+		$timeout(function () {
+		    $scope.slickLoaded = true;
+		}, 5);
+		
+		
 	    });
 	}
+
+
+	
     };
     
-    $scope.slickConfig = {
+    $scope.slideConfig = {
+	lazyLoad: 'ondemand',
 	rows: 1,
 	dots: true,
 	autoplay: false,
 	infinite: true,
 	slidesToShow: 6,
-	slidesToScroll: 3
+	slidesToScroll: 3,
+	method:{},
+	event: {
+	    beforeChange: function (event, slick, currentSlide, nextSlide) {
+	    },
+	    afterChange: function (event, slick, currentSlide, nextSlide) {
+	    }
+	}
+	
     };
     
     

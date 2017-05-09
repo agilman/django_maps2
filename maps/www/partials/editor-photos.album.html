@@ -14,10 +14,10 @@
 <hr>
 <div class="row">
   <div class="col-lg-8">
-    <slick class="slider" ng-if="slickLoaded" settings="slickConfig" style="height:100px">
+    <slick ng-if="slickLoaded" settings="slideConfig" style="height:100px">
       <div ng-repeat="picture in pictures">
-	<span class="">
-	  <img ng-src="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="height:100px"/>
+	<span class="pull-center">
+	  <img ng-src="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="height:100px;width:150px;"/>
 	</span>
       </div>
     </slick>

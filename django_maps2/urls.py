@@ -45,5 +45,5 @@ urlpatterns = [
     url(r'^api/rest/mapsOverview/(?P<advId>\d+)/$',api.mapsOverview),
     url(r'^api/rest/mapSegment$', api.mapSegment),
     url(r'^api/rest/advAlbums/(?P<advId>\d+)/$',api.advAlbums),
-    url(r'^api/rest/albumPhoto/$',api.albumPhoto),
+    url(r'^api/rest/pictures/(?P<albumId>\d+)/$',api.pictures),
 ]

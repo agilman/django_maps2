@@ -1,10 +1,13 @@
 myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams',function($scope,$log,$http,$stateParams){
     //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
-
-    $scope.slickLoaded=false;
-    $scope.pictures = $scope.$parent.albums[$scope.$parent.currentAlbumIndex].pictures;
-    $log.log($scope.pictures);
-    $scope.slickLoaded=true;
+    $scope.albumId = $stateParams.albumId;
+    $scope.slickLoaded = false;
+    $scope.pictures = [];
+        
+    $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
+	$scope.pictures = data.data;
+	$scope.slickLoaded = true;
+    });    
     
     $scope.uploadClick = function(){
 	var domElement = document.getElementById("file");
@@ -12,29 +15,25 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
 
     $scope.fileSelectChange = function(files){
-	$log.log(files.length);
-	for(var i=0;i<files.length;i++){
-
-	    
+	for(var i=0;i<files.length;i++){	    
 	    var fd = new FormData();
 	    //Take the first selected file
 	    fd.append("albumId", parseInt($scope.currentAlbumId));
 	    fd.append("file", files[i]);
-	    $log.log(files[i]);
-	    $log.log($scope.currentAlbumId);
-	    var uploadUrl= "/api/rest/albumPhoto/";
+
+	    var uploadUrl= "/api/rest/pictures/"+$scope.albumId+"/";
 	    $http.post(uploadUrl, fd, {
 		withCredentials: true,
 		headers: {'Content-Type': undefined }
 		//transformRequest: angular.identity
 	    }).then(function(data){
-		//$scope.profilePic = "/www/user_media/"+$scope.userId+"/profile_pictures/"+data.data.picId+".png";
-		$log.log("photo uploaded succcessfully");
-		$log.log(data.data);
+		$scope.slickLoaded = false;
+		$scope.pictures.push(data.data);
+		$scope.slickLoaded = true;
 	    });
 	}
     };
-
+    
     $scope.slickConfig = {
 	autoplay: false,
 	infinite: true,

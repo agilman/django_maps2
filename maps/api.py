@@ -270,9 +270,8 @@ def handle_uploaded_profilePhoto(userId,f):
     return profilePicture
 
 @csrf_exempt
-def albumPhoto(request):
+def pictures(request,albumId=None):
     if request.method == 'POST':
-        
         form = AlbumPhotoUploadForm(request.POST,request.FILES)
         if form.is_valid():
             albumId= form.data['albumId']
@@ -286,6 +285,14 @@ def albumPhoto(request):
             return JsonResponse(serialized.data,safe=False)
         else:
             return JsonResponse({"msg":"FAIL"},safe=False)
+
+    if request.method == 'GET':
+        album = Album.objects.get(id=albumId)
+        pics = Picture.objects.filter(album=album).all()
+
+        serialized = PictureSerializer(pics,many=True)
+        return JsonResponse(serialized.data,safe=False)
+    
 
 @csrf_exempt
 def profilePhoto(request):
@@ -341,8 +348,7 @@ def createAlbumDirs(userId,newAlbumId):
     
     #create path for all the albums for given user... this should probably be done when user account is created?
     #THIS SHOULD NOT BE DONE HERE.
-    if not os.path.exists(media_root +"/"+ str(userId)): 
-        print("creating user media dir") #This happens at user registeration...
+    if not os.path.exists(media_root +"/"+ str(userId)):
         os.mkdir(media_root + "/" + str(userId))
         
     albumPath = media_root + "/" + str(userId) + "/" + str(newAlbumId)

@@ -35,11 +35,12 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
     
     $scope.slickConfig = {
+	rows: 1,
+	dots: true,
 	autoplay: false,
 	infinite: true,
-	slidesToShow: 5,
-	slidesToScroll: 1,
-	method: {}
+	slidesToShow: 6,
+	slidesToScroll: 3
     };
     
     

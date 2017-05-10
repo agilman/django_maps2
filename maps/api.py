@@ -274,7 +274,6 @@ def pictures(request,albumId=None):
     if request.method == 'POST':
         form = AlbumPhotoUploadForm(request.POST,request.FILES)
         if form.is_valid():
-            albumId= form.data['albumId']
             f = request.FILES['file']
 
             userId= request.user.id
@@ -294,6 +293,32 @@ def pictures(request,albumId=None):
         return JsonResponse(serialized.data,safe=False)
     
 
+@csrf_exempt
+def deletePictures(request,albumId=None):  #This is used to bulk delete pictures.
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        
+        deleted = []
+        for picId in data:
+            pic = Picture.objects.get(id=picId)
+            pic.delete()
+
+            #delete pic from disk
+            settings.USER_MEDIA_ROOT
+            path = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/"+pic.filename
+            thpath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/.th/"+pic.filename
+            mipath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/.mi/"+pic.filename
+            
+            os.remove(path)
+            os.remove(thpath)
+            os.remove(mipath)                                                                                    
+            
+            #check for success? only push on succes...
+            deleted.append(picId)
+
+            
+        return JsonResponse(deleted,safe=False)
+        
 @csrf_exempt
 def profilePhoto(request):
     if request.method == 'POST':

@@ -6,7 +6,6 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
 
-
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
 	$timeout(function () {
@@ -24,7 +23,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	for(var i=0;i<files.length;i++){	    
 	    var fd = new FormData();
 	    //Take the first selected file
-	    fd.append("albumId", parseInt($scope.currentAlbumId));
+	    fd.append("albumId", parseInt($scope.albumId));
 	    fd.append("file", files[i]);
 
 	    var uploadUrl= "/api/rest/pictures/"+$scope.albumId+"/";
@@ -36,13 +35,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		$scope.slickLoaded = false;
 		$scope.pictures.push(data.data);
 		
-		$timeout(function () {
+		$timeout(function () { 
 		    $scope.slickLoaded = true;
 		}, 10);
-		
-		$timeout(function () {
-		    $scope.slideConfig.method.slickGoTo($scope.pictures.length-1);
-		},100);
+
 	    });
 	}	
     };
@@ -62,11 +58,18 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	var picIndex = checkPicSelected(img.id);
 	if (picIndex){ //if already selected, deselect.
 	    $scope.selectedPictures.splice(picIndex-1,1);
-	}else{   
-	    //TODO SHould I allow selecting and taggin/deleting multiple pictures? yes...
+	}else{
 	    $scope.selectedPictures.push(img.id);
-	   
-	    $scope.slideConfig.method.slickGoTo(index);
+	    
+	    if(index>3){ //don't go too close to edges.
+		if(index>$scope.pictures.length-3){
+		    $scope.slideConfig.method.slickGoTo($scope.pictures.length-3);
+		}else{
+		    $scope.slideConfig.method.slickGoTo(index);
+		}	
+	    }else{
+		$scope.slideConfig.method.slickGoTo(3);
+	    }		
 	}
     };
 
@@ -87,16 +90,24 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	autoplay: false,
 	infinite: false,
 	slidesToShow:6,
-	slidesToScroll:5,
+	slidesToScroll:3,
 	centerMode: true,
 	method:{},
 	event: {
 	    init: function (event, slick) {
-		//since the carousel is infinite, without this, the leftmost slide is -3 from the ende...
-		if ($scope.pictures.length>3){
-		    slick.slickGoTo(3);
-		}
-		//
+		//There is a known bug with slick carousel, when in centerMode and the number of slides is greater then slidesToShow, few slides are off the edge
+		//In this case, I am disabling center mode, and lowering the number of slidesToShow to be just right.
+		
+		if($scope.pictures.length>6){ //start slider on the right
+		    slick.slickGoTo($scope.pictures.length-3);
+		    $scope.slideConfig.centerMode=true;
+		    $scope.slideConfig.slidesToShow=6;
+
+		}else{
+		    $scope.slideConfig.centerMode=false;
+		    $scope.slideConfig.slidesToShow=$scope.pictures.length;
+		}		    
+
 	    },
 	    afterChange: function (event, slick, currentSlide, nextSlide) {
 		//track index on change.
@@ -104,17 +115,11 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    },
 	    swipe: function(event,slick,direction){
 		$log.log("swipe",direction);
-		if(direction=="right"){
-		    $log.log("going right");
-		    slick.slickGoTo(-5);
-		}else if (direction=="left"){
-		    $log.log("going left");
-		}
-	    }   
+	    }
 	},
 	responsive: [
 	    {
-		breakpoint: 1024,
+	        breakpoint: 1024,
 		settings: {
 		    slidesToShow: 5,
 		    slidesToScroll: 5,
@@ -130,6 +135,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		}
 	    }
 	]
+	
     };
     
     $scope.sliderGoLeft = function(){
@@ -141,7 +147,41 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
 
     $scope.sliderGoRight = function(){
-	$scope.slideConfig.method.slickGoTo($scope.sliderIndex+5);
+	if($scope.sliderIndex>$scope.pictures.length-6){
+	    $scope.slideConfig.method.slickGoTo(6-($scope.pictures.length-$scope.sliderIndex));
+	}else{
+	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex+5);
+	}
+    };
+
+
+    $scope.deleteSelected = function(){
+	//Send list to delete...
+	$http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify($scope.selectedPictures)).then(function(data){
+	    $scope.slickLoaded = false;
+	    
+	    for(var i=0;i<$scope.selectedPictures.length;i++){
+		//check if picture has been deleted...
+		for(var p=0;p<data.data.length;p++){
+		    if ($scope.selectedPictures[i] == data.data[i]){ // Found selected picture in deleted pictures... remove from gallery
+			for(var q=0;q<$scope.pictures.length;q++){
+			    if($scope.pictures[q].id==$scope.selectedPictures[i]){
+				$scope.pictures.splice(q,1);
+			    }
+			}
+		    }
+		}
+	    }
+
+	    //unselect all
+	    $scope.selectedPictures = [];
+
+	    //reinit slider
+	    $timeout(function () { 
+		$scope.slickLoaded = true;
+	    }, 10);		
+	});
+	
     };
     
     $log.log("Hello from photoAlbumController");    

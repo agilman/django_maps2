@@ -25,7 +25,12 @@
       </div>
     </slick>
     
-    <button ng-click="sliderGoRight()" style="display:inline">Right </button>      
+    <button ng-click="sliderGoRight()" >Right </button>
     
+    <br>
+    <button class="btn btn-primary" ng-show="selectedPictures.length" ng-click="deleteSelected()" >
+      <span class="pull-left"><b>Delete Selected</b></span>
+      <span class="badge pull-right">{{ selectedPictures.length }}</span>
+    </button>  
   </div>
 </div>

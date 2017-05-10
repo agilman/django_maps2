@@ -3,6 +3,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.albumId = $stateParams.albumId;
     $scope.slickLoaded = false;
     $scope.pictures = [];
+    $scope.selectedPictures = [];
     $scope.sliderIndex = null;
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
@@ -10,7 +11,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    $scope.slickLoaded = true;
 	}, 10);
 
-    });    
+    });
     
     $scope.uploadClick = function(){
 	var domElement = document.getElementById("file");
@@ -42,6 +43,39 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		},100);
 	    });
 	}	
+    };
+
+    function checkPicSelected(imgId){
+	for (var i = 0; i<$scope.selectedPictures.length; i++){
+	    if ($scope.selectedPictures[i]==imgId){
+		return i+1;
+	    }
+	}
+
+	return 0;
+    };
+    $scope.imgClick = function(index){
+	var img = $scope.pictures[index];
+
+	var picIndex = checkPicSelected(img.id);
+	if (picIndex){ //if already selected, deselect.
+	    $scope.selectedPictures.splice(picIndex-1,1);
+	}else{   
+	    //TODO SHould I allow selecting and taggin/deleting multiple pictures? yes...
+	    $scope.selectedPictures.push(img.id);
+	   
+	    $scope.slideConfig.method.slickGoTo(index);
+	}
+    };
+
+    $scope.getPictureClass= function(id){
+	for (var i =0;i<$scope.selectedPictures.length;i++){
+	    if ($scope.selectedPictures[i]==id){
+		return "selected-picture";
+	    }
+	}
+
+	return "normal-picture";
     };
     
     $scope.slideConfig = {

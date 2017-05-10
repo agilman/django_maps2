@@ -16,3 +16,12 @@ body {
 .navbar-brand{
     padding-top:0;
 }
+
+
+.selected-picture{
+    background-color:#44CC8A;
+}
+
+.normal-picture{
+    background-color:#EBEBEB;
+}

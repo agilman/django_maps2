@@ -5,6 +5,8 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.pictures = [];
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
+
+
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
 	$timeout(function () {
@@ -83,13 +85,17 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	rows: 1,
 	dots:true,
 	autoplay: false,
-	infinite: true,
+	infinite: false,
 	slidesToShow:6,
 	slidesToScroll:5,
 	centerMode: true,
 	method:{},
 	event: {
 	    init: function (event, slick) {
+		//since the carousel is infinite, without this, the leftmost slide is -3 from the ende...
+		if ($scope.pictures.length>3){
+		    slick.slickGoTo(3);
+		}
 		//
 	    },
 	    afterChange: function (event, slick, currentSlide, nextSlide) {

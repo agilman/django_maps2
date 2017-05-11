@@ -1,4 +1,4 @@
-myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams','$timeout',function($scope,$log,$http,$stateParams,$timeout){
+myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams','$timeout','leafletData',function($scope,$log,$http,$stateParams,$timeout,leafletData){
     //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
     $scope.albumId = $stateParams.albumId;
     $scope.slickLoaded = false;
@@ -87,9 +87,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	lazyLoad: 'ondemand',
 	rows: 1,
 	dots:true,
+	speed:600,
 	autoplay: false,
 	infinite: false,
-	slidesToShow:6,
+	slidesToShow:7,
 	slidesToScroll:3,
 	centerMode: true,
 	method:{},
@@ -98,10 +99,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		//There is a known bug with slick carousel, when in centerMode and the number of slides is greater then slidesToShow, few slides are off the edge
 		//In this case, I am disabling center mode, and lowering the number of slidesToShow to be just right.
 		
-		if($scope.pictures.length>6){ //start slider on the right
-		    slick.slickGoTo($scope.pictures.length-3);
+		if($scope.pictures.length>7){ //start slider on the right
+		    slick.slickGoTo($scope.pictures.length-4);
 		    $scope.slideConfig.centerMode=true;
-		    $scope.slideConfig.slidesToShow=6;
+		    $scope.slideConfig.slidesToShow=7;
 
 		}else{
 		    $scope.slideConfig.centerMode=false;
@@ -139,19 +140,35 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
     
     $scope.sliderGoLeft = function(){
-	if($scope.sliderIndex<5){
-	    $scope.slideConfig.method.slickGoTo($scope.pictures.length-1-(5-$scope.sliderIndex));
+	var picsToSlide = 5;
+	if($scope.pictures.length<=8){
+	    picsToSlide = 2;
 	}
 
-	$scope.slideConfig.method.slickGoTo($scope.sliderIndex-5);	
+	if($scope.sliderIndex<picsToSlide){ //check if need to wrap from end
+	    var gotothis=$scope.pictures.length-1-(picsToSlide-$scope.sliderIndex)
+	    $scope.slideConfig.method.slickGoTo(gotothis);
+	}else{
+	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex-picsToSlide);
+	}
+	
     };
 
     $scope.sliderGoRight = function(){
-	if($scope.sliderIndex>$scope.pictures.length-6){
-	    $scope.slideConfig.method.slickGoTo(6-($scope.pictures.length-$scope.sliderIndex));
-	}else{
-	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex+5);
+	var picsToSlide=5;
+	if($scope.pictures.length<=8){
+	    picsToSlide =2;
 	}
+
+	if ($scope.sliderIndex>$scope.pictures.length-1-picsToSlide){ //check if need to wrap to beginning
+	    var gotothis = picsToSlide - $scope.pictures.length -$scope.sliderIndex;
+	    $scope.slideConfig.method.slickGoTo(gotothis);
+	    $log.log("need to wrap");
+	    
+	}else{
+	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex+picsToSlide);
+	}
+	
     };
 
 

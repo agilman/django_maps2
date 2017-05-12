@@ -21,7 +21,7 @@ myApp.config(function($stateProvider){
 	    controller:'segmentDetailsController',
 	})
         .state('photosEditor',{
-	    url:'/:currentAdvId/photos/',
+	    url:'/:currentAdvId/photos',
 	    templateUrl:'/www/partials/editor-photos.html',
 	    controller:'photoEditorController',
 	})

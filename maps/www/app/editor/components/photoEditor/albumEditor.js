@@ -5,21 +5,34 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.pictures = [];
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
-
+    
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
 	$timeout(function () {
 	    $scope.slickLoaded = true;
 	}, 10);
-
     });
+    
+    function mapPath(path){
+	leafletData.getMap().then(function(map){
+	    var line_options = {
+		color: '#342d91',
+		weight: '2'
+	    }
+	    
+	    geoJsonLayer = new L.geoJson(path,line_options);
+	    geoJsonLayer.addTo(map);
+	    
+	    map.fitBounds(geoJsonLayer.getBounds());
+	});
+    };
     
     //get map
     $scope.$watch("currentAlbumIndex",function(){
 	if($scope.albums.length){ //if loaded at parent level...
 	    var mapId = $scope.albums[$scope.$parent.currentAlbumIndex].advMap;
 	    $http.get('/api/rest/map/' + mapId).then(function(data){
-		$log.log("GOT MAP DATA",data.data);
+		mapPath(data.data);
 	    });
 	}
     });
@@ -48,9 +61,8 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		$timeout(function () { 
 		    $scope.slickLoaded = true;
 		}, 10);
-
 	    });
-	}	
+	}
     };
 
     function checkPicSelected(imgId){
@@ -62,6 +74,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 
 	return 0;
     };
+    
     $scope.imgClick = function(index){
 	var img = $scope.pictures[index];
 
@@ -107,8 +120,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	event: {
 	    init: function (event, slick) {
 		//There is a known bug with slick carousel, when in centerMode and the number of slides is greater then slidesToShow, few slides are off the edge
-		//In this case, I am disabling center mode, and lowering the number of slidesToShow to be just right.
-		
+		//In this case, I am disabling center mode, and lowering the number of slidesToShow to be just right.	
 		if($scope.pictures.length>7){ //start slider on the right
 		    slick.slickGoTo($scope.pictures.length-4);
 		    $scope.slideConfig.centerMode=true;
@@ -117,8 +129,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		}else{
 		    $scope.slideConfig.centerMode=false;
 		    $scope.slideConfig.slidesToShow=$scope.pictures.length;
-		}		    
-
+		}
 	    },
 	    afterChange: function (event, slick, currentSlide, nextSlide) {
 		//track index on change.
@@ -146,7 +157,6 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		}
 	    }
 	]
-	
     };
     
     $scope.sliderGoLeft = function(){
@@ -160,27 +170,22 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    $scope.slideConfig.method.slickGoTo(gotothis);
 	}else{
 	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex-picsToSlide);
-	}
-	
+	}	
     };
 
     $scope.sliderGoRight = function(){
-	var picsToSlide=5;
+	var picsToSlide = 5;
 	if($scope.pictures.length<=8){
-	    picsToSlide =2;
+	    picsToSlide = 2;
 	}
 
 	if ($scope.sliderIndex>$scope.pictures.length-1-picsToSlide){ //check if need to wrap to beginning
 	    var gotothis = picsToSlide - $scope.pictures.length -$scope.sliderIndex;
 	    $scope.slideConfig.method.slickGoTo(gotothis);
-	    $log.log("need to wrap");
-	    
 	}else{
 	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex+picsToSlide);
 	}
-	
     };
-
 
     $scope.deleteSelected = function(){
 	//Send list to delete...
@@ -204,14 +209,13 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    $scope.selectedPictures = [];
 
 	    //reinit slider
-	    $timeout(function () { 
+	    $timeout(function () {
 		$scope.slickLoaded = true;
-	    }, 10);		
+	    }, 10);
 	});
-	
     };
     
-    $log.log("Hello from photoAlbumController");    
+    $log.log("Hello from photoAlbumController");
 }]);
 
 

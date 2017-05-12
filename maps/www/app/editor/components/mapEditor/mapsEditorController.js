@@ -58,7 +58,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    geoJsonLayer.addData($scope.segmentsData);
 
 
-	    //draw circles (currently markers) on segment centers, for segment selection.
+	    //draw markers on segment centers, for segment selection.
 	    drawSegmentCenters($scope.segmentsData);
 
 	    //check if need to show segment.

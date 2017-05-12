@@ -14,6 +14,16 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 
     });
     
+    //get map
+    $scope.$watch("currentAlbumIndex",function(){
+	if($scope.albums.length){ //if loaded at parent level...
+	    var mapId = $scope.albums[$scope.$parent.currentAlbumIndex].advMap;
+	    $http.get('/api/rest/map/' + mapId).then(function(data){
+		$log.log("GOT MAP DATA",data.data);
+	    });
+	}
+    });
+    
     $scope.uploadClick = function(){
 	var domElement = document.getElementById("file");
 	domElement.click();

@@ -5,6 +5,8 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.pictures = [];
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
+
+    $scope.newTag = false;
     
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
@@ -12,6 +14,32 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    $scope.slickLoaded = true;
 	}, 10);
     });
+
+    //after leaflet loads, create layers
+    leafletData.getMap().then(function(map){
+	newTag = new L.LayerGroup();
+	newTag.addTo(map);
+    })
+
+    function drawNewTagCircle(lat,lng){
+	newTag.clearLayers();
+
+	//draw circle
+	var circleOptions = {'color':'#551A8B'}
+	var newLatLng = new L.latLng(lat,lng);
+	var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(3);
+
+	marker.addTo(newTag);
+    };
+    
+    $scope.$on("leafletDirectiveMap.click",function(e,wrap){
+	var lat = wrap.leafletEvent.latlng.lat;
+	var lng = wrap.leafletEvent.latlng.lng;
+
+	drawNewTagCircle(lat,lng);
+	$scope.newTag = {'lat':lat,'lng':lng};
+    });
+    
     
     function mapPath(path){
 	leafletData.getMap().then(function(map){
@@ -43,7 +71,9 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
 
     $scope.fileSelectChange = function(files){
-	for(var i=0;i<files.length;i++){	    
+	for(var i=0;i<files.length;i++){
+	    $scope.slickLoaded = false;
+	    
 	    var fd = new FormData();
 	    //Take the first selected file
 	    fd.append("albumId", parseInt($scope.albumId));
@@ -54,8 +84,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		withCredentials: true,
 		headers: {'Content-Type': undefined }
 		//transformRequest: angular.identity
-	    }).then(function(data){
-		$scope.slickLoaded = false;
+	    }).then(function(data){	
 		$scope.pictures.push(data.data);
 		
 		$timeout(function () { 
@@ -73,6 +102,18 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	}
 
 	return 0;
+    };
+
+    $scope.saveGeoTag = function(){
+	var data = {'pictures':$scope.selectedPictures,
+		    'tag':$scope.newTag};
+
+	$http.post('/api/rest/geotagPictures/'+$scope.albumId,JSON.stringify(data)).then(function(data){
+	    $log.log(data.data);
+	});
+
+	
+	
     };
     
     $scope.imgClick = function(index){
@@ -190,7 +231,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.deleteSelected = function(){
 	//Send list to delete...
 	$http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify($scope.selectedPictures)).then(function(data){
-	    $scope.slickLoaded = false;
+	    $scope.slickLoaded = false; 
 	    
 	    for(var i=0;i<$scope.selectedPictures.length;i++){
 		//check if picture has been deleted...

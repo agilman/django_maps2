@@ -52,6 +52,14 @@
 
 <div class="row">    
   <div class="col-lg-8">
+    <button class="btn btn-primary" ng-show="newTag && selectedPictures.length" ng-click="saveGeotag()">
+      Save Picture Geotag
+    </button>
+  </div>
+</div>
+
+<div class="row">    
+  <div class="col-lg-8">
     <leaflet style="width:900px;height:500px;"></leaflet>
   </div>
 </div>

@@ -46,5 +46,6 @@ urlpatterns = [
     url(r'^api/rest/mapSegment$', api.mapSegment),
     url(r'^api/rest/advAlbums/(?P<advId>\d+)/$',api.advAlbums),
     url(r'^api/rest/pictures/(?P<albumId>\d+)/$',api.pictures),
-    url(r'^api/rest/deletePictures/(?P<albumId>\d+)/$',api.deletePictures),
+    url(r'^api/rest/deletePictures/(?P<albumId>\d+)/$',api.deletePictures), #why do I need albumId?
+    url(r'^api/rest/geotagPictures$',api.geotagPictures),
 ]

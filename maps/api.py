@@ -318,6 +318,21 @@ def deletePictures(request,albumId=None):  #This is used to bulk delete pictures
 
             
         return JsonResponse(deleted,safe=False)
+
+
+@csrf_exempt
+def geotagPictures(request):  #This is used to bulk delete pictures.
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        pictures = data["pictures"]
+        point = data['tag']
+
+        for i in pictures:
+            print(i)
+            
+        
+        return JsonResponse([],safe=False)
+
         
 @csrf_exempt
 def profilePhoto(request):

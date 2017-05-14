@@ -104,16 +104,13 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	return 0;
     };
 
-    $scope.saveGeoTag = function(){
+    $scope.saveGeotag = function(){
 	var data = {'pictures':$scope.selectedPictures,
 		    'tag':$scope.newTag};
 
-	$http.post('/api/rest/geotagPictures/'+$scope.albumId,JSON.stringify(data)).then(function(data){
+	$http.post('/api/rest/geotagPictures',JSON.stringify(data)).then(function(data){
 	    $log.log(data.data);
-	});
-
-	
-	
+	});	
     };
     
     $scope.imgClick = function(index){

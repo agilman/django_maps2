@@ -64,7 +64,7 @@ class Picture(models.Model):
     uploadTime = models.DateTimeField()
 
 
-class picMeta(models.Model):
+class PicMeta(models.Model):
     picture = models.OneToOneField(Picture)
     #maybe Point type is more appropriate for GIS.
     lat = models.DecimalField(max_digits=9, decimal_places=6)

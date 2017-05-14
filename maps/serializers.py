@@ -21,11 +21,19 @@ class MapSerializer(serializers.ModelSerializer):
     class Meta:
         model = Map
         fields= ['id','name']
+
+class PicMetaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PicMeta
+        fields = ['picture','lat','lng','ts']
         
 class PictureSerializer(serializers.ModelSerializer):
+    picMeta = PicMetaSerializer(source='picmeta')
+    
     class Meta:
         model = Picture
-        fields = ['id','album','caption','filename','uploadTime']
+        fields = ['id','album','caption','filename','uploadTime','picMeta']
+
         
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:

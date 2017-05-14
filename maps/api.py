@@ -315,7 +315,6 @@ def deletePictures(request,albumId=None):  #This is used to bulk delete pictures
             
             #check for success? only push on succes...
             deleted.append(picId)
-
             
         return JsonResponse(deleted,safe=False)
 
@@ -327,11 +326,29 @@ def geotagPictures(request):  #This is used to bulk delete pictures.
         pictures = data["pictures"]
         point = data['tag']
 
+        results = []
         for i in pictures:
-            print(i)
+            #create pic meta
+            pic = Picture.objects.get(id=i)
+
+            metaQuery  = PicMeta.objects.filter(picture=pic)
+            #Check if meta object already exists -> update if exists, create new one otherwise
             
+            if metaQuery.exists():
+                metaQuery.update(lat=point['lat'],lng=point['lng'])
+                
+                serialized = PicMetaSerializer(metaQuery.first())
+                results.append(serialized.data)
+
+            else:
+                newMeta = PicMeta(picture = pic, lat=point['lat'], lng=point['lng'])
+                newMeta.save()
+
+                print(dir(newMeta))
+                serialized = PicMetaSerializer(newMeta)
+                results.append(serialized.data)
         
-        return JsonResponse([],safe=False)
+        return JsonResponse(results,safe=False)
 
         
 @csrf_exempt

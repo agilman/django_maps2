@@ -5,7 +5,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.pictures = [];
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
-
+    
     $scope.newTag = false;
 
     //after leaflet loads, create layers
@@ -207,43 +207,43 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
                     }
                 });
             }
-        }
+	}
     };
-    
+
     $scope.imgClick = function(index){
         var img = $scope.pictures[index];
         var picIndex = checkPicSelected(img.id);
-    
+	
         //if already selected, deselect.
         if (picIndex){
             $scope.selectedPictures.splice(picIndex-1,1);
-        
+            
             redrawSelectedTags();
-	   }else{
-           $scope.selectedPictures.push(img);
-           //don't go too close to edges.
-	       if(index>3){
-               if(index>$scope.pictures.length-3){
-                   $scope.slideConfig.method.slickGoTo($scope.pictures.length-3);
-               }else{
-                $scope.slideConfig.method.slickGoTo(index);
-		      }	
-	       }else{
-		      $scope.slideConfig.method.slickGoTo(3);
-	       }
-           
-           redrawSelectedTags();
-           flyToPic(img);
-	   }
+	}else{
+            $scope.selectedPictures.push(img);
+            //don't go too close to edges.
+	    if(index>3){
+		if(index>$scope.pictures.length-3){
+                    $scope.slideConfig.method.slickGoTo($scope.pictures.length-3);
+		}else{
+                    $scope.slideConfig.method.slickGoTo(index);
+		}	
+	    }else{
+		$scope.slideConfig.method.slickGoTo(3);
+	    }
+            
+            redrawSelectedTags();
+            flyToPic(img);
+	}
     };
-
+    
     $scope.getPictureClass= function(id){
 	for (var i =0;i<$scope.selectedPictures.length;i++){
 	    if ($scope.selectedPictures[i].id==id){
 		return "selected-picture";
 	    }
 	}
-
+	
 	return "normal-picture";
     };
     

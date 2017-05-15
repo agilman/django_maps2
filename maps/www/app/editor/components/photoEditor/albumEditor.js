@@ -15,22 +15,26 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	
 	establishedTags = new L.LayerGroup();
 	establishedTags.addTo(map);
+        
+    highlightedTags  = new L.LayerGroup();  
+    highlightedTags.addTo(map);
     });
     
     function addEstablishedTags(){
-	establishedTags.clearLayers();
-	for (var i =0;i<$scope.pictures.length;i++){
-	    if ($scope.pictures[i].picMeta!=null){
-		var lat = $scope.pictures[i].picMeta.lat;
-		var lng = $scope.pictures[i].picMeta.lng;
-		//draw circle
-		var circleOptions = {'color':'#5980ff'};
-		var newLatLng = new L.latLng(lat,lng);
-		var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(2);
+	   establishedTags.clearLayers();
+	   for (var i =0;i<$scope.pictures.length;i++){
+           if ($scope.pictures[i].picMeta!=null){
+		      var lat = $scope.pictures[i].picMeta.lat;
+		      var lng = $scope.pictures[i].picMeta.lng;
+		      
+               //draw circle
+		      var circleOptions = {'color':'#5980ff'};
+		      var newLatLng = new L.latLng(lat,lng);
+		      var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(2);
 
-		marker.addTo(establishedTags);
-	    }
-	}
+		      marker.addTo(establishedTags);
+	       }
+	   }
     };
     
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
@@ -118,7 +122,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 
     function checkPicSelected(imgId){
 	for (var i = 0; i<$scope.selectedPictures.length; i++){
-	    if ($scope.selectedPictures[i]==imgId){
+	    if ($scope.selectedPictures[i].id==imgId){
 		return i+1;
 	    }
 	}
@@ -127,8 +131,12 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     };
 
     $scope.saveGeotag = function(){
-	var data = {'pictures':$scope.selectedPictures,
-		    'tag':$scope.newTag};
+        var picIds = [];
+        for (var i=0;i<$scope.selectedPictures.length;i++){
+            picIds.push($scope.selectedPictures[i].id);
+        }
+        var data = {'pictures':picIds,
+                    'tag':$scope.newTag};
 
 	$http.post('/api/rest/geotagPictures',JSON.stringify(data)).then(function(data){
 	    //add tags to $scope.pictures
@@ -154,30 +162,84 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	});	
     };
     
-    $scope.imgClick = function(index){
-	var img = $scope.pictures[index];
+    function redrawSelectedTags(){
+        //clear previous
+        highlightedTags.clearLayers();
 
-	var picIndex = checkPicSelected(img.id);
-	if (picIndex){ //if already selected, deselect.
-	    $scope.selectedPictures.splice(picIndex-1,1);
-	}else{
-	    $scope.selectedPictures.push(img.id);
-	    
-	    if(index>3){ //don't go too close to edges.
-		if(index>$scope.pictures.length-3){
-		    $scope.slideConfig.method.slickGoTo($scope.pictures.length-3);
-		}else{
-		    $scope.slideConfig.method.slickGoTo(index);
-		}	
-	    }else{
-		$scope.slideConfig.method.slickGoTo(3);
-	    }		
-	}
+        for(var i = 0; i < $scope.selectedPictures.length;i++){
+            var pic = $scope.selectedPictures[i];
+            //check if has meta
+            if(pic.picMeta!=null){
+                
+                var lat = pic.picMeta.lat;
+                var lng = pic.picMeta.lng;
+
+                if ((lat != null )&& (lng != null)){
+                    //draw circle
+                    var circleOptions = {'color':'#44CC8A'};
+                    var borderOptions = {'color':'#000000'};
+                    var newLatLng = new L.latLng(lat,lng);
+                    var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(4);
+                    var border= new L.circleMarker(newLatLng,borderOptions).setRadius(5);
+
+                    border.addTo(highlightedTags);
+                    marker.addTo(highlightedTags);
+                }
+            }
+        }
+    }
+    
+    function flyToPic(pic){
+        if (pic.picMeta!=null){
+            var lat = pic.picMeta.lat;
+            var lng = pic.picMeta.lng;
+            
+            if((lat!=null)&&(lng!==null)){
+                var center = new L.LatLng(lat,lng);
+                leafletData.getMap().then(function(map){
+                    var zoom = map.getZoom();
+                    if (zoom>11){
+                        map.flyTo(center,10);
+                    }else if(zoom<6){
+                        map.flyTo(center,10);
+                    }else{
+                        map.flyTo(center);
+                    }
+                });
+            }
+        }
+    };
+    
+    $scope.imgClick = function(index){
+        var img = $scope.pictures[index];
+        var picIndex = checkPicSelected(img.id);
+    
+        //if already selected, deselect.
+        if (picIndex){
+            $scope.selectedPictures.splice(picIndex-1,1);
+        
+            redrawSelectedTags();
+	   }else{
+           $scope.selectedPictures.push(img);
+           //don't go too close to edges.
+	       if(index>3){
+               if(index>$scope.pictures.length-3){
+                   $scope.slideConfig.method.slickGoTo($scope.pictures.length-3);
+               }else{
+                $scope.slideConfig.method.slickGoTo(index);
+		      }	
+	       }else{
+		      $scope.slideConfig.method.slickGoTo(3);
+	       }
+           
+           redrawSelectedTags();
+           flyToPic(img);
+	   }
     };
 
     $scope.getPictureClass= function(id){
 	for (var i =0;i<$scope.selectedPictures.length;i++){
-	    if ($scope.selectedPictures[i]==id){
+	    if ($scope.selectedPictures[i].id==id){
 		return "selected-picture";
 	    }
 	}
@@ -274,15 +336,21 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 
     $scope.deleteSelected = function(){
 	//Send list to delete...
-	$http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify($scope.selectedPictures)).then(function(data){
-	    $scope.slickLoaded = false; 
+    var picIds = [];
+    for (var i=0;i<$scope.selectedPictures.length;i++){
+        picIds.push($scope.selectedPictures[i].id);
+    }
+        
+	$http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify(picIds)).then(function(data){
+	    $scope.slickLoaded = false;
 	    
 	    for(var i=0;i<$scope.selectedPictures.length;i++){
 		//check if picture has been deleted...
 		for(var p=0;p<data.data.length;p++){
-		    if ($scope.selectedPictures[i] == data.data[i]){ // Found selected picture in deleted pictures... remove from gallery
+            // Found selected picture in deleted pictures... remove from gallery
+		    if ($scope.selectedPictures[i].id == data.data[i]){
 			for(var q=0;q<$scope.pictures.length;q++){
-			    if($scope.pictures[q].id==$scope.selectedPictures[i]){
+			    if($scope.pictures[q].id==$scope.selectedPictures[i].id){
 				$scope.pictures.splice(q,1);
 			    }
 			}
@@ -291,14 +359,16 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    }
 	    //unselect all
 	    $scope.selectedPictures = [];
-
+        //clear highlights from map
+        highlightedTags.clearLayers();
+        
 	    //reinit slider
 	    $timeout(function () {
 		$scope.slickLoaded = true;
 	    }, 10);
 
 	    //redraw established tags on map
-	    addEstablishedTags();
+	    addEstablishedTags();        
 	});
     };
     

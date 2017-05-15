@@ -16,7 +16,12 @@
 
     <span style="display:inline-block;float:right">
       <button class="btn btn-primary" ng-show="selectedPictures.length" ng-click="deleteSelected()" >
-	<span class="pull-left"><b>Delete Pictures</b></span>
+	<span class="pull-left">
+	  <b><ng-pluralize count="selectedPictures.length"
+			   when="{'1': 'Delete Photo',
+				 'other': 'Delete Photos'}">
+	  </ng-pluralize></b>
+	</span>
 	<span class="badge pull-right">{{ selectedPictures.length }}</span>
       </button>
     </span>
@@ -53,7 +58,10 @@
 <div class="row">    
   <div class="col-lg-8">
     <button class="btn btn-primary" ng-show="newTag && selectedPictures.length" ng-click="saveGeotag()">
-      Save Picture Geotag
+      <ng-pluralize count="selectedPictures.length"
+		    when="{'1': 'Geotag photo',
+			  'other': 'Geotag photos'}">
+      </ng-pluralize>
     </button>
   </div>
 </div>

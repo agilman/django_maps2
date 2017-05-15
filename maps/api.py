@@ -343,8 +343,7 @@ def geotagPictures(request):  #This is used to bulk delete pictures.
             else:
                 newMeta = PicMeta(picture = pic, lat=point['lat'], lng=point['lng'])
                 newMeta.save()
-
-                print(dir(newMeta))
+                
                 serialized = PicMetaSerializer(newMeta)
                 results.append(serialized.data)
         

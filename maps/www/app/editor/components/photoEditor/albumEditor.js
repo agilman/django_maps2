@@ -7,25 +7,47 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.sliderIndex = null;
 
     $scope.newTag = false;
+
+    //after leaflet loads, create layers
+    leafletData.getMap().then(function(map){
+	newTag = new L.LayerGroup();
+	newTag.addTo(map);
+	
+	establishedTags = new L.LayerGroup();
+	establishedTags.addTo(map);
+    });
+    
+    function addEstablishedTags(){
+	establishedTags.clearLayers();
+	for (var i =0;i<$scope.pictures.length;i++){
+	    if ($scope.pictures[i].picMeta!=null){
+		var lat = $scope.pictures[i].picMeta.lat;
+		var lng = $scope.pictures[i].picMeta.lng;
+		//draw circle
+		var circleOptions = {'color':'#5980ff'};
+		var newLatLng = new L.latLng(lat,lng);
+		var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(2);
+
+		marker.addTo(establishedTags);
+	    }
+	}
+    };
     
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
 	$timeout(function () {
 	    $scope.slickLoaded = true;
 	}, 10);
+
+	addEstablishedTags();
     });
 
-    //after leaflet loads, create layers
-    leafletData.getMap().then(function(map){
-	newTag = new L.LayerGroup();
-	newTag.addTo(map);
-    })
 
     function drawNewTagCircle(lat,lng){
 	newTag.clearLayers();
 
 	//draw circle
-	var circleOptions = {'color':'#551A8B'}
+	var circleOptions = {'color':'#940f17'};
 	var newLatLng = new L.latLng(lat,lng);
 	var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(3);
 
@@ -109,7 +131,26 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		    'tag':$scope.newTag};
 
 	$http.post('/api/rest/geotagPictures',JSON.stringify(data)).then(function(data){
-	    $log.log(data.data);
+	    //add tags to $scope.pictures
+	    for(var i = 0; i<data.data.length;i++){
+		var tag = data.data[i];
+		for(var p =0;p<$scope.pictures.length;p++){
+		    if ($scope.pictures[p].id==tag.picture){
+			$scope.pictures[p].picMeta = data.data[i];
+		    }
+		}
+	    }
+	    $scope.selectedPictures = [];
+	    //redraw established circles
+	    addEstablishedTags();
+
+
+	    //clear temp circle	    
+	    newTag.clearLayers();
+
+	    //remove button
+	    $scope.newTag =false;
+
 	});	
     };
     
@@ -202,13 +243,14 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	if($scope.pictures.length<=8){
 	    picsToSlide = 2;
 	}
-
-	if($scope.sliderIndex<picsToSlide){ //check if need to wrap from end
+	
+	//check if need to wrap from end
+	if($scope.sliderIndex<picsToSlide){
 	    var gotothis=$scope.pictures.length-1-(picsToSlide-$scope.sliderIndex)
-	    $scope.slideConfig.method.slickGoTo(gotothis);
+	    $scope.slideConfig.method.slickGoTo(gotothis);    
 	}else{
 	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex-picsToSlide);
-	}	
+	}
     };
 
     $scope.sliderGoRight = function(){
@@ -216,10 +258,15 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	if($scope.pictures.length<=8){
 	    picsToSlide = 2;
 	}
-
-	if ($scope.sliderIndex>$scope.pictures.length-1-picsToSlide){ //check if need to wrap to beginning
-	    var gotothis = picsToSlide - $scope.pictures.length -$scope.sliderIndex;
-	    $scope.slideConfig.method.slickGoTo(gotothis);
+	
+	//check if need to wrap to beginning
+	if ($scope.sliderIndex>$scope.pictures.length-1-picsToSlide){ 
+	    if ($scope.pictures.length>=3){
+		$scope.slideConfig.method.slickGoTo(3);
+	    }else{
+		var gotothis = picsToSlide - $scope.pictures.length - $scope.sliderIndex;
+		$scope.slideConfig.method.slickGoTo(gotothis);
+	    }
 	}else{
 	    $scope.slideConfig.method.slickGoTo($scope.sliderIndex+picsToSlide);
 	}
@@ -242,7 +289,6 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		    }
 		}
 	    }
-
 	    //unselect all
 	    $scope.selectedPictures = [];
 
@@ -250,6 +296,9 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    $timeout(function () {
 		$scope.slickLoaded = true;
 	    }, 10);
+
+	    //redraw established tags on map
+	    addEstablishedTags();
 	});
     };
     

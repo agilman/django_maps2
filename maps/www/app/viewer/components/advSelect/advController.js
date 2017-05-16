@@ -1,7 +1,7 @@
 myApp.controller("advController",['$scope','$log','$http','$state','leafletData',function($scope,$log,$http,$state,leafletData){
     $scope.$emit("advsSelected");
     $scope.selectClickCount = 0 ;
-
+    
     $scope.advsOverviewData=null;
     leafletData.getMap().then(function(map){
 	advsOverviewLayer = new L.geoJson();
@@ -14,7 +14,14 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	segmentHighlightLayer.addTo(map);
     });
 
-        //get geojson
+    //Check if there is only 1 adventure... no choice... might as well change state.
+    $scope.$watch("adventures",function(){
+	if($scope.adventures.length==1){
+	    $state.go("maps",{'advId':$scope.currentAdvId});
+	}
+    });
+
+    //get geojson
     $http.get('/api/rest/advsOverview/' + $scope.userId+'/').then(function(data){
 	$scope.advsOverviewData = data.data;
 	
@@ -24,8 +31,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 
     $scope.getAdvDistance = function(index){
 	if ($scope.advsOverviewData != null){
-	    return $scope.advsOverviewData.features[index].properties.distance/1000;
-	    
+	    return $scope.advsOverviewData.features[index].properties.distance/1000;	    
 	}
     };
 

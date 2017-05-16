@@ -251,26 +251,24 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	lazyLoad: 'ondemand',
 	rows: 1,
 	dots:true,
-	speed:600,
+	speed:400,
 	autoplay: false,
 	infinite: false,
 	slidesToShow:7,
 	slidesToScroll:3,
-	centerMode: true,
 	method:{},
 	event: {
 	    init: function (event, slick) {
-		//There is a known bug with slick carousel, when in centerMode and the number of slides is greater then slidesToShow, few slides are off the edge
-		//In this case, I am disabling center mode, and lowering the number of slidesToShow to be just right.	
-		if($scope.pictures.length>7){ //start slider on the right
+		//No need for center mode.
+		/*
+		  if($scope.pictures.length>7){ //start slider on the right
 		    slick.slickGoTo($scope.pictures.length-4);
-		    $scope.slideConfig.centerMode=true;
 		    $scope.slideConfig.slidesToShow=7;
-
 		}else{
-		    $scope.slideConfig.centerMode=false;
 		    $scope.slideConfig.slidesToShow=$scope.pictures.length;
 		}
+		*/
+
 	    },
 	    afterChange: function (event, slick, currentSlide, nextSlide) {
 		//track index on change.

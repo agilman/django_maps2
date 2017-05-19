@@ -240,7 +240,6 @@ def mapsOverview(request,advId):
         adventuresGeoJson = {'type':'FeatureCollection','properties':{'advId':advId},'features': results}
             
         return JsonResponse(adventuresGeoJson, safe=False)
-
     
                         
 def handle_uploaded_profilePhoto(userId,f):
@@ -435,7 +434,20 @@ def map(request,mapId=None):
 
     
 
+@csrf_exempt
+def advMapSegments(request,advId=None):
+    """Used to get all map segments for entire adventure"""
+    if request.method=='GET':
+        adv = Adventure.objects.get(id = advId)
+        maps = Map.objects.filter(adv = adv).all()
 
+        results = [] 
+        for m in maps:
+            geoJson = makeGeoJsonFromMap(m)
+            results.append(geoJson)
+
+        return JsonResponse(results,safe=False)    
+    
 def makeGeoJsonFromMap(map):
     features = []
 

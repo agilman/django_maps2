@@ -2,6 +2,11 @@
 
 {% block additionalCSS %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" />
+
+<!--angular-slick -->
+<link rel="stylesheet" href="/www/node_modules/slick-carousel/slick/slick.css" />
+<link rel="stylesheet" href="/www/node_modules/slick-carousel/slick/slick-theme.css" />
+
 {% endblock %}
 
 
@@ -40,6 +45,9 @@
 {% endblock %}
 
 {% block additionalJS %}
+
+<script src="/www/node_modules/slick-carousel/slick/slick.min.js"></script>
+<script src="/www/node_modules/angular-slick-carousel/dist/angular-slick.js"></script>
 
 <script src="/www/js/viewer.min.js"></script>
 

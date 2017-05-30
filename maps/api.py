@@ -290,8 +290,18 @@ def pictures(request,albumId=None):
 
         serialized = PictureSerializer(pics,many=True)
         return JsonResponse(serialized.data,safe=False)
-    
 
+@csrf_exempt
+def advPictures(request,advId=None):
+    if request.method == 'GET':
+        adv = Adventure.objects.get(id = advId)
+        albums = list(Album.objects.filter(adv=adv).values_list('id',flat=True))
+
+        pics = Picture.objects.filter(album__in=albums).all()
+
+        serialized = PictureSerializer(pics,many=True)
+        return JsonResponse(serialized.data,safe=False)
+        
 @csrf_exempt
 def deletePictures(request,albumId=None):  #This is used to bulk delete pictures.
     if request.method == 'POST':

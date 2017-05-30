@@ -19,6 +19,15 @@
   </div>
   
 </div>
+
 <div class="row">
-  img gallery
+  <div class="col-lg-12">
+    <slick class="slider" ng-if="slickLoaded" settings="slideConfig">
+      <div ng-repeat="picture in pictures"  >
+	<span class="pull-center">
+	  <img data-lazy="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="width:150px;height:100px; margin:10px auto"/>
+	</span>
+      </div>      
+    </slick>
+  </div>
 </div>

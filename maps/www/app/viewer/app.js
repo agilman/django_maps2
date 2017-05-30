@@ -1,1 +1,1 @@
-var myApp = angular.module("myApp",['ui.router','ui.bootstrap','leaflet-directive']);
+var myApp = angular.module("myApp",['ui.router','ui.bootstrap','slickCarousel','leaflet-directive']);

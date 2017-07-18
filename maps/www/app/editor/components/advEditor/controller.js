@@ -7,6 +7,8 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
     $scope.showEditor=false;
     $scope.advEdited=false;
 
+    $scope.spinnerOn = false;
+    
     $scope.advTypeOptions=[{name:"Bicycle Touring",'id':1},{name:"Backpacking",'id':2},{name:"Car/Van Camping",'id':3},{name:"Other",'id':4}];
     $scope.selectedAdvType = $scope.advTypeOptions[0];
 
@@ -127,6 +129,7 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 
     $scope.fileSelectChange = function(files){
 	var fd = new FormData();
+	$scope.spinnerOn = true;
 	//Take the first selected file
 	fd.append("userId", $scope.userId);
 	fd.append("file", files[0]);
@@ -137,7 +140,9 @@ myApp.controller("advEditorController",['$scope','$log','$http',function($scope,
 	    headers: {'Content-Type': undefined }
 	    //transformRequest: angular.identity
 	}).then(function(data){
+	    $scope.spinnerOn = false;
 	    $scope.profilePic = "/www/user_media/"+$scope.userId+"/profile_pictures/"+data.data.picId+".png";
+	    
 	});
     };
 

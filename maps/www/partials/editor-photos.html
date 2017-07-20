@@ -1,13 +1,14 @@
 <div class="row">
   <div class="col-lg-12">
-    <label>Albums:</label>
-    <div class="btn-group">
-      <button type="button" class="btn" ng-repeat="album in albums" ng-class="getAlbumClass($index)" ng-click="changeAlbum($index)">
-	{{ album.title }}
-      </button>
-    </ul>
+    <div ng-show="albums.length>1">
+      <label>Albums:</label>
+      <div class="btn-group">
+	<button type="button" class="btn" ng-repeat="album in albums" ng-class="getAlbumClass($index)" ng-click="changeAlbum($index)">
+	  {{ album.title }}
+	</button>
+      </div>
+    </div>
   </div>
+  <ui-view>
+  </ui-view>
 </div>
-<br>
-<ui-view>
-</ui-view>

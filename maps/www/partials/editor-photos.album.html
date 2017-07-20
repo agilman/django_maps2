@@ -15,7 +15,7 @@
     <span style="display:inline-block"> <--Click here to Upload Pictures!</span>
 
     <span style="display:inline-block;float:right">
-      <button class="btn btn-primary" ng-show="selectedPictures.length" ng-click="deleteSelected()" >
+      <button class="btn" ng-class="selectedPictures.length? 'btn-primary':'btn-default'" ng-click="deleteSelected()" >
 	<span class="pull-left">
 	  <b><ng-pluralize count="selectedPictures.length"
 			   when="{'1': 'Delete Photo',
@@ -57,12 +57,7 @@
 
 <div class="row">    
   <div class="col-lg-8">
-    <button class="btn btn-primary" ng-show="newTag && selectedPictures.length" ng-click="saveGeotag()">
-      <ng-pluralize count="selectedPictures.length"
-		    when="{'1': 'Geotag photo',
-			  'other': 'Geotag photos'}">
-      </ng-pluralize>
-    </button>
+    <button class="btn btn-primary" ng-show="newTag && selectedPictures.length" ng-click="saveGeotag()">Save Geotag</button>
   </div>
 </div>
 

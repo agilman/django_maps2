@@ -68,17 +68,19 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     
     
     function mapPath(path){
-	leafletData.getMap().then(function(map){
-	    var line_options = {
-		color: '#342d91',
-		weight: '2'
-	    }
-	    
-	    geoJsonLayer = new L.geoJson(path,line_options);
-	    geoJsonLayer.addTo(map);
-	    
-	    map.fitBounds(geoJsonLayer.getBounds());
-	});
+	if (path.features.length){
+	    leafletData.getMap().then(function(map){
+		var line_options = {
+		    color: '#342d91',
+		    weight: '2'
+		}
+		
+		geoJsonLayer = new L.geoJson(path,line_options);
+		geoJsonLayer.addTo(map);
+		
+		map.fitBounds(geoJsonLayer.getBounds());
+	    });
+	}
     };
     
     //get map
@@ -334,41 +336,43 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 
     $scope.deleteSelected = function(){
 	//Send list to delete...
-    var picIds = [];
-    for (var i=0;i<$scope.selectedPictures.length;i++){
-        picIds.push($scope.selectedPictures[i].id);
-    }
-        
-	$http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify(picIds)).then(function(data){
-	    $scope.slickLoaded = false;
-	    
-	    for(var i=0;i<$scope.selectedPictures.length;i++){
-		//check if picture has been deleted...
-		for(var p=0;p<data.data.length;p++){
-            // Found selected picture in deleted pictures... remove from gallery
-		    if ($scope.selectedPictures[i].id == data.data[i]){
-			for(var q=0;q<$scope.pictures.length;q++){
-			    if($scope.pictures[q].id==$scope.selectedPictures[i].id){
-				$scope.pictures.splice(q,1);
+	var picIds = [];
+	for (var i=0;i<$scope.selectedPictures.length;i++){
+            picIds.push($scope.selectedPictures[i].id);
+	}
+	if(picIds.length){
+	    $http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify(picIds)).then(function(data){
+		$scope.slickLoaded = false;
+		
+		for(var i=0;i<$scope.selectedPictures.length;i++){
+		    //check if picture has been deleted...
+		    for(var p=0;p<data.data.length;p++){
+			// Found selected picture in deleted pictures... remove from gallery
+			if ($scope.selectedPictures[i].id == data.data[i]){
+			    for(var q=0;q<$scope.pictures.length;q++){
+				if($scope.pictures[q].id==$scope.selectedPictures[i].id){
+				    $scope.pictures.splice(q,1);
+				}
 			    }
 			}
 		    }
 		}
-	    }
-	    //unselect all
-	    $scope.selectedPictures = [];
-        //clear highlights from map
-        highlightedTags.clearLayers();
-        
-	    //reinit slider
-	    $timeout(function () {
-		$scope.slickLoaded = true;
-	    }, 10);
-
-	    //redraw established tags on map
-	    addEstablishedTags();        
-	});
+		//unselect all
+		$scope.selectedPictures = [];
+		//clear highlights from map
+		highlightedTags.clearLayers();
+		
+		//reinit slider
+		$timeout(function () {
+		    $scope.slickLoaded = true;
+		}, 10);
+		
+		//redraw established tags on map
+		addEstablishedTags();        
+	    });
+	} //end if
     };
+    
     
     $log.log("Hello from photoAlbumController");
 }]);

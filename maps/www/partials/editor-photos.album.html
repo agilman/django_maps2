@@ -4,7 +4,7 @@
     <input type="file" id="file" name="file" multiple="multiple" style="display:none" onchange="angular.element(this).scope().fileSelectChange(this.files)"/>
 
     <span style="display:inline-block">
-      <button class="btn" type="button" ng-click="uploadClick()">
+      <button class="btn btn-primary" type="button" ng-click="uploadClick()">
 	<i style="font-size:20px" class="glyphicon glyphicon-cloud-upload"></i>
 	<span>
 	  <b>UPLOAD</b>
@@ -15,7 +15,7 @@
     <span style="display:inline-block"> <--Click here to Upload Pictures!</span>
 
     <span style="display:inline-block;float:right">
-      <button class="btn" ng-class="selectedPictures.length? 'btn-primary':'btn-default'" ng-click="deleteSelected()" ng-show="pictures.length">
+      <button class="btn" ng-class="selectedPictures.length? 'btn-primary':'btn-disabled'" ng-click="deleteSelected()" ng-show="pictures.length">
 	<span class="pull-left">
 	  <b><ng-pluralize count="selectedPictures.length"
 			   when="{'1': 'Delete Photo',

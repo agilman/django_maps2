@@ -130,6 +130,7 @@ def advsOverview(request,userId):
             advMaps = adv.maps.all()
             if advMaps.count()>0:
                 startSegments = advMaps[0].segments.all()
+                endSegments=[]
                 if startSegments.count()>0:
                     startTime = startSegments[0].startTime
                     endSegments = advMaps[advMaps.count()-1].segments.all()

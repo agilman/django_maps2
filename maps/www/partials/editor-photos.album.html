@@ -15,7 +15,7 @@
     <span style="display:inline-block"> <--Click here to Upload Pictures!</span>
 
     <span style="display:inline-block;float:right">
-      <button class="btn" ng-class="selectedPictures.length? 'btn-primary':'btn-default'" ng-click="deleteSelected()" >
+      <button class="btn" ng-class="selectedPictures.length? 'btn-primary':'btn-default'" ng-click="deleteSelected()" ng-show="pictures.length">
 	<span class="pull-left">
 	  <b><ng-pluralize count="selectedPictures.length"
 			   when="{'1': 'Delete Photo',

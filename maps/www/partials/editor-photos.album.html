@@ -44,6 +44,10 @@
 	  <img ng-click="imgClick($index)" data-lazy="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="width:150px;height:100px;margin:10px auto"/>
 	</span>
       </div>
+      <div ng-show="uploading" style="position:relative">
+	<div style="padding-top:120px" us-spinner="{radius:30, width:8, length: 16,lines:15 }">	    
+	</div>
+      </div>
       
     </slick>
   </div>

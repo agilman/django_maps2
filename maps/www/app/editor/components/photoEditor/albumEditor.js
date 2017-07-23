@@ -5,7 +5,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.pictures = [];
     $scope.selectedPictures = [];
     $scope.sliderIndex = null;
-    
+    $scope.uploading = false;
     $scope.newTag = false;
 
     //after leaflet loads, create layers
@@ -21,20 +21,20 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     });
     
     function addEstablishedTags(){
-	   establishedTags.clearLayers();
-	   for (var i =0;i<$scope.pictures.length;i++){
-           if ($scope.pictures[i].picMeta!=null){
-		      var lat = $scope.pictures[i].picMeta.lat;
-		      var lng = $scope.pictures[i].picMeta.lng;
+	establishedTags.clearLayers();
+	for (var i =0;i<$scope.pictures.length;i++){
+            if ($scope.pictures[i].picMeta!=null){
+		var lat = $scope.pictures[i].picMeta.lat;
+		var lng = $scope.pictures[i].picMeta.lng;
 		      
-               //draw circle
-		      var circleOptions = {'color':'#5980ff'};
-		      var newLatLng = new L.latLng(lat,lng);
-		      var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(2);
-
-		      marker.addTo(establishedTags);
-	       }
-	   }
+		//draw circle
+		var circleOptions = {'color':'#5980ff'};
+		var newLatLng = new L.latLng(lat,lng);
+		var marker = new L.circleMarker(newLatLng,circleOptions).setRadius(2);
+		
+		marker.addTo(establishedTags);
+	    }
+	}
     };
     
     $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
@@ -42,14 +42,13 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	$timeout(function () {
 	    $scope.slickLoaded = true;
 	}, 10);
-
+	
 	addEstablishedTags();
     });
 
-
     function drawNewTagCircle(lat,lng){
 	newTag.clearLayers();
-
+	
 	//draw circle
 	var circleOptions = {'color':'#940f17'};
 	var newLatLng = new L.latLng(lat,lng);
@@ -61,11 +60,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
     $scope.$on("leafletDirectiveMap.click",function(e,wrap){
 	var lat = wrap.leafletEvent.latlng.lat;
 	var lng = wrap.leafletEvent.latlng.lng;
-
+	
 	drawNewTagCircle(lat,lng);
 	$scope.newTag = {'lat':lat,'lng':lng};
     });
-    
     
     function mapPath(path){
 	if (path.features.length){
@@ -97,10 +95,17 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	var domElement = document.getElementById("file");
 	domElement.click();
     };
-
+    
     $scope.fileSelectChange = function(files){
 	for(var i=0;i<files.length;i++){
+	    //start spinner
 	    $scope.slickLoaded = false;
+	    $scope.uploading = true;
+
+	    //reinit slider
+	    $timeout(function () {
+		$scope.slickLoaded = true;
+	    }, 10);
 	    
 	    var fd = new FormData();
 	    //Take the first selected file
@@ -113,11 +118,20 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 		headers: {'Content-Type': undefined }
 		//transformRequest: angular.identity
 	    }).then(function(data){	
+		//stop spinner
+		$timeout(function(){
+		    
+		    $scope.uploading=false;
+		    
+		},1000);
+
+		$scope.slickLoaded = false;
 		$scope.pictures.push(data.data);
 		
-		$timeout(function () { 
+		//reinit slider
+		$timeout(function () {
 		    $scope.slickLoaded = true;
-		}, 10);
+		}, 20);
 	    });
 	}
     };

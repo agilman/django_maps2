@@ -70,6 +70,12 @@ class PicMeta(models.Model):
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     lng = models.DecimalField(max_digits=9, decimal_places=6)
     ts = models.DateTimeField(null=True)
-
-
+    
+class Blog(models.Model):
+    adv = models.ForeignKey(Adventure)
+    map = models.ForeignKey(Map)
+    title = models.CharField(max_length=128)
+    entry = models.CharField(max_length=4096)
+    saveTime = models.DateTimeField()
+    status = models.IntegerField() #1 = published, 2=draft
     

@@ -21,18 +21,23 @@ myApp.config(function($stateProvider){
 	    controller:'segmentDetailsController',
 	})
         .state('photosEditor',{
-	    url:'/:currentAdvId/photos',
+	    url:'/:currentAdvId/photos/',
 	    templateUrl:'/www/partials/editor-photos.html',
 	    controller:'photoEditorController',
 	})
         .state('photosEditor.album',{
-	    url:'/:currentAdvId/photos/:albumId/',
+	    url:':albumId/',
 	    templateUrl:'/www/partials/editor-photos.album.html',
 	    controller:'photoEditorAlbumController',
 	})
         .state('blogsEditor',{
 	    url:'/:currentAdvId/blogs/',
 	    templateUrl:'/www/partials/editor-blogs.html',
+	    controller:'blogEditorControllerIndex',
+	})
+        .state('blogsEditor.map',{
+	    url:':mapId/',
+	    templateUrl:'/www/partials/editor-blogs.map.html',
 	    controller:'blogEditorController',
 	})
         .state('gearEditor',{

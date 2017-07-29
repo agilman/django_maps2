@@ -43,8 +43,9 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentEditorPage='advs';
     });
 
-    $scope.$on('setBlogEditorActive',function(event){
+    $scope.$on('setBlogEditorActive',function(event,advId){
 	$scope.currentEditorPage='blogs';
+	$scope.currentAdvId = advId;
     });
 
     $scope.$on('setMapEditorActive',function(event,advId){

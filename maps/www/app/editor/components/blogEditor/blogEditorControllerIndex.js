@@ -5,8 +5,6 @@ myApp.controller("blogEditorControllerIndex",['$scope','$log','$http','$statePar
     $scope.currentMapId = null;
     $scope.currentMapIndex = null;
 
-    $log.log($scope.currentAdvId);
-
     $http.get('/api/rest/advMaps/' + $scope.currentAdvId+"/").then(function(data){
 	$scope.maps = data.data;
 	
@@ -29,5 +27,20 @@ myApp.controller("blogEditorControllerIndex",['$scope','$log','$http','$statePar
 	}
     });
 
+    $scope.getMapClass = function(index){
+	if($scope.currentMapIndex==index){
+	    return "btn-primary";
+	}else{
+	    return "btn-default";
+	}
+    };
+
+    $scope.changeMap = function(index){
+	$scope.currentMapIndex=index;
+	$scope.currentMapId=$scope.maps[index].id;
+	$state.go('blogsEditor.map',{mapId:$scope.currentMapId});
+    };
+    
+    
     $log.log("Hello from Blog editor index");
 }]);

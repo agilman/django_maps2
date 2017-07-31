@@ -1,44 +1,38 @@
 myApp.controller("blogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
-    $scope.$emit("setBlogEditorActive");
+    $scope.currentMapId = $stateParams.mapId;
+    $scope.blogs=[];
     
-    $scope.maps = [] ; //blogs are tied to maps....
-    $scope.currentMapId = null;
-    $scope.currentMapIndex = null;
+    $scope.blogTitle="";
+    $scope.blogHTML="";
 
-    /*
-    $http.get('/api/rest/blogs/' + $scope.currentAdvId+"/").then(function(data){
-	$scope.maps = data.data;
-
-	//TODO: figure if there are multiple maps,
-	if($scope.maps.length){
-	    //if current mapId is NOT set (set last map as current):
-	    if (!$scope.currentMapId){
-		$scope.currentMapId = $scope.maps[$scope.maps.length-1].id;
-		$scope.currentMapIndex = $scope.maps.length-1;
-		$state.go('blogsEditor.map',{mapId:$scope.currentMapId});
-		
-	    }else{
-		//Got mapId from URL.. set it up as current.
-		for(var i=0;i<$scope.maps.length;i++){
-		    if($scope.maps[i].id==$scope.currentMapId){
-			$scope.currentMapIndex=i;
-		    }
-		}
-	    }
-	}
+    $http.get('/api/rest/blogs/' + $scope.currentMapId+"/").then(function(data){
+	$scope.blogs = data.data;
+	
     });
-    */
     
     $scope.saveBlog = function (){
-	var data = {'title':$scope.blogTitle,
-		    'entry':$scope.blogHTML};
+	var newBlog = {'adv': $scope.currentAdvId,
+		       'map' : $scope.currentMapId,
+		       'title' : $scope.blogTitle,
+		       'entry' : $scope.blogHTML};
+	
+	$http.post('/api/rest/blogs/'+$scope.currentMapId+"/",JSON.stringify(newBlog)).then(function(data){
+	    $scope.blogs.push(data.data);
 
-	$http.post('/api/rest/blogs/',JSON.stringify(newAdv)).then(function(data){
-	    $scope.adventures.push(data.data);
-
+	    //clear fields
+	    $scope.blogTitle="";
+	    $scope.blogHTML="";
+	   
 	});
 
 	$log.log("Send data back to server");
+    };
+
+    $scope.extractContent = function(index){
+	var span= document.createElement('span');
+	span.innerHTML= $scope.blogs[index].entry;
+	return span.textContent || span.innerText;
+	
     };
     
     $log.log("Hello from Blog editor controller");

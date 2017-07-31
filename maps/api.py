@@ -71,7 +71,8 @@ def userInfo(request,userId=None):
 def adventures(request,advId=None):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        
+
+        #TODO: VALIDATION
         user = User.objects.get(pk=int(data["owner"]))
         
         advName = data["name"]
@@ -443,8 +444,6 @@ def map(request,mapId=None):
         
         return JsonResponse(serialized.data,safe=False)
 
-    
-
 @csrf_exempt
 def advMapSegments(request,advId=None):
     """Used to get all map segments for entire adventure"""
@@ -684,3 +683,29 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
     return picture
 
             
+@csrf_exempt
+def blogs(request,mapId=None):
+    if request.method == 'POST':
+        
+        data = JSONParser().parse(request)
+
+        adv = Adventure.objects.get(id=data["adv"])
+        map = Map.objects.get(id=mapId)
+        title = data["title"]
+        entry = data["entry"]
+        now = datetime.now(pytz.timezone('US/Pacific'))
+        
+        newBlog = Blog(adv=adv,map=map,title=title,entry=entry,saveTime=now,status=1)
+        newBlog.save()
+
+        serialized = BlogSerializer(newBlog)
+        
+        return JsonResponse(serialized.data,safe=False)
+    
+    if request.method == 'GET':
+        map = Map.objects.get(id=mapId)
+        blogs = Blog.objects.filter(map=map).all()
+
+        serialized = BlogSerializer(blogs,many=True)
+        
+        return JsonResponse(serialized.data,safe=False)

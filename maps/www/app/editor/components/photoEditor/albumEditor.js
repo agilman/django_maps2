@@ -1,5 +1,5 @@
 myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$stateParams','$timeout','leafletData',function($scope,$log,$http,$stateParams,$timeout,leafletData){
-    //$scope.$emit("setPhotoEditorActive",$stateParams.currentAdvId);
+
     $scope.albumId = $stateParams.albumId;
     $scope.slickLoaded = false;
     $scope.pictures = [];

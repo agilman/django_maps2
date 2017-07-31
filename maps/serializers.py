@@ -33,7 +33,6 @@ class PictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Picture
         fields = ['id','album','caption','filename','uploadTime','picMeta']
-
         
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,3 +40,7 @@ class AlbumSerializer(serializers.ModelSerializer):
         fields = ['id','adv','advMap','title']
 
 
+class BlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = "__all__"

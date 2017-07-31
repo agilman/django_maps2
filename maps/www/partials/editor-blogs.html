@@ -3,7 +3,7 @@
     <div ng-show="maps.length>1">
       <label>Maps:</label>
       <div class="btn-group">
-	<button type="button" class="btn" ng-repeat="map in maps" >
+	<button type="button" class="btn" ng-class="getMapClass($index)" ng-click="changeMap($index)" ng-repeat="map in maps" >
 	  {{ map.name }}
 	</button>
       </div>

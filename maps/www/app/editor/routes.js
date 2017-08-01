@@ -38,7 +38,12 @@ myApp.config(function($stateProvider){
         .state('blogsEditor.map',{
 	    url:':mapId/',
 	    templateUrl:'/www/partials/editor-blogs.map.html',
-	    controller:'blogEditorController',
+	    controller:'newBlogEditorController',
+	})
+        .state('blogsEditor.map.blog',{
+	    url:':blogId/',
+	    templateUrl:'/www/partials/editor-blogs.map.blog.html',
+	    controller:'blogReeditorController',
 	})
         .state('gearEditor',{
 	    url:'/:currentAdvId/gear/',

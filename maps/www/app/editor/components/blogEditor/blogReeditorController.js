@@ -1,15 +1,15 @@
-myApp.controller("newBlogEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
-    $scope.currentMapId = $stateParams.mapId;
-    $scope.blogs=[];
-    
+myApp.controller("blogReeditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+    $scope.currentBlogId = $stateParams.blogId;
+        
     $scope.blogTitle="";
     $scope.blogHTML="";
 
-    $http.get('/api/rest/blogs/' + $scope.currentMapId+"/").then(function(data){
-	$scope.blogs = data.data;
+    $http.get('/api/rest/blogs/' + $scope.currentMapId+"/"+$scope.currentBlogId+"/").then(function(data){
+	$log.log(data.data);
 	
     });
-    
+
+    /*
     $scope.saveBlog = function (){
 	var newBlog = {'adv': $scope.currentAdvId,
 		       'map' : $scope.currentMapId,
@@ -40,6 +40,7 @@ myApp.controller("newBlogEditorController",['$scope','$log','$http','$stateParam
 	//$log.log(ts);
 	return moment(ts).format("MMMM Do, YYYY");
     };
+    */
     
-    $log.log("Hello from Blog editor controller");
+    $log.log("Hello from Blog Reeditor controller");
 }]);

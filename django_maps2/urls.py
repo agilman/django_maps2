@@ -52,5 +52,6 @@ urlpatterns = [
     url(r'^api/rest/deletePictures/(?P<albumId>\d+)/$',api.deletePictures), #why do I need albumId?
     url(r'^api/rest/blogs/$',api.blogs),
     url(r'^api/rest/blogs/(?P<mapId>\d+)/$',api.blogs),
+    url(r'^api/rest/blogs/(?P<mapId>\d+)/(?P<blogId>\d+)/$',api.blogs),
     url(r'^api/rest/geotagPictures$',api.geotagPictures),
 ]

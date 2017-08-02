@@ -684,7 +684,7 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
 
             
 @csrf_exempt
-def blogs(request,mapId=None):
+def blogs(request,mapId=None,blogId=None):
     if request.method == 'POST':
         
         data = JSONParser().parse(request)
@@ -703,9 +703,17 @@ def blogs(request,mapId=None):
         return JsonResponse(serialized.data,safe=False)
     
     if request.method == 'GET':
-        map = Map.objects.get(id=mapId)
-        blogs = Blog.objects.filter(map=map).all()
+        if blogId==None:
+            map = Map.objects.get(id=mapId)
+            blogs = Blog.objects.filter(map=map).all()
+            
+            serialized = BlogSerializer(blogs,many=True)
+            return JsonResponse(serialized.data,safe=False)
+        else:
+            blog = Blog.objects.get(id=blogId)
+            serialized = BlogSerializer(blog)
+            return JsonResponse(serialized.data,safe=False)
 
-        serialized = BlogSerializer(blogs,many=True)
+            
         
-        return JsonResponse(serialized.data,safe=False)
+

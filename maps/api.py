@@ -687,7 +687,7 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
 def blogs(request,mapId=None,blogId=None):
     if request.method == 'POST':        
         data = JSONParser().parse(request)
-
+        
         adv = Adventure.objects.get(id=data["adv"])
         map = Map.objects.get(id=mapId)
         title = data["title"]
@@ -719,4 +719,25 @@ def blogs(request,mapId=None,blogId=None):
         blogToDel.delete()
         serialized = BlogSerializer(blogToDel)
         
+        return JsonResponse(serialized.data,safe=False)
+
+    elif request.method == "PUT":
+        data = JSONParser().parse(request)
+        
+        adv = Adventure.objects.get(id = data["adv"])       
+        map = Map.objects.get(id = mapId)
+
+        title = data["title"]
+        entry = data["entry"]
+
+        now = datetime.now(pytz.timezone('US/Pacific'))
+
+        oldData = Blog.objects.get(id = blogId)
+        
+        #If advStatus = active, need to unset previous active.
+        blog = Blog(id=blogId,adv=adv,map=map,title=title,entry=entry,saveTime=now,status=oldData.status)
+        blog.save()
+        
+        serialized = BlogSerializer(blog)
+
         return JsonResponse(serialized.data,safe=False)

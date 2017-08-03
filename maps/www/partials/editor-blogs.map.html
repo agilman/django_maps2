@@ -2,24 +2,29 @@
   <div class="col-lg-2">
     <h4>Blogs:</h4>
     <div class="list-group">
-      <a ng-click="newBlogClick()" class="list-group-item list-group-item-action flex-column align-items-start blogItem" ng-class="blogClass(-1)">
+      <div ng-click="newBlogClick()" class="list-group-item list-group-item-action flex-column align-items-start blogItem" ng-class="blogClass(-1)">
 	<div class="d-flex w-100 justify-content-between">
 	  <h5 class="mb-1"><b>New Blog</b> <span class="pull-right"><i class="glyphicon glyphicon-plus"/></span></h5>	  
 	</div>
-      </a>
+      </div>
       
-      <a ui-sref="blogsEditor.map.blog({blogId : blog.id})" class="list-group-item list-group-item-action flex-column align-items-start" ng-repeat="blog in blogs" ng-class="blogClass($index)">
+      <div ng-click="goToBlog(blog.id)" class="list-group-item list-group-item-action flex-column align-items-start blogItem" ng-repeat="blog in blogs" ng-class="blogClass($index)">
 	<div class="d-flex w-100 justify-content-between">
-	  <h5 class="mb-1"><b>{{ blog.title | limitTo:75 }}</b></h5>
+	  <h5 class="mb-1"><b>{{ blog.title | limitTo:75 }}</b>
+	    <span class="pull-right">
+	      <button class="btn btn-default btn-sm" data-toggle="tooltip" title="Delete Blog" ng-click="deleteBlog($index);$event.stopPropagation();">
+		<i class="glyphicon glyphicon-remove"/>
+	      </button>
+	    </span>
+	  </h5>
 	  <small><i>Posted on {{ formatTime($index) }}</i></small>
 	</div>
 	<p class="mb-1"> {{ extractContent($index) | limitTo:128 }}</p>
-      </a>
+      </div>
     </div>
   </div>
   
   <div class="col-lg-9">
-
     <div ng-show="currentBlogIndex==-1">
       <h4>New Blog:</h4>
       
@@ -37,9 +42,11 @@
 	<button class="btn btn-disabled" ng-click="saveBlog()">Save</button>
 	<button class="btn btn-default" >Save as Draft</button>
       </div>
+      
     </div>
     
-    <ui-view>  
+    <ui-view>
+      
     </ui-view>
     
   </div>

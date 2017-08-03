@@ -10,7 +10,6 @@ myApp.controller("blogReeditorController",['$scope','$log','$http','$stateParams
 	$scope.blogTitle= data.data.title;
 	$scope.blogHTML = data.data.entry;
     });
-
     
     $log.log("Hello from Blog Reeditor controller");
 }]);

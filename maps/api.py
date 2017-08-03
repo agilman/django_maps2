@@ -685,8 +685,7 @@ def handle_uploaded_albumPhoto(userId,albumId,f):
             
 @csrf_exempt
 def blogs(request,mapId=None,blogId=None):
-    if request.method == 'POST':
-        
+    if request.method == 'POST':        
         data = JSONParser().parse(request)
 
         adv = Adventure.objects.get(id=data["adv"])
@@ -702,7 +701,7 @@ def blogs(request,mapId=None,blogId=None):
         
         return JsonResponse(serialized.data,safe=False)
     
-    if request.method == 'GET':
+    elif request.method == 'GET':
         if blogId==None:
             map = Map.objects.get(id=mapId)
             blogs = Blog.objects.filter(map=map).all()
@@ -714,6 +713,10 @@ def blogs(request,mapId=None,blogId=None):
             serialized = BlogSerializer(blog)
             return JsonResponse(serialized.data,safe=False)
 
-            
+    elif request.method == 'DELETE':
+        blogToDel = Blog.objects.get(id=blogId)
         
-
+        blogToDel.delete()
+        serialized = BlogSerializer(blogToDel)
+        
+        return JsonResponse(serialized.data,safe=False)

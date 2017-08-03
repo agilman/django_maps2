@@ -5,7 +5,9 @@ myApp.controller("newBlogEditorController",['$scope','$log','$http','$stateParam
     $scope.blogTitle="";
     $scope.blogHTML="";
     $scope.currentBlogIndex = -1;
-
+    $scope.titleChanged = false;
+    $scope.entryChanged = false;    
+    
     $http.get('/api/rest/blogs/' + $scope.currentMapId+"/").then(function(data){
 	$scope.blogs = data.data;
     });
@@ -52,7 +54,9 @@ myApp.controller("newBlogEditorController",['$scope','$log','$http','$stateParam
 
 	    //clear fields
 	    $scope.blogTitle="";
-	    $scope.blogHTML="";	    
+	    $scope.blogHTML="";
+	    $scope.titleChanged=false;
+	    $scope.entryChanged=false;
 	});
     };
 
@@ -63,19 +67,22 @@ myApp.controller("newBlogEditorController",['$scope','$log','$http','$stateParam
 	    //clear entry from list
 	    $scope.blogs.splice(index,1);
 
-	    //change currently selected blog,if needed.
-	    if ($scope.maps.length==0){
+	    //If deleted last blog, change to new blog state...
+	    if ($scope.blogs.length==0){
+		$scope.currentBlogIndex = -1;
 		$state.go("blogsEditor.map",{mapId:$scope.currentMapId});
-	    }else{
-		if ($scope.maps.length==index){ //deleting last blog
-		    $scope.currentBlogId = $scope.blogs[index-1].id;
+	    }
+	    
+	    //if deleted currently selected blog, go to new blog...
+	    if (index==$scope.currentBlogIndex){
+		$state.go("blogsEditor.map",{mapId:$scope.currentMapId});
+	    }
 
-		}else{
-		    $scope.currentBlogId = $scope.blogs[index].id;
-		}
+	    if (index < $scope.currentBlogIndex){
+		$scope.currentBlogIndex-=1;
+	    }
 
-		$state.go("blogsEditor.map.blog", {blogId:$scope.currentBlogId });
-	    }	    
+
 	});
     };
 

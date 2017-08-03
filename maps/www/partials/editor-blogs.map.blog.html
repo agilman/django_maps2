@@ -3,16 +3,17 @@
 <form class="form-inline">
   <label for="blogTitle">Title:</label>
   <div class="form-group">
-    <input type="text" id="title" size="100" name="blogTitle" ng-model="blogTitle" class="form-control">
+    <input type="text" id="title" size="100" name="blogTitle" ng-model="blogTitle" ng-change="titleChanged=true;" class="form-control">
   </div>
   <!-- rest of form -->
 </form>
 
 <br>
-<text-angular ng-model="blogHTML"></text-angular>
+<text-angular ng-model="blogHTML" ng-change="entryChanged=true"></text-angular>
 <div class="btn-group">
-  <button class="btn btn-disabled" ng-click="saveBlog()">Save Changes</button>
-
+  <button class="btn" ng-click="saveBlog()" ng-class="{'btn-primary':titleChanged || entryChanged}">
+    Save Changes
+  </button>
 </div>
 
 

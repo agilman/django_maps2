@@ -1,24 +1,10 @@
 <div class="row">
   <div class="col-lg-4">
-    <h4>ITems tree:</h4>
-    
-    <div ui-tree>
-      <ol ui-tree-nodes="" ng-model="list">
-	<li ng-repeat="item in list" ui-tree-node>
-	  <div ui-tree-handle>
-	    {{item.title}}
-	  </div>
-	  <ol ui-tree-nodes="" ng-model="item.items">
-	    <li ng-repeat="subItem in item.items" ui-tree-node>
-	      <div ui-tree-handle>
-		{{subItem.title}}
-	      </div>
-	    </li>
-	  </ol>
-	</li>
-      </ol>
+    <h4>Items tree:</h4>
+
+    <div js-tree="treeConfig" ng-model="treeData" tree="treeInstance">
     </div>
-    
+    <p>test</p>
   </div>
 
   <div class="col-lg-6">

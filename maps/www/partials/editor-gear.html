@@ -1,10 +1,63 @@
 <div class="row">
   <div class="col-lg-4">
-    <h4>Items tree:</h4>
+
+    <label for="newItem">Add Item:</label>
+    <form class="form-inline" id="newItem">
+      <label for="name">Name:</label>
+      <input size="32" type="search" class="form-control" id="name" list="refList" ng-model="itemName">
+      <datalist id="refList">
+	<option value="Alphe">Α</option>
+	<option value="Beta">Β</option>
+	<option value="Gamma">Γ</option>
+	<option value="Delta">Δ</option>
+	<option value="Epsilon">Ε</option>
+	<option value="Zeta">Ζ</option>
+	<option value="Eta">Η</option>
+	<option value="Theta">Θ</option>	
+	<option value="Iota">Ι</option>
+	<option value="Kappa">Κ</option>
+	<option value="Lambda">Λ</option>
+	<option value="Mu">Μ</option>
+	<option value="Nu">Ν</option>
+	<option value="Xi">Ξ</option>
+	<option value="Omicron">Ο</option>
+	<option value="Pi">Π</option>
+	<option value="Rho">Ρ</option>
+	<option value="Sigma">Σ</option>
+	<option value="Tau">Τ</option>
+	<option value="Upsilon">Υ</option>
+	<option value="Phi">Φ</option>
+	<option value="Chi">Χ</option>
+	<option value="Psi">Ψ</option>
+	<option value="Omega">Ω</option>
+	</datalist>
+    </form >
+
+    <form class="form-inline" id="weight">
+      <label for="weight">Weight:</label>
+      <input type="number" step="any" size="4" width="200" maxlength="3" class="form-control" id="weight" ng-model="weight">
+
+      <select class="form-control" ng-model="weightUnit">
+	<option value="1">Kg</option>
+	<option value="2">g </option>
+	<option value="3">lb</option>
+	<option value="4">oz</option>
+      </select>
+
+      <button class="btn" ng-class="{'btn-primary':itemName.length, 'btn-default':'!itemName.length'}" ng-click="addItem()">Add</button>
+
+    </form>
+    
+    <hr>
+    
+    <h4>Gear List:</h4>
 
     <div js-tree="treeConfig" ng-model="treeData" tree="treeInstance">
     </div>
-    <p>test</p>
+
+ 
+
+    
   </div>
 
   <div class="col-lg-6">

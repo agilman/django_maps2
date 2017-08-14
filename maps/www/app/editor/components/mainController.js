@@ -58,8 +58,9 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentAdvId = advId;
     });
 
-    $scope.$on('setGearEditorActive',function(event){
+    $scope.$on('setGearEditorActive',function(event,advId){
 	$scope.currentEditorPage='gear';
+	$scope.currentAdvId = advId;
     });
 
     $scope.$on('advChangeEvent',function(event,indx){

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'maps',
     'rest_framework',
-]
+    'mptt']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

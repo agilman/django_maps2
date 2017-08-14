@@ -741,3 +741,28 @@ def blogs(request,mapId=None,blogId=None):
         serialized = BlogSerializer(blog)
 
         return JsonResponse(serialized.data,safe=False)
+
+
+            
+@csrf_exempt
+def gear(request,advId=None):
+    if request.method == 'POST':        
+        data = JSONParser().parse(request)
+        ref = None
+        name = data['name']
+        weight = data['weight']
+        weightUnit = data['weightUnit']
+
+        adv = Adventure.objects.get(id=advId)
+
+        newItem = GearItem(adv = adv, ref=ref, name=name, weight=weight, weightUnit=weightUnit)
+        newItem.save()
+
+        return JsonResponse([],safe=False)
+
+    if request.method == 'GET':
+        adv = Adventure.objects.get(id=advId)
+
+        items = GearItem.objects.filter(adv=adv).all()
+
+        return JsonResponse([],safe=False)

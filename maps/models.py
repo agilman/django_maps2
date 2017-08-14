@@ -4,6 +4,7 @@ from django.db import models
 
 from django.conf import settings
 
+from mptt.models import MPTTModel, TreeForeignKey
 
 # Create your models here.
 class UserBio(models.Model):
@@ -78,4 +79,21 @@ class Blog(models.Model):
     entry = models.CharField(max_length=4096)
     saveTime = models.DateTimeField()
     status = models.IntegerField() #1 = published, 2=draft
+
+
+class RefItems(models.Model):
+    name = models.CharField(max_length=32)
+    asin = models.CharField(max_length=13,null=True)
+    weight = models.FloatField(null=True)
+    weightUnit = models.CharField(max_length=2,null=True)  #g, kg,  oz, lb
+    
+class GearItem(MPTTModel):
+    adv = models.ForeignKey(Adventure)
+    ref = models.ForeignKey(RefItems,null=True)
+    
+    name = models.CharField(max_length=32)
+    weight = models.FloatField(null=True)
+    weightUnit = models.CharField(max_length=2,null=True)  #g, kg,  oz, lb
+    
+    parent = TreeForeignKey('self', null=True, related_name='children', db_index=True)
     

@@ -745,24 +745,38 @@ def blogs(request,mapId=None,blogId=None):
 
             
 @csrf_exempt
-def gear(request,advId=None):
+def gear(request,advId=None,itemId=None):
     if request.method == 'POST':        
         data = JSONParser().parse(request)
         ref = None
         name = data['name']
         weight = data['weight']
         weightUnit = data['weightUnit']
+        parentId = data['parent']
 
+        parentItem = None 
+        if parentId:
+            parentItem = GearItem.objects.get(id = parentId)
+            
         adv = Adventure.objects.get(id=advId)
 
-        newItem = GearItem(adv = adv, ref=ref, name=name, weight=weight, weightUnit=weightUnit)
+        newItem = GearItem(adv = adv,parent=parentItem, ref=ref, name=name, weight=weight, weightUnit=weightUnit)
         newItem.save()
 
-        return JsonResponse([],safe=False)
+        serialized = GearListSerializer2(newItem)
+        return JsonResponse(serialized.data,safe=False)
 
     if request.method == 'GET':
         adv = Adventure.objects.get(id=advId)
 
         items = GearItem.objects.filter(adv=adv).all()
+
+        serialized = GearListSerializer2(items,many=True)
+        
+        return JsonResponse(serialized.data,safe=False)
+
+    if request.method == 'DELETE':
+        item = GearItem.objects.get(id = itemId)
+        item.delete()
 
         return JsonResponse([],safe=False)

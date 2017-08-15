@@ -55,4 +55,5 @@ urlpatterns = [
     url(r'^api/rest/blogs/(?P<mapId>\d+)/(?P<blogId>\d+)/$',api.blogs),
     url(r'^api/rest/geotagPictures$',api.geotagPictures),
     url(r'^api/rest/gear/(?P<advId>\d+)/$',api.gear),
+    url(r'^api/rest/gear/(?P<advId>\d+)/(?P<itemId>\d+)/$',api.gear),
 ]

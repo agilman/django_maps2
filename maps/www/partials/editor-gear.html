@@ -6,7 +6,7 @@
       <label for="name">Name:</label>
       <input size="32" type="search" class="form-control" id="name" list="refList" ng-model="itemName">
       <datalist id="refList">
-	<option value="Alphe">Α</option>
+	<option value="Alpha">Α</option>
 	<option value="Beta">Β</option>
 	<option value="Gamma">Γ</option>
 	<option value="Delta">Δ</option>
@@ -46,22 +46,21 @@
 
       <button class="btn" ng-class="{'btn-primary':itemName.length, 'btn-default':'!itemName.length'}" ng-click="addItem()">Add</button>
 
-    </form>
-    
+    </form>    
     <hr>
     
     <h4>Gear List:</h4>
-
-    <div js-tree="treeConfig" ng-model="treeData" tree="treeInstance">
+    <div js-tree="treeConfig" ng-model="treeData" tree="treeInstance"
+	 tree-events="loaded:loadedCB;changed:changedCB"> <!--set callbacks -->
     </div>
-
- 
-
+    
+    <div ng-show="treeData.length>0">
+      <button class="btn" ng-class="{'btn-default':selectedNodeId==null,'btn-primary':selectedNodeId!=null}" ng-click="deleteItem()">Delete Item</button>
+    </div>
     
   </div>
-
+  
   <div class="col-lg-6">
-    GearImg
   </div>
 
 </div>

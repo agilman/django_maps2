@@ -44,3 +44,28 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = "__all__"
+
+class GearListSerializer(serializers.ModelSerializer):
+    #children = self(source='children',many=True)
+    text  = serializers.CharField(source='name')
+
+    class Meta:
+        model = GearItem
+        fields = ['id','text','children']
+
+    #This overrides the defult constructor, adding the children field....
+    def get_fields(self):
+        fields = super(GearListSerializer, self).get_fields()
+        fields['children'] = GearListSerializer(many=True)
+        return fields
+
+
+class GearListSerializer2(serializers.ModelSerializer):
+   
+    text  = serializers.CharField(source='name')
+
+    class Meta:
+        model = GearItem
+        fields = ['id','parent','text','weight','weightUnit']
+
+   

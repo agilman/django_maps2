@@ -1,6 +1,6 @@
 from maps.models import *
 from maps.serializers import *
-from maps.forms import ProfilePhotoUploadForm, AlbumPhotoUploadForm
+from maps.forms import *
 
 from django.http import JsonResponse
 from collections import OrderedDict
@@ -71,18 +71,24 @@ def userInfo(request,userId=None):
 def adventures(request,advId=None):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-
+        userId = int(data["owner"])
         #TODO: VALIDATION
-        user = User.objects.get(pk=int(data["owner"]))
+        user = User.objects.get(pk=userId)
         
         advName = data["name"]
         advType = data["advType"]
         advStatus = data["advStatus"]
-        
+
+        #TODO
         #If advStatus = active, need to unset previous active.
         
         adv = Adventure(name=advName,owner=user,advType=advType,advStatus=advStatus)
         adv.save()
+
+        #create directory
+        media_root = settings.USER_MEDIA_ROOT
+        os.mkdir(media_root + "/" + str(userId)+"/"+str(adv.id))
+        os.mkdir(media_root + "/" + str(userId)+"/"+str(adv.id)+"/gear")
 
         serialized = AdventureSerializer(adv)
         return JsonResponse(serialized.data,safe=False)
@@ -271,15 +277,14 @@ def handle_uploaded_profilePhoto(userId,f):
     return profilePicture
 
 @csrf_exempt
-def pictures(request,albumId=None):
+def pictures(request,advId=None,albumId=None):
     if request.method == 'POST':
         form = AlbumPhotoUploadForm(request.POST,request.FILES)
         if form.is_valid():
             f = request.FILES['file']
-
             userId= request.user.id
             
-            pic = handle_uploaded_albumPhoto(userId,albumId,f)
+            pic = handle_uploaded_albumPhoto(userId,advId,albumId,f)
             serialized = PictureSerializer(pic)
             
             return JsonResponse(serialized.data,safe=False)
@@ -305,7 +310,7 @@ def advPictures(request,advId=None):
         return JsonResponse(serialized.data,safe=False)
         
 @csrf_exempt
-def deletePictures(request,albumId=None):  #This is used to bulk delete pictures.
+def deletePictures(request,advId=None,albumId=None):  #This is used to bulk delete pictures.
     if request.method == 'POST':
         data = JSONParser().parse(request)
         
@@ -316,9 +321,9 @@ def deletePictures(request,albumId=None):  #This is used to bulk delete pictures
 
             #delete pic from disk
             settings.USER_MEDIA_ROOT
-            path = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/"+pic.filename
-            thpath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/.th/"+pic.filename
-            mipath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(albumId)+"/.mi/"+pic.filename
+            path = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/"+pic.filename
+            thpath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.th/"+pic.filename
+            mipath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.mi/"+pic.filename
             
             os.remove(path)
             os.remove(thpath)
@@ -400,7 +405,7 @@ def advMaps(request,advId=None):
         album.save()
 
         #create dir..
-        createAlbumDirs(request.user.id,album.id)
+        createAlbumDirs(request.user.id,advId,album.id)
 
         
         #Hmm, maybe I should just get a serializer...
@@ -409,7 +414,7 @@ def advMaps(request,advId=None):
 
     
 
-def createAlbumDirs(userId,newAlbumId):
+def createAlbumDirs(userId,advId,newAlbumId):
     #create album directory
     media_root = settings.USER_MEDIA_ROOT
     
@@ -417,8 +422,12 @@ def createAlbumDirs(userId,newAlbumId):
     #THIS SHOULD NOT BE DONE HERE.
     if not os.path.exists(media_root +"/"+ str(userId)):
         os.mkdir(media_root + "/" + str(userId))
+
+    #THIS SHOULD NOT BE DONE HERE... ADV dir is created at adv creation time
+    if not os.path.exists(media_root +"/" + str(userId) +"/"+str(advId)):
+        os.mkdir(media_root + "/"+ str(userId) + "/" + str(advId) )
         
-    albumPath = media_root + "/" + str(userId) + "/" + str(newAlbumId)
+    albumPath = media_root + "/" + str(userId) + "/"+ str(advId) + "/" + str(newAlbumId)
     
     if not os.path.exists(albumPath):
         os.mkdir(albumPath)
@@ -559,9 +568,7 @@ def mapSegment(request,segmentId=None):
             return JsonResponse(result,safe=False)
         else:
             return JsonResponse({"error":"Bad input"})
-                            
-
-                    
+        
 @csrf_exempt
 def advAlbums(request,advId=None):
     """Used to get list of maps, no coordinates"""
@@ -647,12 +654,12 @@ def resizeImage(path,fileName,targetPath,targetName,targetWidth,targetHeight):
 
     return 1
 
-def handle_uploaded_albumPhoto(userId,albumId,f):
+def handle_uploaded_albumPhoto(userId,advId,albumId,f):
     #write file as is, convert to decided format, add to db,  delete old ?
     
     #save file as is
     newName = f.name 
-    filePath = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+albumId+'/'
+    filePath = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/'+albumId+'/'
     target = filePath +  newName
 
     with open(target, 'wb+') as destination:
@@ -780,3 +787,47 @@ def gear(request,advId=None,itemId=None):
         item.delete()
 
         return JsonResponse([],safe=False)
+
+def handle_uploaded_gearPicture(userId,advId,f):
+    #write file as is, convert to decided format, add to db,  delete old ?
+    print("inside handle gear picture")
+    #save file as is
+    target = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/gear/'+f.name
+    
+    with open(target, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+            
+    #convert,resize,thumbs
+    #add to db
+    #user = User.objects.get(pk=int(userId))
+    #my_date = datetime.now(pytz.timezone('US/Pacific'))
+    #//profilePicture = UserProfilePicture(user=user,uploadTime=my_date,active=True)
+    #profilePicture.save()
+    
+    #temp solution... need to convert to target file with right extension, and then delete the old file.
+    #rename
+    #newName = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/gear/'+str(profilePicture.id)+".jpg"
+    #os.rename(target,newName)
+
+    return target #profilePicture
+
+
+@csrf_exempt
+def gearPictures(request, advId=None):
+    if request.method == 'POST':
+        
+        form = GearPictureUploadForm(request.POST,request.FILES)
+        if form.is_valid():
+            print("form valid")
+            userId = form.data['userId']
+            f = request.FILES['file']
+            userPic = handle_uploaded_gearPicture(userId,advId,f)
+            
+            return JsonResponse([],safe=False)
+        else:
+            print("failed")
+            print(dir(form))
+            print(form)
+            print(form.errors)
+            return JsonResponse({"msg":"FAIL"},safe=False)

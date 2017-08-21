@@ -47,13 +47,14 @@ urlpatterns = [
     url(r'^api/rest/mapSegment$', api.mapSegment),
     url(r'^api/rest/advMapSegments/(?P<advId>\d+)$',api.advMapSegments),
     url(r'^api/rest/advAlbums/(?P<advId>\d+)/$',api.advAlbums),
-    url(r'^api/rest/pictures/(?P<albumId>\d+)/$',api.pictures),
+    url(r'^api/rest/pictures/(?P<advId>\d+)/(?P<albumId>\d+)/$',api.pictures),
     url(r'^api/rest/advPictures/(?P<advId>\d+)/$',api.advPictures), #get only, used in viewer.
-    url(r'^api/rest/deletePictures/(?P<albumId>\d+)/$',api.deletePictures), #why do I need albumId?
+    url(r'^api/rest/deletePictures/(?P<advId>\d+)/(?P<albumId>\d+)/$',api.deletePictures), #why do I need albumId?
     url(r'^api/rest/blogs/$',api.blogs),
     url(r'^api/rest/blogs/(?P<mapId>\d+)/$',api.blogs),
     url(r'^api/rest/blogs/(?P<mapId>\d+)/(?P<blogId>\d+)/$',api.blogs),
     url(r'^api/rest/geotagPictures$',api.geotagPictures),
     url(r'^api/rest/gear/(?P<advId>\d+)/$',api.gear),
     url(r'^api/rest/gear/(?P<advId>\d+)/(?P<itemId>\d+)/$',api.gear),
+    url(r'^api/rest/gearPictures/(?P<advId>\d+)/$',api.gearPictures),
 ]

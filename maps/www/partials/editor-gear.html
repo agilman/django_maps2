@@ -61,6 +61,14 @@
   </div>
   
   <div class="col-lg-6">
+    <div style="padding-top:30px">
+      <div ng-show="gearPictures.length>0" ng-cloak ng-hide="!gearPictures.length">
+	<!--img ng-src="/www/user_media/{{ userId }}/gear/{{ gearOverviewPic }}.jpg"-->
+      </div>
+      <br>
+      <button class="btn btn-primary" ng-click="uploadGearPhoto()">Add Gear Photo</button>
+      <input type="file" id="file" name="file" style="display:none" onchange="angular.element(this).scope().fileSelectChange(this.files)" />
+    </div>
   </div>
 
 </div>

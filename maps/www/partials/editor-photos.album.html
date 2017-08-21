@@ -41,7 +41,7 @@
     <slick class="slider" ng-if="slickLoaded" settings="slideConfig">
       <div ng-repeat="picture in pictures"  ng-class="getPictureClass(picture.id)">
 	<span class="pull-center">
-	  <img ng-click="imgClick($index)" data-lazy="/www/user_media/{{ userId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="width:150px;height:100px;margin:10px auto"/>
+	  <img ng-click="imgClick($index)" data-lazy="/www/user_media/{{ userId }}/{{ currentAdvId }}/{{ picture.album }}/.th/{{ picture.filename }}" style="width:150px;height:100px;margin:10px auto"/>
 	</span>
       </div>
       <div ng-show="uploading" style="position:relative">
@@ -72,7 +72,7 @@
 
   <div class="col-lg-5">
     <div ng-show="selectedPictures.length">
-      <img ng-src="/www/user_media/{{userId}}/{{albumId}}/.mi/{{selectedPictures[selectedPictures.length-1].filename}}" width="550px"/>
+      <img ng-src="/www/user_media/{{userId}}/{{ currentAdvId }}/{{albumId}}/.mi/{{selectedPictures[selectedPictures.length-1].filename}}" width="550px"/>
     </div>
   </div>
 </div>

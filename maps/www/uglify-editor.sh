@@ -11,4 +11,4 @@
 	 ./app/editor/components/blogEditor/blogEditorControllerIndex.js  \
 	 ./app/editor/components/blogEditor/blogEditorController.js  \
 	 ./app/editor/components/blogEditor/blogReeditorController.js  \
-	 ./app/editor/components/gearEditor/controller.js  -o ./js/editor.min.js
+	 ./app/editor/components/gearEditor/gearEditorController.js  -o ./js/editor.min.js

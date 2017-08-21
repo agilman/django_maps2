@@ -14,6 +14,9 @@ class AlbumPhotoUploadForm(forms.Form):
     albumId = forms.IntegerField()
     file = forms.FileField()
 
+class GearPictureUploadForm(forms.Form):
+    userId = forms.IntegerField()
+    file = forms.FileField()
 
     
 class RegistrationForm(UserCreationForm):

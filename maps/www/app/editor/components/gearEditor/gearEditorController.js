@@ -7,6 +7,9 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 
     $scope.selectedNodeId = null;
     $scope.treeData = [];
+
+    $scope.gearOverviewPics = [];
+    $scope.gearOverviewPic = null;
     
     $scope.treeConfig = {
 	core :  {
@@ -53,6 +56,9 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 		tmp.parent="#";
 	    };
 
+	    //add item to treeData
+	    $scope.treeData.push(tmp);
+	    
 	    var tree = $scope.treeInstance.jstree(true);
 	    tree.create_node($scope.selectedNodeId,tmp,'last',false,false);
 	    tree.open_node($scope.selectedNodeId);
@@ -66,9 +72,17 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 
     
     $scope.deleteItem = function(){
+	
 	$http.delete('/api/rest/gear/'+$scope.currentAdvId+"/"+$scope.selectedNodeId).then(function(data){
 	    $scope.treeInstance.jstree(true).delete_node($scope.selectedNodeId);
 
+	    //Remove item from treeData
+	    for(var i =0; i<$scope.treeData.length;i++){
+		if ($scope.treeData[i].id == $scope.selectedNodeId){
+		    $scope.treeData.splice(i,1);
+		}
+	    }
+	    
 	    $scope.selectedNodeId =  null;
 	});
     };
@@ -94,14 +108,29 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
     
     $scope.loadedCB = function(e,data){
 	$scope.treeInstance.jstree(true).open_all();
-    };		
+    };
+
+    $scope.uploadGearPhoto = function(){
+	//trigger file select dialogue 
+	var domElement = document.getElementById("file");
+	domElement.click();
+    }
+
+    $scope.fileSelectChange = function(files){
+	var uploadUrl= "/api/rest/gearPictures/"+$scope.currentAdvId+"/";
+	var fd = new FormData();
+	
+	//Take the first selected file
+	fd.append("userId", $scope.userId);
+	fd.append("file", files[0]);
+	
+	$http.post(uploadUrl, fd, {
+	    withCredentials: true,
+	    headers: {'Content-Type': undefined }
+	}).then(function(data){
+	    $log.log("uploaded OK");
+	});
+    };
 
     $log.log("Hello from Gear editor controller");
 }]);
-
-
-
-
-
-
-

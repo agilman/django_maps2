@@ -37,7 +37,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	}
     };
     
-    $http.get('/api/rest/pictures/' + $scope.albumId+"/").then(function(data){
+    $http.get('/api/rest/pictures/' + $scope.currentAdvId + '/' + $scope.albumId+"/").then(function(data){
 	$scope.pictures = data.data;
 	$timeout(function () {
 	    $scope.slickLoaded = true;
@@ -110,9 +110,10 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
 	    var fd = new FormData();
 	    //Take the first selected file
 	    fd.append("albumId", parseInt($scope.albumId));
+	    fd.append("advId",parseInt($scope.currentAdvId));
 	    fd.append("file", files[i]);
 
-	    var uploadUrl= "/api/rest/pictures/"+$scope.albumId+"/";
+	    var uploadUrl= "/api/rest/pictures/"+$scope.currentAdvId+"/"+$scope.albumId+"/";
 	    $http.post(uploadUrl, fd, {
 		withCredentials: true,
 		headers: {'Content-Type': undefined }
@@ -355,7 +356,7 @@ myApp.controller("photoEditorAlbumController",['$scope','$log','$http','$statePa
             picIds.push($scope.selectedPictures[i].id);
 	}
 	if(picIds.length){
-	    $http.post('/api/rest/deletePictures/'+$scope.albumId+"/",JSON.stringify(picIds)).then(function(data){
+	    $http.post('/api/rest/deletePictures/'+$scope.currentAdvId+'/'+$scope.albumId+"/",JSON.stringify(picIds)).then(function(data){
 		$scope.slickLoaded = false;
 		
 		for(var i=0;i<$scope.selectedPictures.length;i++){

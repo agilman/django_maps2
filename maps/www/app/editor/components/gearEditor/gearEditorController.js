@@ -9,7 +9,7 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
     $scope.treeData = [];
 
     $scope.gearOverviewPics = [];
-    $scope.gearOverviewPic = null;
+    $scope.currentGearPicIndex = null;
     
     $scope.treeConfig = {
 	core :  {
@@ -68,11 +68,8 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.weight = 0.0;
 	});	
     };
-
-
     
-    $scope.deleteItem = function(){
-	
+    $scope.deleteItem = function(){	
 	$http.delete('/api/rest/gear/'+$scope.currentAdvId+"/"+$scope.selectedNodeId).then(function(data){
 	    $scope.treeInstance.jstree(true).delete_node($scope.selectedNodeId);
 
@@ -128,7 +125,10 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	    withCredentials: true,
 	    headers: {'Content-Type': undefined }
 	}).then(function(data){
-	    $log.log("uploaded OK");
+	    $log.log(data.data);
+	    $scope.gearOverviewPics.push(data.data);
+	    $scope.currentGearPicIndex = $scope.gearOverviewPics.length -1 ; 
+	    $log.log("uploaded OK", $scope.gearOverviewPics, $scope.currentGearPicIndex);
 	});
     };
 

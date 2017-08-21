@@ -61,9 +61,7 @@ class Picture(models.Model):
     album = models.ForeignKey(Album)
     caption = models.CharField(max_length=512,null=True)
     filename= models.CharField(max_length=12)
-    
     uploadTime = models.DateTimeField()
-
 
 class PicMeta(models.Model):
     picture = models.OneToOneField(Picture)
@@ -80,8 +78,7 @@ class Blog(models.Model):
     saveTime = models.DateTimeField()
     status = models.IntegerField() #1 = published, 2=draft
 
-
-class RefItems(models.Model):
+class RefItem(models.Model):
     name = models.CharField(max_length=32)
     asin = models.CharField(max_length=13,null=True)
     weight = models.FloatField(null=True)
@@ -89,11 +86,16 @@ class RefItems(models.Model):
     
 class GearItem(MPTTModel):
     adv = models.ForeignKey(Adventure)
-    ref = models.ForeignKey(RefItems,null=True)
+    ref = models.ForeignKey(RefItem,null=True)
     
     name = models.CharField(max_length=32)
     weight = models.FloatField(null=True)
     weightUnit = models.CharField(max_length=2,null=True)  #g, kg,  oz, lb
     
     parent = TreeForeignKey('self', null=True, related_name='children', db_index=True)
+    
+class GearPicture(models.Model):
+    adv = models.ForeignKey(Adventure)
+    uploadTs = models.DateTimeField()
+    default = models.BooleanField()
     

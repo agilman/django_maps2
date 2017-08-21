@@ -748,8 +748,6 @@ def blogs(request,mapId=None,blogId=None):
         serialized = BlogSerializer(blog)
 
         return JsonResponse(serialized.data,safe=False)
-
-
             
 @csrf_exempt
 def gear(request,advId=None,itemId=None):
@@ -788,9 +786,7 @@ def gear(request,advId=None,itemId=None):
 
         return JsonResponse([],safe=False)
 
-def handle_uploaded_gearPicture(userId,advId,f):
-    #write file as is, convert to decided format, add to db,  delete old ?
-    print("inside handle gear picture")
+def handle_uploaded_gearPicture(userId,advId,f):   
     #save file as is
     target = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/gear/'+f.name
     
@@ -800,18 +796,18 @@ def handle_uploaded_gearPicture(userId,advId,f):
             
     #convert,resize,thumbs
     #add to db
-    #user = User.objects.get(pk=int(userId))
-    #my_date = datetime.now(pytz.timezone('US/Pacific'))
-    #//profilePicture = UserProfilePicture(user=user,uploadTime=my_date,active=True)
-    #profilePicture.save()
+    adv = Adventure.objects.get(id=advId)
+    ts = datetime.now(pytz.timezone('US/Pacific'))
+    
+    newPicture = GearPicture(adv=adv,uploadTs = ts, default=True)
+    newPicture.save()
     
     #temp solution... need to convert to target file with right extension, and then delete the old file.
-    #rename
-    #newName = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/gear/'+str(profilePicture.id)+".jpg"
-    #os.rename(target,newName)
+    #rename to hash...
+    newName = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/gear/'+str(newPicture.id)+".jpg"
+    os.rename(target,newName)
 
-    return target #profilePicture
-
+    return newPicture
 
 @csrf_exempt
 def gearPictures(request, advId=None):
@@ -819,15 +815,12 @@ def gearPictures(request, advId=None):
         
         form = GearPictureUploadForm(request.POST,request.FILES)
         if form.is_valid():
-            print("form valid")
             userId = form.data['userId']
             f = request.FILES['file']
-            userPic = handle_uploaded_gearPicture(userId,advId,f)
-            
-            return JsonResponse([],safe=False)
+            gearPic = handle_uploaded_gearPicture(userId,advId,f)            
+
+            serialized  = GearPictureSerializer(gearPic)
+            return JsonResponse(serialized.data,safe=False)
         else:
             print("failed")
-            print(dir(form))
-            print(form)
-            print(form.errors)
             return JsonResponse({"msg":"FAIL"},safe=False)

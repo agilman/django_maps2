@@ -69,3 +69,7 @@ class GearListSerializer2(serializers.ModelSerializer):
         fields = ['id','parent','text','weight','weightUnit']
 
    
+class GearPictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GearPicture
+        fields = "__all__"

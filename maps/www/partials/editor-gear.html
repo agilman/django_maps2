@@ -62,8 +62,8 @@
   
   <div class="col-lg-6">
     <div style="padding-top:30px">
-      <div ng-show="gearPictures.length>0" ng-cloak ng-hide="!gearPictures.length">
-	<!--img ng-src="/www/user_media/{{ userId }}/gear/{{ gearOverviewPic }}.jpg"-->
+      <div ng-show="gearOverviewPics.length>0" ng-cloak ng-hide="!gearOverviewPics.length">
+	<img ng-src="/www/user_media/{{ userId }}/{{ currentAdvId }}/gear/{{ gearOverviewPics[currentGearPicIndex].id }}.jpg" style="width:400px">
       </div>
       <br>
       <button class="btn btn-primary" ng-click="uploadGearPhoto()">Add Gear Photo</button>

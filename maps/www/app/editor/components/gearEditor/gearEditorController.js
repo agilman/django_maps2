@@ -23,22 +23,32 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 
     //load gear data
     $http.get('/api/rest/gear/'+$scope.currentAdvId+"/").then(function(data){
+	//The above api call returns both items to populate the tree, and the picture data in one call.
+
+	//First, get the jsTree populated with gear list
 	var temp = [];
-	for (var i = 0;i<data.data.length;i++){
-	    var item = data.data[i];
+	
+	for (var i = 0;i<data.data.gear.length;i++){
+	    var item = data.data.gear[i];
 	    if (item.parent==null){
 		item.parent="#";
 	    }
 
 	    temp.push(item);
-
 	};
 
 	$scope.treeData = temp;
 
-	//This is needed for the shitty angular directive for jsTree.
+	//This is needed for the angular directive for jsTree.
 	//A core configuration change triggers tree rebuild.... (version is random var that isn't used by jsTree)
 	$scope.treeConfig.version++;
+
+
+	//Populate pictures data
+	$scope.gearOverviewPics = data.data.pictures;
+
+	//TODO: get the one where default columnt is true.
+	$scope.currentGearPicIndex = data.data.pictures.length-1;
 	
     });
 

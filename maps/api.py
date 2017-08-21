@@ -678,8 +678,6 @@ def handle_uploaded_albumPhoto(userId,advId,albumId,f):
 
     ##make midzie picture
     resizeImage(filePath,newName,filePath+".mi/",newName,670,450)
-                                        
-
     
     #Add to db
     album = Album.objects.get(id=int(albumId))
@@ -774,16 +772,19 @@ def gear(request,advId=None,itemId=None):
     if request.method == 'GET':
         adv = Adventure.objects.get(id=advId)
 
-        items = GearItem.objects.filter(adv=adv).all()
-
-        serialized = GearListSerializer2(items,many=True)
+        gear = GearItem.objects.filter(adv=adv).all()
+        pictures = GearPicture.objects.filter(adv=adv).all()
         
-        return JsonResponse(serialized.data,safe=False)
+        gearSerialized = GearListSerializer2(gear,many=True)
+        picturesSerialized = GearPictureSerializer(pictures,many=True)
+        
+        return JsonResponse({'gear':gearSerialized.data,'pictures':picturesSerialized.data},safe=False)
 
     if request.method == 'DELETE':
         item = GearItem.objects.get(id = itemId)
         item.delete()
-
+        
+        #TODO proper return...
         return JsonResponse([],safe=False)
 
 def handle_uploaded_gearPicture(userId,advId,f):   
@@ -822,5 +823,4 @@ def gearPictures(request, advId=None):
             serialized  = GearPictureSerializer(gearPic)
             return JsonResponse(serialized.data,safe=False)
         else:
-            print("failed")
             return JsonResponse({"msg":"FAIL"},safe=False)

@@ -36,6 +36,7 @@
     "leaflet": "^1.0.3",
     "moment": "^2.17.1",
     "ng-js-tree": "0.0.10",
+    "taggd": "^4.0.0",
     "textangular": "^1.5.16",
     "uglify-js2": "^2.1.11"
   }

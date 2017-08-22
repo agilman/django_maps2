@@ -49,6 +49,10 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 
 	//TODO: get the one where default columnt is true.
 	$scope.currentGearPicIndex = data.data.pictures.length-1;
+
+
+	//add tags to picture
+	loadTags();
 	
     });
 
@@ -142,5 +146,23 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	});
     };
 
+    //Image taggin experiments
+    
+    function loadTags(){
+	var img = document.getElementById("gearImg");
+
+	var taggd = new Taggd(img);
+	var text = "Hello";
+	
+	var tag1 = new Taggd.Tag({
+	    x: 0.1,
+	    y: 0.1,
+	}, text);
+	
+	taggd.setTags([tag1]);
+	$log.log("tags loaded",taggd);
+    }
+
+    
     $log.log("Hello from Gear editor controller");
 }]);

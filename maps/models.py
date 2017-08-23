@@ -99,3 +99,9 @@ class GearPicture(models.Model):
     uploadTs = models.DateTimeField()
     default = models.BooleanField()
     
+class GearPictureTag(models.Model):
+    gearPic = models.ForeignKey(GearPicture)
+    gearItem = models.ForeignKey(GearItem)
+    x = models.FloatField()
+    y = models.FloatField()
+    text = models.CharField(max_length=32)

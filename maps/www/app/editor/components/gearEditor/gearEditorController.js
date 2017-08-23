@@ -5,11 +5,13 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
     $scope.weight = 0.0;
     $scope.weightUnits = 1;
 
-    $scope.selectedNodeId = null;
     $scope.treeData = [];
+    $scope.selectedNodeId = null;    
 
     $scope.gearOverviewPics = [];
     $scope.currentGearPicIndex = null;
+
+    $scope.tags = [];
     
     $scope.treeConfig = {
 	core :  {
@@ -50,7 +52,7 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	//TODO: get the one where default columnt is true.
 	$scope.currentGearPicIndex = data.data.pictures.length-1;
 
-
+	
 	//add tags to picture
 	loadTags();
 	
@@ -83,7 +85,7 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	});	
     };
     
-    $scope.deleteItem = function(){	
+    $scope.deleteItem = function(){
 	$http.delete('/api/rest/gear/'+$scope.currentAdvId+"/"+$scope.selectedNodeId).then(function(data){
 	    $scope.treeInstance.jstree(true).delete_node($scope.selectedNodeId);
 
@@ -97,7 +99,6 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.selectedNodeId =  null;
 	});
     };
-
     
     //JS Tree callbacks
     var lastEventTs = 0;
@@ -111,7 +112,7 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 		    $scope.treeInstance.jstree(true).deselect_node(data.node);
 		    $scope.selectedNodeId=null;
 		}else{
-		  $scope.selectedNodeId = data.node.id;
+		    $scope.selectedNodeId = data.node.id;		    
 		}
 	    }
 	}
@@ -139,29 +140,109 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 	    withCredentials: true,
 	    headers: {'Content-Type': undefined }
 	}).then(function(data){
-	    $log.log(data.data);
 	    $scope.gearOverviewPics.push(data.data);
-	    $scope.currentGearPicIndex = $scope.gearOverviewPics.length -1 ; 
-	    $log.log("uploaded OK", $scope.gearOverviewPics, $scope.currentGearPicIndex);
+	    $scope.currentGearPicIndex = $scope.gearOverviewPics.length -1 ;
 	});
     };
 
-    //Image taggin experiments
-    
+    //Image taggin experiments    
     function loadTags(){
-	var img = document.getElementById("gearImg");
+	var tags = $scope.gearOverviewPics[$scope.currentGearPicIndex].tags;
+	
+	for (var i = 0 ; i < tags.length;i++){
+	    var tag = tags[i];
+	    
+	    var x = tag.x;
+	    var y = tag.y;
+	    var text = tag.text;
+	    
+	    
+	    var tag1 = new Taggd.Tag({
+		x: x,
+		y: y,
+	    }, text);
+	    
+	    $scope.tags.push(tag1);
+	    
+	}
 
+	
+	var img = document.getElementById("gearImg");
 	var taggd = new Taggd(img);
-	var text = "Hello";
 	
-	var tag1 = new Taggd.Tag({
-	    x: 0.1,
-	    y: 0.1,
-	}, text);
-	
-	taggd.setTags([tag1]);
-	$log.log("tags loaded",taggd);
+	taggd.setTags($scope.tags);
     }
+
+    function scrolltop(){
+	if (window.pageYOffset) return window.pageYOffset;
+	return document.documentElement.clientHeight
+	    ? document.documentElement.scrollTop
+	    : document.body.scrollTop;
+    };
+
+    function offset(el) {
+	if (el.getBoundingClientRect) {
+	    return el.getBoundingClientRect();
+	}
+	else {
+	    var x = 0, y = 0;
+	    do {
+		x += el.offsetLeft - el.scrollLeft;
+		y += el.offsetTop - el.scrollTop;
+	    }
+	    while (el = el.offsetParent);
+
+	    return { "left": x, "top": y }
+	}
+    };
+
+    
+    function getCurrentNode(){
+	for(var i = 0 ; i <$scope.treeData.length;i++){
+	    if ($scope.treeData[i].id == $scope.selectedNodeId){
+		return $scope.treeData[i];
+	    }
+	}
+
+	return false;
+	
+    }
+    
+    
+    $scope.imgClick = function(event){
+
+	  if ($scope.selectedNodeId!=null){
+	      var node = getCurrentNode();
+	      var itemId = node.id;
+	      
+	      var img = document.getElementById("gearImg");
+	      var myOffset = offset(img);
+	      
+	      var x = (event.pageX-myOffset.left)/ img.width ;
+	      var y = (event.pageY - myOffset.top - scrolltop()) / img.height;
+	      var text = node.text;
+
+	      var newTag = { 'itemId':itemId, 'x': x, 'y':y,'text':text};
+	      var currentImgId = $scope.gearOverviewPics[$scope.currentGearPicIndex].id ;
+	      
+	      $http.post('/api/rest/gearPictureTags/'+currentImgId+"/",JSON.stringify(newTag)).then(function(data){
+
+		  //add tag to taggd obj...
+		  var taggd = new Taggd(img);
+		  
+		  var tag1 = new Taggd.Tag({
+		      x: x,
+		      y: y,
+		  }, text);
+		  
+		  taggd.addTag(tag1);
+	      });
+	      
+											     
+	  }else{
+	      //$log.log("nothing selected from tree");
+	  }
+    };
 
     
     $log.log("Hello from Gear editor controller");

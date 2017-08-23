@@ -60,16 +60,23 @@ class GearListSerializer(serializers.ModelSerializer):
         return fields
 
 
-class GearListSerializer2(serializers.ModelSerializer):
-   
+class GearListSerializer2(serializers.ModelSerializer):   
     text  = serializers.CharField(source='name')
 
     class Meta:
         model = GearItem
         fields = ['id','parent','text','weight','weightUnit']
 
-   
+
+class GearPictureTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GearPictureTag
+        fields="__all__"
+        
 class GearPictureSerializer(serializers.ModelSerializer):
+    tags = GearPictureTagSerializer(source = 'gearpicturetag_set',many=True)
     class Meta:
         model = GearPicture
-        fields = "__all__"
+        fields = ['id','adv','uploadTs','default','tags']
+
+

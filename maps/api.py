@@ -824,3 +824,24 @@ def gearPictures(request, advId=None):
             return JsonResponse(serialized.data,safe=False)
         else:
             return JsonResponse({"msg":"FAIL"},safe=False)
+
+@csrf_exempt
+def gearPictureTags(request, picId=None):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        pic = GearPicture.objects.get(id=picId)
+
+        itemId = data["itemId"]
+        gearItem = GearItem.objects.get(id=itemId)
+        
+        x = data["y"]
+        y = data["x"]
+        text = data["text"]
+        
+        newTag = GearPictureTag(gearPic=pic, gearItem=gearItem, x=x, y=y, text=text)
+        newTag.save()
+
+        serialized = GearPictureTagSerializer(newTag)
+
+        return JsonResponse(serialized.data,safe=False)
+    

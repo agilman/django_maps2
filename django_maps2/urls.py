@@ -57,4 +57,5 @@ urlpatterns = [
     url(r'^api/rest/gear/(?P<advId>\d+)/$',api.gear),
     url(r'^api/rest/gear/(?P<advId>\d+)/(?P<itemId>\d+)/$',api.gear),
     url(r'^api/rest/gearPictures/(?P<advId>\d+)/$',api.gearPictures),
+    url(r'^api/rest/gearPictureTags/(?P<picId>\d+)/$',api.gearPictureTags),
 ]

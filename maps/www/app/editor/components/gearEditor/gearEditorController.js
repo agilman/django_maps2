@@ -1,4 +1,4 @@
-myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',function($scope,$log,$http, $stateParams){
+myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams','$timeout',function($scope,$log,$http, $stateParams, $timeout){
     $scope.$emit("setGearEditorActive",$stateParams.currentAdvId);
 
     $scope.itemName = null;
@@ -54,7 +54,7 @@ myApp.controller("gearEditorController",['$scope','$log','$http','$stateParams',
 
 	
 	//add tags to picture
-	loadTags();
+	$timeout(loadTags(),4000);
 	
     });
 

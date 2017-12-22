@@ -2,14 +2,13 @@
 <html lang="en">
 
 <head>
-  
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
   
-  <title>Django Maps2</title>
+  <title>Django Maps</title>
   
   <!-- Bootstrap Core CSS -->
   <link href="/www/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,10 +44,7 @@
             <a href="#about">About</a>
           </li>
           <li>
-            <a href="#services">Services</a>
-          </li>
-          <li>
-            <a href="#contact">Contact</a>
+            <a href="#features">Features</a>
           </li>
         </ul>
       </div>
@@ -59,7 +55,7 @@
   
   
   <!-- Header -->
-  <a name="about"></a>
+  <a name="home"></a>
   <div class="intro-header">
     <div class="container">
       
@@ -67,7 +63,7 @@
         <div class="col-lg-12">
           <div class="intro-message">
 	    {% block content %}    
-            <h1>Django Maps</h1>
+            <h1><u>Django Maps</u></h1>
             <h3>Tools for the Modern Nomad</h3>
             <hr class="intro-divider">
             <ul class="list-inline intro-social-buttons">
@@ -94,7 +90,7 @@
   
   <!-- Page Content -->
   
-  <a  name="services"></a>
+  <a  name="about"></a>
   <div class="content-section-a">
     
     <div class="container">
@@ -102,11 +98,11 @@
         <div class="col-lg-5 col-sm-6">
           <hr class="section-heading-spacer">
           <div class="clearfix"></div>
-          <h2 class="section-heading">Death to the Stock Photo:<br>Special Thanks</h2>
-          <p class="lead">A special thanks to <a target="_blank" href="http://join.deathtothestockphoto.com/">Death to the Stock Photo</a> for providing the photographs that you see in this template. Visit their website to become a member.</p>
+          <h2 class="section-heading">Welcome to Django Maps</h2>
+          <p class="lead">Django Maps is an open source, community website for travelers to document and share their adventures. Feel free to join our community on IRC. We would love to hear any questions, comments or suggestions! </p>
         </div>
         <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-          <img class="img-responsive" src="/www/lib/startbootstrap/img/ipad.png" alt="">
+          <img class="img-responsive" src="/www/img/google-map2.png" alt="">
         </div>
       </div>
       
@@ -115,7 +111,7 @@
     
   </div>
   <!-- /.content-section-a -->
-  
+  <a name="features"></a>  
   <div class="content-section-b">
     
     <div class="container">
@@ -124,8 +120,16 @@
         <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
           <hr class="section-heading-spacer">
           <div class="clearfix"></div>
-          <h2 class="section-heading">3D Device Mockups<br>by PSDCovers</h2>
-          <p class="lead">Turn your 2D designs into high quality, 3D product shots in seconds using free Photoshop actions by <a target="_blank" href="http://www.psdcovers.com/">PSDCovers</a>! Visit their website to download some of their awesome, free photoshop actions!</p>
+          <h2 class="section-heading">Features</h2>
+          <p class="lead">
+	    <ul style="list-style-type:disc">
+	      <li>Mark your daily progress using interactive maps</li>
+	      <li>Upload photos and mark their location</li>
+	      <li>Keep a blog about your memorable moments</li>
+	      <li>Compile a list of your gear</li>
+	      <li>More features are in development</li>
+	    </ul>
+	  </p>
         </div>
         <div class="col-lg-5 col-sm-pull-6  col-sm-6">
           <img class="img-responsive" src="/www/lib/startbootstrap/img/dog.png" alt="">
@@ -146,11 +150,21 @@
         <div class="col-lg-5 col-sm-6">
           <hr class="section-heading-spacer">
           <div class="clearfix"></div>
-          <h2 class="section-heading">Google Web Fonts and<br>Font Awesome Icons</h2>
-          <p class="lead">This template features the 'Lato' font, part of the <a target="_blank" href="http://www.google.com/fonts">Google Web Font library</a>, as well as <a target="_blank" href="http://fontawesome.io">icons from Font Awesome</a>.</p>
+          <h2 class="section-heading">Mobile Version Coming Soon!</h2>
+          <p class="lead">Please consider donating to our project:
+	    
+	  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+	    <input type="hidden" name="cmd" value="_s-xclick">
+	    <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+							 ">
+	    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+	    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	  </form>
+	    
+	  </p>
         </div>
-        <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-          <img class="img-responsive" src="/www/lib/startbootstrap/img/phones.png" alt="">
+        <div class="col-lg-4 col-lg-offset-2 col-sm-5">
+          <img class="img-responsive" src="/www/img/phone-tablet-laptop.png" alt="">
         </div>
       </div>
       
@@ -167,18 +181,15 @@
       
       <div class="row">
         <div class="col-lg-6">
-          <h2>Connect to Start Bootstrap:</h2>
+          <h2>Connect on Social Media</h2>
         </div>
         <div class="col-lg-6">
           <ul class="list-inline banner-social-buttons">
             <li>
-              <a href="https://twitter.com/SBootstrap" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
+              <a href="https://twitter.com/SashaTheNomad" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
             </li>
             <li>
-              <a href="https://github.com/IronSummitMedia/startbootstrap" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
-            </li>
-            <li>
-              <a href="#" class="btn btn-default btn-lg"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
+              <a href="https://github.com/agilman/django_maps2" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
             </li>
           </ul>
         </div>
@@ -205,14 +216,10 @@
             </li>
             <li class="footer-menu-divider">&sdot;</li>
             <li>
-              <a href="#services">Services</a>
-            </li>
-            <li class="footer-menu-divider">&sdot;</li>
-            <li>
-              <a href="#contact">Contact</a>
+              <a href="#features">Features</a>
             </li>
           </ul>
-          <p class="copyright text-muted small">Copyright &copy; Your Company 2014. All Rights Reserved</p>
+          <p class="copyright text-muted small">Copyright &copy; NomadicLogs LLC 2016. All Rights Reserved</p>
         </div>
       </div>
     </div>

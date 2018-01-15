@@ -29,6 +29,8 @@ urlpatterns = [
     #landing page
     url(r'^$', views.landing),
 
+    #irc mibbit embedded
+    url(r'^goIRC/$', views.goIRC),
     #Profile SPA entry
     url(r'^users/(?P<userName>[\w\-]+)/$',views.profileViewer),
 

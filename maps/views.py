@@ -55,3 +55,6 @@ def editorViewer(request):
         return render(request,"profile-editor-session.html", context=context)
 
     return render(request,"profile-editor.html")
+
+def goIRC(request):
+    return render(request,"goIRC.html")

@@ -2,3 +2,4 @@
 /maps/www/js/viewer.min.js
 /maps/www/node_modules
 __pycache__
+db.sqlite3

@@ -24,7 +24,7 @@ def registration(request):
     else:
         
         form = forms.RegistrationForm()
-        return render(request,"registration/registration_form.html",{'form':form})
+        return render(request,"reg/registration_form.html",{'form':form})
 
                         
 def getUserIdFromUserName(userName):

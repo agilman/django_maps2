@@ -1,5 +1,5 @@
+/maps/www/node_modules/
 /maps/www/js/editor.min.js
 /maps/www/js/viewer.min.js
-/maps/www/node_modules/
 __pycache__
 db.sqlite3

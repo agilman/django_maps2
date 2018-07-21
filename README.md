@@ -7,8 +7,10 @@ http://dev.nomadiclogs.com
 ## Deployment:
 
 #### Prerequisites:
---npm v6.2.0
---python3.5
+
+*npm v6.2.0
+
+*python3.5
 
 1. Create a virtualenv:
 

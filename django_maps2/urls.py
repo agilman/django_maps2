@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-
+from django.contrib.auth import views as auth_views
 
 from maps import views
 from maps import api
@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^auth/register/$', views.registration),
+    url(r'^auth/login/$', auth_views.login, {'template_name': 'reg/login2.html'}, name='login'),
     url(r'^auth/', include('registration.backends.simple.urls')),
 
     #landing page

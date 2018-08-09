@@ -7,5 +7,5 @@ myApp.controller("segmentDetailsController",['$scope','$log','$http','$statePara
 	return Number($scope.$parent.currentSegment.distance/1000).toFixed(1);
     }
 
-    $log.log("Hello from Blog editor controller");
+    $log.log("Hello from segment details controller");
 }]);

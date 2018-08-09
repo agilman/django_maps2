@@ -481,17 +481,19 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.$on("showSegmentDetails", function(e,data){
 	$scope.currentMapId = data.mapId;
 	$scope.currentSegmentId = data.segmentId;
+	
+	setSegmentViewer($scope.currentSegmentId);
     });
 
     $scope.loadPreviousSegment = function(e){
 	$scope.currentSegmentId = $scope.segmentsData.features[$scope.currentSegmentIndex-1].properties.segmentId;
-	setSegmentViewer($scope.currentSegmentId);
+	
 	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
     };
 
     $scope.loadNextSegment = function(){
 	$scope.currentSegmentId = $scope.segmentsData.features[$scope.currentSegmentIndex+1].properties.segmentId;
-	setSegmentViewer($scope.currentSegmentId);
+	
 	$state.go("mapsEditor.segmentDetails",{mapId:$scope.currentMapId,segmentId:$scope.currentSegmentId});
     };
 

@@ -96,7 +96,7 @@ myApp.controller("mapSegmentsEditorController",['$scope','$log','$http','$stateP
 			  'startTime':$scope.$parent.dateRangeStart,
 			  'endTime': $scope.$parent.dateRangeEnd,
 			  'distance': $scope.$parent.segmentDistance,
-			  'waypoints':newSegmentPath,
+			  'waypoints':$scope.$parent.newSegmentPath,
 			  'dayNotes':$scope.dayNotes,
 			  'delay':$scope.selectedDelayValue,
 			 };
@@ -120,7 +120,7 @@ myApp.controller("mapSegmentsEditorController",['$scope','$log','$http','$stateP
 	    //unset things
 	    $scope.$parent.endLat = null;
 	    $scope.$parent.endLng = null;
-	    newSegmentPath = [];
+	    $scope.$parent.newSegmentPath = [];
 	    endLayer.clearLayers();
 	    latestPathLayer.clearLayers();
 	    selectedSegmentLayer.clearLayers();

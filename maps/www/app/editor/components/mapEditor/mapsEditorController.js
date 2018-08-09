@@ -6,8 +6,10 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
     $scope.currentMapId= null;
     $scope.currentMapName=null;
 
-    $scope.segmentsData =[];
-
+    $scope.selectedNavIndex=null;
+    $scope.segmentsData =[];  //stores saved nav segments
+    $scope.newSegmentPath=[]; // stores new navline that has not yet been saved.
+    
     function drawSegmentCenters(segments){
 	//clear previous
 	segmentMarkersLayer.clearLayers();
@@ -188,6 +190,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	latestPathLayer = new L.LayerGroup();
 	latestPathLayer.addTo(map);
 
+	altPathsLayer = new L.LayerGroup();
+	altPathsLayer.addTo(map);
+
 	//This is used to draw current established map
 	geoJsonLayer = new L.geoJson();
 	geoJsonLayer.addTo(map);
@@ -361,19 +366,23 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	marker.addTo(endLayer);
     }
 
-    function getNavLine(startLat,startLng,endLat,endLng){
-	var newCoordinates = [];
-	var distance = 0;
+    function getNavLines(startLat,startLng,endLat,endLng){
+	var navLines=[];
 
 	if ($scope.navActive==1){ //If navtype is line
+	    var newCoordinates = [];
+	    var distance = 0;
 	    newCoordinates.push([parseFloat(startLat),parseFloat(startLng)]);
 	    newCoordinates.push([parseFloat(endLat),parseFloat(endLng)]);
 
 	    var startLatLng =  new L.latLng(parseFloat(startLat),parseFloat(startLng));
 	    var endLatLng = new L.latLng(parseFloat(endLat),parseFloat(endLng));
 	    distance = Math.floor(startLatLng.distanceTo(endLatLng));
-
+	    
+	    navLines.push({'line':newCoordinates,'distance':distance});
 	}else{ //If navtype requires getting directions from mapbox api
+	    var newCoordinates = [];
+	    var distance = 0;
 	    var navTypeStr = "cycling";
 	    if ($scope.navActive == 3){ navTypeStr = "driving";};
 
@@ -385,21 +394,26 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	    var json_back = JSON.parse(xmlhttp.response);
 
-	    var navOption = json_back.routes[0];
-	    var navPolyline = navOption.geometry;
+	    for (var i=0;i<json_back.routes.length;i++){
+		var navOption = json_back.routes[i];
+		var navPolyline = navOption.geometry;
+		
+		//use polylineDecoder lib...
+		var decodedLine = L.Polyline.fromEncoded(navPolyline);
+		
+		for (var y = 0;y < decodedLine._latlngs.length; y++){
+		    newCoordinates.push([decodedLine._latlngs[y].lat ,decodedLine._latlngs[y].lng]);
+		    
+		}
 
-	    //use polylineDecoder lib...
-	    var decodedLine = L.Polyline.fromEncoded(navPolyline);
+		distance = json_back.routes[i].distance;
 
-	    for (var i = 0;i < decodedLine._latlngs.length; i++){
-		newCoordinates.push([decodedLine._latlngs[i].lat ,decodedLine._latlngs[i].lng]);
-
+		navLines.push({'line':newCoordinates,'distance':distance});
 	    }
-
-	    distance = json_back.routes[0].distance;
+	    
 	}
 
-	return {'navLine':newCoordinates,'distance':distance};
+	return navLines;
     };
 
     function setEndPoint(lat,lng){
@@ -408,17 +422,32 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	drawFinishCircle(lat,lng);
 
-	navInfo = getNavLine($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
+	navInfo = getNavLines($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
+	
+	var navLine = navInfo[0].line;
 
-	var navLine = navInfo.navLine;
-
-	var polyline_options = {
+	var polylineOptions = {
 	    color: '#00264d'
 	};
 
 	latestPathLayer.clearLayers();
-	var polyline = L.polyline(navLine, polyline_options).addTo(latestPathLayer);
+	var polyline = L.polyline(navLine, polylineOptions).addTo(latestPathLayer);
 
+	//in case is more than one route, add them to alternativePathLayer
+	altPathsLayer.clearLayers();
+
+	if (navInfo.length>1){
+	    
+	    for(var i=1;i<navLine.length;i++){
+		var altNavLine = navInfo[i].line;
+		var altPolylineOptions = {
+		    color: '#c2c2d6'
+		};
+
+		var altPolyLine = L.polyline(altNavLine,altPolylineOptions).addTo(altPathsLayer);
+	    }
+	}
+	
 	return navInfo;
     }
 
@@ -456,8 +485,10 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	}else{
 	    var navData = setEndPoint(lat,lng);
-	    newSegmentPath = navData.navLine;
-	    $scope.segmentDistance = navData.distance;
+
+	    $scope.selectedNavIndex=0;
+	    $scope.newSegmentPath = navData[0].line;
+	    $scope.segmentDistance = navData[0].distance;
 	    $scope.$broadcast("newSegmentDistance",$scope.segmentDistance);
 
 	    setEndTime();
@@ -535,7 +566,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	$scope.endLat = null;
 	$scope.endLng = null;
 	$scope.dateReangeEnd=null;
-	newSegmentPath = [];
+	$scope.newSegmentPath = [];
 	endLayer.clearLayers();
 	latestPathLayer.clearLayers();
 	$scope.endSet = null;

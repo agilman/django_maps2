@@ -371,52 +371,57 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	if ($scope.navActive==1){ //If navtype is line
 	    var newCoordinates = [];
-	    var distance = 0;
+	    
 	    newCoordinates.push([parseFloat(startLat),parseFloat(startLng)]);
 	    newCoordinates.push([parseFloat(endLat),parseFloat(endLng)]);
 
 	    var startLatLng =  new L.latLng(parseFloat(startLat),parseFloat(startLng));
 	    var endLatLng = new L.latLng(parseFloat(endLat),parseFloat(endLng));
-	    distance = Math.floor(startLatLng.distanceTo(endLatLng));
+	    var distance = Math.floor(startLatLng.distanceTo(endLatLng));
 	    
 	    navLines.push({'line':newCoordinates,'distance':distance});
+	    
 	}else{ //If navtype requires getting directions from mapbox api
-	    var newCoordinates = [];
-	    var distance = 0;
 	    var navTypeStr = "cycling";
 	    if ($scope.navActive == 3){ navTypeStr = "driving";};
 
 	    var accessToken = document.getElementById("mapboxToken").value;
-	    var myURL ="https://api.mapbox.com/directions/v5/mapbox/"+navTypeStr+"/"+ startLng+","+startLat+";"+endLng+","+endLat+"?access_token="+accessToken ;
+	    var myURL ="https://api.mapbox.com/directions/v5/mapbox/"+navTypeStr+"/"+ startLng+","+startLat+";"+endLng+","+endLat+"?access_token="+accessToken+"&alternatives=true";
+	    
 	    var xmlhttp = new XMLHttpRequest();
 	    xmlhttp.open("GET",myURL,false);
 	    xmlhttp.send();
 
 	    var json_back = JSON.parse(xmlhttp.response);
-
+	    
 	    for (var i=0;i<json_back.routes.length;i++){
 		var navOption = json_back.routes[i];
 		var navPolyline = navOption.geometry;
 		
 		//use polylineDecoder lib...
 		var decodedLine = L.Polyline.fromEncoded(navPolyline);
-		
+
+		var route=[];
+		var routeDistance=0;
 		for (var y = 0;y < decodedLine._latlngs.length; y++){
-		    newCoordinates.push([decodedLine._latlngs[y].lat ,decodedLine._latlngs[y].lng]);
+		    route.push([decodedLine._latlngs[y].lat ,decodedLine._latlngs[y].lng]);
 		    
 		}
-
-		distance = json_back.routes[i].distance;
-
-		navLines.push({'line':newCoordinates,'distance':distance});
-	    }
-	    
+	
+		routeDistance = json_back.routes[i].distance;
+		
+		navLines.push({'line':route,'distance':routeDistance});
+	    }	    
 	}
 
 	return navLines;
     };
 
     function setEndPoint(lat,lng){
+	//clear previous lines
+	latestPathLayer.clearLayers();
+	altPathsLayer.clearLayers();
+	
 	$scope.endLat = lat;
 	$scope.endLng = lng;
 
@@ -424,24 +429,23 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	navInfo = getNavLines($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
 	
+	//Plot first line
 	var navLine = navInfo[0].line;
 
 	var polylineOptions = {
-	    color: '#00264d'
-	};
+	    color: '#00264d',
+	    weight: 4,
 
-	latestPathLayer.clearLayers();
+	};
 	var polyline = L.polyline(navLine, polylineOptions).addTo(latestPathLayer);
 
 	//in case is more than one route, add them to alternativePathLayer
-	altPathsLayer.clearLayers();
-
 	if (navInfo.length>1){
-	    
-	    for(var i=1;i<navLine.length;i++){
+	    for(var i=1;i<navInfo.length;i++){
 		var altNavLine = navInfo[i].line;
 		var altPolylineOptions = {
-		    color: '#c2c2d6'
+		    color: '#6682ba',
+		    weight: 3,
 		};
 
 		var altPolyLine = L.polyline(altNavLine,altPolylineOptions).addTo(altPathsLayer);

@@ -124,7 +124,8 @@ myApp.controller("mapSegmentsEditorController",['$scope','$log','$http','$stateP
 	    endLayer.clearLayers();
 	    latestPathLayer.clearLayers();
 	    selectedSegmentLayer.clearLayers();
-
+	    altPathsLayer.clearLayers();
+	    
 	    $scope.$parent.segmentDistance = null;
 	    $scope.$parent.endSet = false;
 	    $scope.dayNotes = null;
@@ -132,6 +133,8 @@ myApp.controller("mapSegmentsEditorController",['$scope','$log','$http','$stateP
 	    //set dateRangeStart to 6am next day from dateRangeEnd.
 	    $scope.$parent.dateRangeStart = moment($scope.$parent.dateRangeEnd._d).startOf('day').add(1,'days').add(6,'hours')
 	    $scope.$parent.dateRangeEnd = null;
+
+	    
 	});
     };
 

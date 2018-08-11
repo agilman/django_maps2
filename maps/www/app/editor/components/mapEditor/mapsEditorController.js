@@ -417,42 +417,69 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	return navLines;
     };
 
-    function setEndPoint(lat,lng){
+    function setActiveNav(indx){
+	//use global navInfo var to draw lines and set current as active.
+
 	//clear previous lines
 	latestPathLayer.clearLayers();
 	altPathsLayer.clearLayers();
-	
+
+	for(var i=0;i<$scope.navInfo.length;i++){
+	    
+	    //if this is the active nav line... draw it this way.
+	    if (i == indx){
+		var navLine = $scope.navInfo[i].line;
+		
+		var polylineOptions = {
+		    color: '#00264d',
+		    weight: 4,
+		}
+		var polyline = L.polyline(navLine, polylineOptions).addTo(latestPathLayer);
+	    }else{
+		var altNavLine = $scope.navInfo[i].line;
+		var altPolylineOptions = {
+		    color: '#6682ba',
+		    weight: 3,
+		};
+		
+		var altPolyLine = L.polyline(altNavLine,altPolylineOptions).on('click',function(event){
+		    if($scope.selectedNavIndex==0){
+			setActiveNav(1);
+		    }else{
+			setActiveNav(0);
+		    }
+			
+		    //stop propogation of click event to prevent creating a new nav line...
+		    L.DomEvent.stopPropagation(event);	
+		    
+		}).addTo(altPathsLayer);		    
+	    }
+	}
+
+	$scope.selectedNavIndex=indx;
+	$scope.newSegmentPath = $scope.navInfo[indx].line;
+	$scope.segmentDistance = $scope.navInfo[indx].distance;
+	$scope.$broadcast("newSegmentDistance",$scope.segmentDistance);
+
+	//clear highlight layer
+	selectedSegmentLayer.clearLayers();
+    }
+
+    
+    function setEndPoint(lat,lng){	
 	$scope.endLat = lat;
 	$scope.endLng = lng;
 
 	drawFinishCircle(lat,lng);
 
-	navInfo = getNavLines($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
-	
-	//Plot first line
-	var navLine = navInfo[0].line;
+	//navInfo is a global var that stores possible nav navlines
+	$scope.navInfo = getNavLines($scope.startLat,$scope.startLng,$scope.endLat,$scope.endLng);
 
-	var polylineOptions = {
-	    color: '#00264d',
-	    weight: 4,
+	//plot first nav line as current
+	setActiveNav(0);
 
-	};
-	var polyline = L.polyline(navLine, polylineOptions).addTo(latestPathLayer);
-
-	//in case is more than one route, add them to alternativePathLayer
-	if (navInfo.length>1){
-	    for(var i=1;i<navInfo.length;i++){
-		var altNavLine = navInfo[i].line;
-		var altPolylineOptions = {
-		    color: '#6682ba',
-		    weight: 3,
-		};
-
-		var altPolyLine = L.polyline(altNavLine,altPolylineOptions).addTo(altPathsLayer);
-	    }
-	}
-	
-	return navInfo;
+	setEndTime();
+	$scope.endSet = true;
     }
 
     function setEndTime(){
@@ -488,18 +515,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.dateRangeStart = moment({hour:6});
 
 	}else{
-	    var navData = setEndPoint(lat,lng);
-
-	    $scope.selectedNavIndex=0;
-	    $scope.newSegmentPath = navData[0].line;
-	    $scope.segmentDistance = navData[0].distance;
-	    $scope.$broadcast("newSegmentDistance",$scope.segmentDistance);
-
-	    setEndTime();
-	    $scope.endSet = true;
-
-	    //clear highlight layer
-	    selectedSegmentLayer.clearLayers();
+	    setEndPoint(lat,lng);
 	}
     });
 

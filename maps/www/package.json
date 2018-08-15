@@ -34,6 +34,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
     "leaflet": "^1.0.3",
+    "leaflet-control-geocoder": "^1.6.0",
     "moment": "^2.22.2",
     "ng-js-tree": "0.0.10",
     "package-lock.json": "^1.0.0",

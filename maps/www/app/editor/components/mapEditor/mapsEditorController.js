@@ -201,6 +201,9 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 
 	selectedSegmentLayer = new L.LayerGroup();
 	selectedSegmentLayer.addTo(map);
+
+	//add geocoder plugin
+	L.Control.geocoder().addTo(map);
     });
 
     $scope.createMap = function(){

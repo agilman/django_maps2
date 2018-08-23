@@ -88,6 +88,7 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 		    }
 		}
 	    }else{ //if the selected map doesn't have any points
+		centerMapOnUserLocation();
 		$scope.startLat = null;
 		$scope.startLng = null;
 		$scope.startSet = false;
@@ -134,6 +135,30 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	});
     };
 
+    
+    function centerMapOnUserLocation(){
+	//This function is called when a new map is created.
+
+	var lat = 48.758;
+	var lng = -122.468;
+	
+	//try getting user location..
+	if (navigator.geolocation) {
+	    navigator.geolocation.getCurrentPosition(function(position){
+		lat = position.coords.latitude;
+		lng = position.coords.longtitude;
+	    });
+    
+	}
+	 
+
+	leafletData.getMap().then(function(map){
+	    map.setView(L.latLng(lat,lng),12);
+	});
+	
+	
+    }
+    
     function setSegmentViewer(segmentId){
 	$scope.currentSegmentIndex = getSegmentIndexById(segmentId);
 	var segment =$scope.segmentsData.features[$scope.currentSegmentIndex];
@@ -218,8 +243,6 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.currentMapName = latestMap.name;
 	    $scope.currentMapIndex = $scope.maps.length-1;
 
-	    $state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
-
 	    if($scope.startLat & $scope.startLng){
 		setStartPoint($scope.startLat,$scope.startLng);
 	    }
@@ -236,6 +259,13 @@ myApp.controller("mapsEditorController",['$scope','$log','$http','$stateParams',
 	    $scope.newMapName = null;
 	    $scope.segmentDistance = null;
 	    $scope.endSet = false;
+
+	    //if this is first map, center map on users location.
+	    if($scope.maps.length==1){ 
+		centerMapOnUserLocation();
+	    }
+	    
+	    $state.go('mapsEditor.segments',{mapId:$scope.currentMapId});
 	})
     };
 

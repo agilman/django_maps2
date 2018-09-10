@@ -1,8 +1,9 @@
 appdirs==1.4.0
-Django==1.10.4
-django-mptt==0.8.7
-django-registration-redux==1.4
-djangorestframework==3.5.3
+Django==2.1.1
+django-js-asset==1.1.0
+django-mptt==0.9.1
+django-registration-redux==2.4
+djangorestframework==3.8.2
 olefile==0.44
 packaging==16.8
 Pillow==4.1.1

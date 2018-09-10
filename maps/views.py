@@ -39,7 +39,7 @@ def getUserIdFromUserName(userName):
 # Create your views here.
 
 def landing(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return render(request,"landing-session.html")
     return render(request,"landing.html")
 
@@ -50,7 +50,7 @@ def profileViewer(request,userName):
     context = {'userId':userId,'userName':userName}
 
     if userId:
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
 
             return render(request,"profile-viewer-session.html",context)
 
@@ -63,7 +63,7 @@ def editorViewer(request):
                'userId':request.user.pk,
                'userName': request.user.username}
     
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
 
         return render(request,"profile-editor-session.html", context=context)
 

@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^auth/register/$', views.registration),
-    url(r'^auth/login/$', auth_views.login, {'template_name': 'reg/login2.html'}, name='login'),
+    url(r'^auth/login/$', auth_views.LoginView.as_view(template_name='reg/login2.html')),
     url(r'^auth/', include('registration.backends.simple.urls')),
 
     #landing page

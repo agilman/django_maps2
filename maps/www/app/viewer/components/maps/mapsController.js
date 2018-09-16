@@ -1,5 +1,5 @@
 myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$state','$timeout','leafletData',function($scope,$log,$http,$stateParams,$state,$timeout,leafletData){
-    $scope.$emit("mapViewer", $stateParams.advId);
+    $scope.$emit("setViewer", {'page':'maps', 'advId':$stateParams.advId});
 
     $scope.maps = [];
     
@@ -56,5 +56,5 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	method:{}
     };
     
-    $log.log("hello from maps Controller");
+    $log.log("Hello from Maps controller");
 }]);

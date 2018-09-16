@@ -32,16 +32,13 @@
   <div class="container">
     <div class="collapse navbar-collapse main-nav">
       <ul class="nav navbar-nav">
-	
 	<li ng-class="isMapsPageActive()"><a ui-sref="maps({advId: currentAdvId})">Maps</a></li>
-	<li ng-class="isBlogsPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/blogs">Blogs</a></li>
-	<li ng-class="isGearPageActive()"><a ui-sref="#/{% verbatim %}{{ currentAdvId }}{% endverbatim %}/gear">Gear</a></li>
-	
+	<li ng-class="isBlogsPageActive()"><a ui-sref="blogs({advId: currentAdvId})">Blogs</a></li>
+	<li ng-class="isGearPageActive()"><a ui-sref="gear({advId: currentAdvId})">Gear</a></li>	
       </ul>
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block additionalJS %}
@@ -49,11 +46,17 @@
 <script src="/www/node_modules/angular-leaflet-directive/dist/angular-leaflet-directive.min.js"></script>
 
 <script src="/www/node_modules/moment/min/moment.min.js"></script>
-
-
 <script src="/www/node_modules/slick-carousel/slick/slick.min.js"></script>
 <script src="/www/node_modules/angular-slick-carousel/dist/angular-slick.js"></script>
 
-<script src="/www/js/viewer.min.js"></script>
+<script src="/www/app/viewer/app.js"></script>
+<script src="/www/app/viewer/routes.js"></script>
+<script src="/www/app/viewer/shared/mainController.js"></script>
+<script src="/www/app/viewer/components/advSelect/advController.js"></script>
+<script src="/www/app/viewer/components/maps/mapsController.js"></script>
+<script src="/www/app/viewer/components/blogs/blogsController.js"></script>
+<script src="/www/app/viewer/components/gear/gearController.js"></script>
+
+<!--script src="/www/js/viewer.min.js"></script-->
 
 {% endblock %}

@@ -28,12 +28,12 @@ myApp.controller("mainController",['$scope','$log','$http',function($scope,$log,
 	$scope.currentAdvIndex = index;
     });
 
-    $scope.$on('mapViewer',function(event,advId){
-	$scope.currentPage = 'maps';
+    $scope.$on('setViewer',function(event,opts){
+	$scope.currentPage = opts.page;
 
-	$scope.currentAdvId = advId;
+	$scope.currentAdvId = opts.advId;
 	for (var i =0;i<$scope.adventures.length;i++){
-	    if ($scope.adventures[i].id == advId){
+	    if ($scope.adventures[i].id == opts.advId){
 		$scope.currentAdvName = $scope.adventures[i].name;
 		$scope.currentAdvIndex = i;
 	    }

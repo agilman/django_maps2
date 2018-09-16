@@ -2,13 +2,23 @@ myApp.config(function($stateProvider){
     $stateProvider
         .state('advSelect',{
 	    url:'/',
-	    templateUrl:'/www/partials/profile-advSelect.html',
+	    templateUrl:'/www/partials/viewer-advSelect.html',
 	    controller:'advController',
 	})
         .state('maps',{
 	    url:'/:advId/maps/',
-	    templateUrl:'/www/partials/profile-maps.html',
+	    templateUrl:'/www/partials/viewer-maps.html',
 	    controller:'mapsController',
+	})
+        .state('blogs',{
+	    url:'/:advId/blogs/',
+	    templateUrl:'/www/partials/viewer-blogs.html',
+	    controller:'blogsController',
+	})
+        .state('gear',{
+	    url:'/:advId/gear/',
+	    templateUrl:'/www/partials/viewer-gear.html',
+	    controller:'gearController',
 	})
     ;
 });

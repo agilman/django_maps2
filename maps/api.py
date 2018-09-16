@@ -321,9 +321,9 @@ def deletePictures(request,advId=None,albumId=None):  #This is used to bulk dele
 
             #delete pic from disk
             settings.USER_MEDIA_ROOT
-            path = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/"+pic.filename
-            thpath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.th/"+pic.filename
-            mipath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.mi/"+pic.filename
+            path = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/"+pic.id+".jpg"
+            thpath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.th/"+pic.id+".jpg"
+            mipath = settings.USER_MEDIA_ROOT+"/"+str(request.user.pk)+"/"+str(advId)+"/"+str(albumId)+"/.mi/"+pic.id+".jpg"
             
             os.remove(path)
             os.remove(thpath)
@@ -654,38 +654,46 @@ def resizeImage(path,fileName,targetPath,targetName,targetWidth,targetHeight):
 
     return 1
 
+def convertImage(filePath,targetName,newName):
+    im = Image.open(filePath+targetName)
+
+    im.save(filePath+newName, "JPEG", quality=85, optimize=True, progressive=True)
+
+    
+    
 def handle_uploaded_albumPhoto(userId,advId,albumId,f):
-    #write file as is, convert to decided format, add to db,  delete old ?
+    #write file as is, convert to jpeg format, add to db,  delete old 
     
     #save file as is
-    newName = f.name 
+    fileName = f.name 
     filePath = settings.USER_MEDIA_ROOT+'/'+str(userId)+'/'+str(advId)+'/'+albumId+'/'
-    target = filePath +  newName
+    target = filePath +  fileName
 
     with open(target, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
             
-    #TODO: generate new name, convert to compressed format..            
-    #convert,resize,thumbs
-
-    #rotate image if needed.
-    rotateImage(target)
-
-    #resizeImage(target)
-
-    resizeImage(filePath,newName,filePath+".th/",newName,150, 100)
-
-    ##make midzie picture
-    resizeImage(filePath,newName,filePath+".mi/",newName,670,450)
-    
     #Add to db
     album = Album.objects.get(id=int(albumId))
     now = datetime.now(pytz.timezone('US/Pacific'))
-    picture = Picture(album=album,caption=None, filename=newName,uploadTime=now)
-    picture.save()
+    dbPicture = Picture(album=album,caption=None ,uploadTime=now)
+    dbPicture.save()
 
-    return picture
+    #convert image to jpg, and save with new name.
+    newName= str(dbPicture.id)+".jpg"
+    convertImage(filePath,fileName,newName)
+    
+    #rotate image if needed.
+    rotateImage(filePath+newName)
+
+    #make thumb pictures
+    resizeImage(filePath,newName,filePath+".th/",newName,150, 100)    
+    resizeImage(filePath,newName,filePath+".mi/",newName,670,450)    
+
+    #delete initial download
+    os.remove(filePath+fileName)
+    
+    return dbPicture
 
             
 @csrf_exempt

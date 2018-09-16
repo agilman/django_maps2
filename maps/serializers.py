@@ -32,7 +32,7 @@ class PictureSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Picture
-        fields = ['id','album','caption','filename','uploadTime','picMeta']
+        fields = ['id','album','caption','uploadTime','picMeta']
         
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:

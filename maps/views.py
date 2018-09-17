@@ -6,26 +6,6 @@ from django.conf import settings
 
 from django.contrib.auth import login
 from maps import forms
-
-def registration(request):
-    if request.method == 'POST':
-        form = forms.RegistrationForm(request.POST)
-        if form.is_valid():
-            newUser = form.save()
-            #assign session
-            login(request,newUser)
-            
-            return redirect("/editor/#!/")
-        else:
-            #TODO Raise validation error
-            print("invalid shit")
-            print(form.is_valid())
-            return HttpResponse("Registration error")
-    else:
-        
-        form = forms.RegistrationForm()
-        return render(request,"reg/registration_form.html",{'form':form})
-
                         
 def getUserIdFromUserName(userName):
     try:
@@ -34,10 +14,7 @@ def getUserIdFromUserName(userName):
     except User.DoesNotExist:
         return 0
     
-    
-
 # Create your views here.
-
 def landing(request):
     if request.user.is_authenticated:
         return render(request,"landing-session.html")

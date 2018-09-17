@@ -418,15 +418,6 @@ def createAlbumDirs(userId,advId,newAlbumId):
     #create album directory
     media_root = settings.USER_MEDIA_ROOT
     
-    #create path for all the albums for given user... this should probably be done when user account is created?
-    #THIS SHOULD NOT BE DONE HERE.
-    if not os.path.exists(media_root +"/"+ str(userId)):
-        os.mkdir(media_root + "/" + str(userId))
-
-    #THIS SHOULD NOT BE DONE HERE... ADV dir is created at adv creation time
-    if not os.path.exists(media_root +"/" + str(userId) +"/"+str(advId)):
-        os.mkdir(media_root + "/"+ str(userId) + "/" + str(advId) )
-        
     albumPath = media_root + "/" + str(userId) + "/"+ str(advId) + "/" + str(newAlbumId)
     
     if not os.path.exists(albumPath):

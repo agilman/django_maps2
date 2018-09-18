@@ -2,6 +2,7 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     $scope.$emit("setViewer", {'page':'maps', 'advId':$stateParams.advId});
 
     $scope.maps = [];
+    $scope.selectedMap = $stateParams.mapId;
     
     $scope.slickLoaded = false;
     $scope.pictures = [];
@@ -20,7 +21,23 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	});
     };
     
-
+    function filterPictures(){
+	$log.log('filtering pictures');
+	$log.log(allPictures);
+	if ($scope.selectedMap!=0){
+	    var results = [];
+	    for (var i=0;i<allPictures.length;i++){
+		if(allPictures[i].album==$scope.selectedMap){
+		    results.push(allPictures[i]);
+		}
+	    }
+	    return results;
+	}else
+	{
+	    return allPictures ;
+	}
+    };
+    
     //get map
     $http.get('/api/rest/advMapSegments/' + $scope.currentAdvId).then(function(data){
 	$scope.maps = data.data;
@@ -35,8 +52,10 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     });
 
     $http.get('/api/rest/advPictures/' + $scope.currentAdvId).then(function(data){	
-	$scope.pictures = data.data;
-	
+	allPictures = data.data;
+
+	$scope.pictures = filterPictures();//this filters 
+
 	$timeout(function () {
 	    $scope.slickLoaded = true;
 	}, 10);	
@@ -54,6 +73,41 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	slidesToShow:7,
 	slidesToScroll:3,
 	method:{}
+    };
+
+    $scope.isAllMapsActive = function(){
+	if ($scope.selectedMap==0){
+	    return "active"
+	}
+    }
+    
+    $scope.mapSelectClick = function(mapId){
+	//set stuff, change state?
+	$scope.selectedMap=mapId;
+	$scope.slickLoaded= false;
+	$scope.pictures = filterPictures();
+
+	//reinit slider
+	$timeout(function () {
+	    $scope.slickLoaded = true;
+	}, 20);
+	
+	
+	$state.transitionTo("maps",{advId:$scope.currentAdvId,mapId:mapId },{notify:false}); // transition state changes url but doesn't cause vars to reload
+    };
+    
+    $scope.picClick = function(picId){
+	//This function handles click event for slider picture.
+	//Mark pic location on map, center map on location, go to preview state.
+
+
+	//get picture data.
+	//var picData = null;
+	//for(var i=0;i<$scope.pictures.length;i++){
+	    
+	//}
+	
+	$log.log("Got click", picId);
     };
     
     $log.log("Hello from Maps controller");

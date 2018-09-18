@@ -2,20 +2,25 @@
   
   <div class="col-lg-2">
     <div>
-      Maps
+      <div ng-if="maps.length>1">
+	<h3>Maps:</h3>
+	<ul class="list-group">
+	  <li class="list-group-item" ng-click="mapSelectClick(0)" ng-class="isAllMapsActive()">All</li>
+	  <li class="list-group-item" ng-repeat="map in maps" ng-click="mapSelectClick(map.properties.mapId)" ng-class="selectedMap==map.properties.mapId?'active':'default' ">
+	    {{ map.properties.mapName }}
+	  </li>
+	</ul>
+      </div>
     </div>
     <div>
-      Blogs
+      <ui-view="overview">Blogs/Segment data.</ui-view>
     </div>
   </div>
   <div class="col-lg-7">
     <leaflet style="width:100%;height:600px" ></leaflet>
   </div>
   <div class="col-lg-3" >
-    
-    Preview.... when needed.
-    <!--ui-view>
-    </ui-view-->
+    <ui-view="preview">Preview.... when needed.</ui-view>
   </div>
   
 </div>
@@ -25,7 +30,8 @@
     <slick class="slider" ng-if="slickLoaded" settings="slideConfig">
       <div ng-repeat="picture in pictures"  >
 	<span class="pull-center">
-	  <img data-lazy="/www/user_media/{{ userId }}/{{currentAdvId}}/{{ picture.album }}/.th/{{ picture.id }}.jpg" style="width:150px;height:100px; margin:10px auto"/>
+	  <img data-lazy="/www/user_media/{{ userId }}/{{currentAdvId}}/{{ picture.album }}/.th/{{ picture.id }}.jpg" style="width:150px;height:100px; margin:10px auto" 
+	       ng-click="picClick(picture.id)" />
 	</span>
       </div>      
     </slick>

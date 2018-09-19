@@ -1,12 +1,16 @@
 <div class="row">
   <div class="col-lg-12">
-    <div ng-show="maps.length>1">
+    <div ng-show="maps.length>1" ng-hide="maps.length==0">
       <label>Maps:</label>
       <div class="btn-group">
 	<button type="button" class="btn" ng-class="getMapClass($index)" ng-click="changeMap($index)" ng-repeat="map in maps" >
 	  {{ map.name }}
 	</button>
       </div>
+    </div>
+
+    <div ng-show="maps.length==0" ng-hide="maps.length>0">
+      Please create a map in the maps editor tab.
     </div>
   </div>
   <ui-view>

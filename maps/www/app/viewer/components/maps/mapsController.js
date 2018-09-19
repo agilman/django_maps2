@@ -7,8 +7,6 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     $scope.slickLoaded = false;
     $scope.pictures = [];
 
-    
-    
     //after leaflet loads, create layers
     leafletData.getMap().then(function(map){
 	geoJsonLayer = new L.geoJson();
@@ -22,8 +20,6 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     };
     
     function filterPictures(){
-	$log.log('filtering pictures');
-	$log.log(allPictures);
 	if ($scope.selectedMap!=0){
 	    var results = [];
 	    for (var i=0;i<allPictures.length;i++){
@@ -43,12 +39,14 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	$scope.maps = data.data;
 
 	//draw map segments on map
-	for (var i=0;i<data.data.length;i++){
-	    geoJsonLayer.addData(data.data[i]);
-	}
+	if ($scope.maps.length){
+	    for (var i=0;i<data.data.length;i++){
+		geoJsonLayer.addData(data.data[i]);
+	    }
 
-	//fit map
-	fitMap(geoJsonLayer.getBounds());	
+	    //fit map
+	    fitMap(geoJsonLayer.getBounds());
+	}
     });
 
     $http.get('/api/rest/advPictures/' + $scope.currentAdvId).then(function(data){	

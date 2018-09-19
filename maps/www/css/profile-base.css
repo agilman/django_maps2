@@ -25,3 +25,7 @@ body {
 .normal-picture{
     background-color:#EBEBEB;
 }
+
+.picPreview{
+    max-width:100%;
+}

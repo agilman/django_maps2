@@ -10,6 +10,11 @@ myApp.config(function($stateProvider){
 	    templateUrl:'/www/partials/viewer-maps.html',
 	    controller:'mapsController',
 	})
+        .state('maps.picPreview',{
+	    url :'picPreview/:picId/',    
+	    templateUrl:'/www/partials/viewer-maps.picPreview.html',
+	    controller:'picPreviewController',
+	})
         .state('blogs',{
 	    url:'/:advId/blogs/',
 	    templateUrl:'/www/partials/viewer-blogs.html',

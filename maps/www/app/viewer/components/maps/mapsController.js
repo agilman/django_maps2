@@ -98,14 +98,15 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	//This function handles click event for slider picture.
 	//Mark pic location on map, center map on location, go to preview state.
 
-
 	//get picture data.
-	//var picData = null;
-	//for(var i=0;i<$scope.pictures.length;i++){
-	    
-	//}
+	var picData = null;
+	for(var i=0;i<$scope.pictures.length;i++){
+	    if ($scope.pictures[i].id==picId){
+		$scope.selectedPic = $scope.pictures[i];
+	    }
+	}
 	
-	$log.log("Got click", picId);
+	$state.transitionTo("maps.picPreview",{advId:$scope.currentAdvId, mapId:$scope.selectedMap, picId:picId });
     };
     
     $log.log("Hello from Maps controller");

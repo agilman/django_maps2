@@ -3,6 +3,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
     $scope.selectClickCount = 0 ;
     
     $scope.advsOverviewData=null;
+    
     leafletData.getMap().then(function(map){
 	advsOverviewLayer = new L.geoJson();
 	advsOverviewLayer.addTo(map);
@@ -133,7 +134,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
 	    if($scope.selectClickCount=0){
 		$scope.selectClickCount+=1;
 	    }else{
-		$state.go("maps",{advId:$scope.currentAdvId});
+		$state.go("maps",{advId:$scope.currentAdvId,mapId:0});
 	    }
 	}else{
 	    if ($scope.selectClickCount==0){

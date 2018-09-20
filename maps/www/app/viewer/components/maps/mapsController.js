@@ -5,12 +5,14 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     $scope.selectedMap = $stateParams.mapId;
     
     $scope.slickLoaded = false;
-    $scope.pictures = [];
 
     //after leaflet loads, create layers
     leafletData.getMap().then(function(map){
 	geoJsonLayer = new L.geoJson();
 	geoJsonLayer.addTo(map);
+
+	picLocationLayer = new L.LayerGroup();
+	picLocationLayer.addTo(map);
     });
 
     function fitMap(bounds){
@@ -95,17 +97,7 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     };
     
     $scope.picClick = function(picId){
-	//This function handles click event for slider picture.
-	//Mark pic location on map, center map on location, go to preview state.
-
-	//get picture data.
-	var picData = null;
-	for(var i=0;i<$scope.pictures.length;i++){
-	    if ($scope.pictures[i].id==picId){
-		$scope.selectedPic = $scope.pictures[i];
-	    }
-	}
-	
+	//This function handles click event for slider picture...go to preview state.
 	$state.transitionTo("maps.picPreview",{advId:$scope.currentAdvId, mapId:$scope.selectedMap, picId:picId });
     };
     

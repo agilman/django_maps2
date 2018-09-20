@@ -17,7 +17,6 @@ body {
     padding-top:0;
 }
 
-
 .selected-picture{
     background-color:#44CC8A;
 }
@@ -28,4 +27,15 @@ body {
 
 .picPreview{
     max-width:100%;
+}
+
+.mapSelection:hover{
+    cursor: pointer;
+}
+
+.advPic{
+    cursor:pointer;
+    width:150px;
+    height:100px;
+    margin:10px auto;
 }

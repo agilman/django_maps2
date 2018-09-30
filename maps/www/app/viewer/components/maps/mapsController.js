@@ -8,9 +8,21 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 
     //after leaflet loads, create layers
     leafletData.getMap().then(function(map){
-	geoJsonLayer = new L.geoJson();
-	geoJsonLayer.addTo(map);
+	var backgroundLine_options = {
+		    color: '#474849',
+		    weight: '2'
+	};
 
+	allPathsLayer = new L.geoJson([],{style:backgroundLine_options});
+	allPathsLayer.addTo(map);
+
+	var selectedPath_options = {
+	    weight:'5',
+	};
+	
+	selectedPathLayer = new L.geoJson([],{style:selectedPath_options});
+	selectedPathLayer.addTo(map);
+	
 	picLocationLayer = new L.LayerGroup();
 	picLocationLayer.addTo(map);
     });
@@ -40,16 +52,34 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     $http.get('/api/rest/advMapSegments/' + $scope.currentAdvId).then(function(data){
 	$scope.maps = data.data;
 
-	//draw map segments on map
+	//draw entire path on map
 	if ($scope.maps.length){
 	    for (var i=0;i<data.data.length;i++){
-		geoJsonLayer.addData(data.data[i]);
+		allPathsLayer.addData(data.data[i]);
 	    }
 
 	    //fit map
-	    fitMap(geoJsonLayer.getBounds());
+	    fitMap(allPathsLayer.getBounds());
 	}
+
+	//draw blue path to show selected map.
+	drawSelectedMapPath();
+	
+
     });
+
+    function drawSelectedMapPath(){
+	for(var i =0;i<$scope.maps.length;i++){
+	    if($scope.selectedMap==0){
+		selectedPathLayer.addData($scope.maps[i]);
+	    }
+	    
+	    if ($scope.maps[i].properties.mapId==$scope.selectedMap){
+		selectedPathLayer.addData($scope.maps[i]);
+		
+	    }
+	}	
+    }
 
     $http.get('/api/rest/advPictures/' + $scope.currentAdvId).then(function(data){	
 	allPictures = data.data;

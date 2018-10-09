@@ -6,6 +6,19 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     
     $scope.slickLoaded = false;
 
+
+    ///////////////////
+    function segmentClicked(e){
+	//$log.log("clicked...",e);
+	$log.log(e.target.feature.properties.segmentId);
+    };
+    
+    function onEachSegment(segment,layer){
+	layer.on({click:segmentClicked}); //bind event to function.
+    };
+
+    ///////////////////
+
     //after leaflet loads, create layers
     leafletData.getMap().then(function(map){
 	var backgroundLine_options = {
@@ -20,7 +33,8 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	    weight:'5',
 	};
 	
-	selectedPathLayer = new L.geoJson([],{style:selectedPath_options});
+	selectedPathLayer = new L.geoJson([],{style:selectedPath_options,
+					      onEachFeature:onEachSegment});
 	selectedPathLayer.addTo(map);
 	
 	picLocationLayer = new L.LayerGroup();
@@ -116,12 +130,13 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	$scope.selectedMap=mapId;
 	$scope.slickLoaded= false;
 	$scope.pictures = filterPictures();
-
+	picLocationLayer.clearLayers();
+	
 	//reinit slider
 	$timeout(function () {
 	    $scope.slickLoaded = true;
 	}, 20);
-	
+
 	
 	$state.transitionTo("maps",{advId:$scope.currentAdvId,mapId:mapId },{notify:false}); // transition state changes url but doesn't cause vars to reload
     };

@@ -6,11 +6,10 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
     
     $scope.slickLoaded = false;
 
-
     ///////////////////
     function segmentClicked(e){
-	//$log.log("clicked...",e);
-	$log.log(e.target.feature.properties.segmentId);
+	var segId=e.target.feature.properties.segmentId;
+	$state.transitionTo("maps.segmentPreview",{advId:$scope.currentAdvId, mapId:$scope.selectedMap, segmentId:segId });
     };
     
     function onEachSegment(segment,layer){

@@ -11,9 +11,22 @@ myApp.config(function($stateProvider){
 	    controller:'mapsController',
 	})
         .state('maps.picPreview',{
-	    url :'picPreview/:picId/',    
-	    templateUrl:'/www/partials/viewer-maps.picPreview.html',
-	    controller:'picPreviewController',
+	    url :'picPreview/:picId/',
+	    views:{
+		"picPreview@maps":{
+		    templateUrl:'/www/partials/viewer-maps.picPreview.html',
+		    controller:'picPreviewController',
+		}
+	    }
+	})
+	.state('maps.segmentPreview',{
+	    url :'segmentPreview/:segmentId/',
+	    views:{
+		"segmentPreview@maps":{
+		    templateUrl:'/www/partials/viewer-maps.segmentPreview.html',
+		    controller:'segmentPreviewController',
+		}
+	    }
 	})
         .state('blogs',{
 	    url:'/:advId/blogs/',
@@ -27,3 +40,11 @@ myApp.config(function($stateProvider){
 	})
     ;
 });
+
+/*
+  .state('maps.segment',{
+  url:'segment/:segmentId/',
+  views:{
+  
+  },
+})*/

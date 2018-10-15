@@ -25,16 +25,27 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 		    weight: '2'
 	};
 
+	var selectedPath_options = {
+	    weight:'7',
+	};
+
+	var selectedSegment_options = {
+	    color: '#ff751a',
+	    weight: '9'
+	};
+	
 	allPathsLayer = new L.geoJson([],{style:backgroundLine_options});
 	allPathsLayer.addTo(map);
 
-	var selectedPath_options = {
-	    weight:'5',
-	};
+
 	
 	selectedPathLayer = new L.geoJson([],{style:selectedPath_options,
 					      onEachFeature:onEachSegment});
 	selectedPathLayer.addTo(map);
+
+
+	segmentHighlightLayer = new L.geoJson([],{style:selectedSegment_options});
+	segmentHighlightLayer.addTo(map);
 	
 	picLocationLayer = new L.LayerGroup();
 	picLocationLayer.addTo(map);
@@ -144,6 +155,19 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	//This function handles click event for slider picture...go to preview state.
 	$state.transitionTo("maps.picPreview",{advId:$scope.currentAdvId, mapId:$scope.selectedMap, picId:picId });
     };
-    
+
+    $scope.$on("highlightSegment",function(event,segmentId){
+	segmentHighlightLayer.clearLayers();
+
+	for(var i =0;i<$scope.maps.length;i++){
+	    for(var j=0;j<$scope.maps[i].features.length;j++){
+		if($scope.maps[i].features[j].properties.segmentId==segmentId){
+		    segmentHighlightLayer.addData($scope.maps[i].features[j]);
+		    break;
+		}
+	    }
+	}
+    });
+	       
     $log.log("Hello from Maps controller");
 }]);

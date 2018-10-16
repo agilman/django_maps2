@@ -18,7 +18,7 @@ myApp.controller("advController",['$scope','$log','$http','$state','leafletData'
     //Check if there is only 1 adventure... no choice... might as well change state.
     $scope.$watch("adventures",function(){
 	if($scope.adventures.length==1){
-	    $state.go("maps",{'advId':$scope.currentAdvId});
+	    $state.go("maps",{'advId':$scope.currentAdvId,'mapId':0});
 	}
     });
 

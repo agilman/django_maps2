@@ -37,12 +37,9 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	allPathsLayer = new L.geoJson([],{style:backgroundLine_options});
 	allPathsLayer.addTo(map);
 
-
-	
 	selectedPathLayer = new L.geoJson([],{style:selectedPath_options,
 					      onEachFeature:onEachSegment});
 	selectedPathLayer.addTo(map);
-
 
 	segmentHighlightLayer = new L.geoJson([],{style:selectedSegment_options});
 	segmentHighlightLayer.addTo(map);
@@ -81,15 +78,10 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	    for (var i=0;i<data.data.length;i++){
 		allPathsLayer.addData(data.data[i]);
 	    }
-
-	    //fit map
-	    fitMap(allPathsLayer.getBounds());
 	}
 
 	//draw blue path to show selected map.
 	drawSelectedMapPath();
-	
-
     });
 
     function drawSelectedMapPath(){
@@ -102,6 +94,9 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 		selectedPathLayer.addData($scope.maps[i]);
 		
 	    }
+
+	    //fit map
+	    fitMap(selectedPathLayer.getBounds());
 	}	
     }
 
@@ -114,8 +109,6 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 	    $scope.slickLoaded = true;
 	}, 10);	
     });
-
-
 
     $scope.slideConfig = {
 	lazyLoad: 'ondemand',
@@ -158,11 +151,18 @@ myApp.controller("mapsController",['$scope','$log','$http','$stateParams','$stat
 
     $scope.$on("highlightSegment",function(event,segmentId){
 	segmentHighlightLayer.clearLayers();
-
+	picLocationLayer.clearLayers();
+	
 	for(var i =0;i<$scope.maps.length;i++){
 	    for(var j=0;j<$scope.maps[i].features.length;j++){
 		if($scope.maps[i].features[j].properties.segmentId==segmentId){
 		    segmentHighlightLayer.addData($scope.maps[i].features[j]);
+		    
+
+		    leafletData.getMap().then(function(map){
+			map.fitBounds(segmentHighlightLayer.getBounds());
+		    });
+
 		    break;
 		}
 	    }
